@@ -1,17 +1,14 @@
-use std::ops::Mul;
-
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 
 use crate::public::{IMAGE_CHECKMATE_POINT, IMAGE_CHECKMATE_SIZE};
 
-mod public;
-mod plugin;
-mod system;
 mod component;
-mod resource;
 mod game;
-
+mod plugin;
+mod public;
+mod resource;
+mod system;
 
 fn setup_system(
     mut commands: Commands,
@@ -33,7 +30,6 @@ fn setup_system(
 
     commands.insert_resource(win_size);
 
-
     // 加载绝杀动画
     let texture_handle = asset_server.load(public::assets::IMAGE_CHECKMATE);
     let texture_atlas = TextureAtlas::from_grid(
@@ -41,11 +37,17 @@ fn setup_system(
         Vec2::from(IMAGE_CHECKMATE_SIZE),
         IMAGE_CHECKMATE_POINT.0,
         IMAGE_CHECKMATE_POINT.1,
-        None, None,
+        None,
+        None,
     );
 
+    let checkmate: Handle<TextureAtlas> = texture_atlases.add(texture_atlas);
 
-    let checkmate = texture_atlases.add(texture_atlas);
+    // 字体
+    let fonts = resource::asset::Fonts {
+        wenkai: asset_server.load(public::assets::FONT_WENKAI),
+    };
+    commands.insert_resource(fonts);
 
     // 图片资源
     let images = resource::asset::Images {
@@ -82,7 +84,7 @@ fn setup_system(
         select: asset_server.load(public::assets::SOUND_SELECT),
         check: asset_server.load(public::assets::SOUND_CHECK),
         lose: asset_server.load(public::assets::SOUND_LOSE),
-        win: asset_server.load(public::assets::SOUND_BGM),
+        win: asset_server.load(public::assets::SOUND_WIN),
         alarm: asset_server.load(public::assets::SOUND_ALARM),
     };
     commands.insert_resource(sounds);
@@ -104,10 +106,7 @@ fn setup_system(
     commands.spawn(SpriteBundle {
         texture: images.broad_w.clone(),
         sprite: Sprite {
-            custom_size: Some(Vec2 {
-                x: 767.,
-                y: 842.,
-            }),
+            custom_size: Some(Vec2 { x: 767., y: 842. }),
             ..Default::default()
         },
         ..Default::default()
@@ -141,4 +140,3 @@ fn main() {
         .add_systems(Update, bevy::window::close_on_esc)
         .run()
 }
-

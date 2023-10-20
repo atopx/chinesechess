@@ -1,7 +1,6 @@
 use bevy::asset::Handle;
 use bevy::prelude::{AudioSource, Font, Image, Resource, TextureAtlas};
 
-
 #[derive(Resource)]
 pub struct Fonts {
     pub wenkai: Handle<Font>,

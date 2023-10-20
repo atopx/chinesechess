@@ -38,7 +38,6 @@ pub const PIECE_CANNON_B: &str = "images/piece/br.png";
 pub const PIECE_PAWN_B: &str = "images/piece/br.png";
 pub const PIECE_KING_B: &str = "images/piece/bk.png";
 
-
 pub const PIECE_ROOK_W: &str = "images/piece/wr.png";
 pub const PIECE_KNIGHT_W: &str = "images/piece/wr.png";
 pub const PIECE_BISHOP_W: &str = "images/piece/wr.png";

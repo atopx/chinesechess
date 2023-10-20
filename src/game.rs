@@ -2,10 +2,10 @@ use bevy::prelude::{Resource, States};
 
 use crate::component;
 use crate::component::{
-    PIECE_BLACK_ADVISOR, PIECE_BLACK_BISHOP, PIECE_BLACK_CANNON,
-    PIECE_BLACK_KING, PIECE_BLACK_KNIGHT, PIECE_BLACK_PAWN, PIECE_BLACK_ROOK,
-    PIECE_NONE, PIECE_WHITE_ADVISOR, PIECE_WHITE_BISHOP, PIECE_WHITE_CANNON,
-    PIECE_WHITE_KING, PIECE_WHITE_KNIGHT, PIECE_WHITE_PAWN, PIECE_WHITE_ROOK,
+    PIECE_BLACK_ADVISOR, PIECE_BLACK_BISHOP, PIECE_BLACK_CANNON, PIECE_BLACK_KING,
+    PIECE_BLACK_KNIGHT, PIECE_BLACK_PAWN, PIECE_BLACK_ROOK, PIECE_NONE, PIECE_WHITE_ADVISOR,
+    PIECE_WHITE_BISHOP, PIECE_WHITE_CANNON, PIECE_WHITE_KING, PIECE_WHITE_KNIGHT, PIECE_WHITE_PAWN,
+    PIECE_WHITE_ROOK,
 };
 use crate::public::ROUTE_OFFSET;
 
@@ -42,16 +42,88 @@ impl Data {
             white_player: component::Player::new_white(),
             black_player: component::Player::new_black(),
             broad_map: [
-                [PIECE_WHITE_ROOK, PIECE_WHITE_KNIGHT, PIECE_WHITE_BISHOP, PIECE_WHITE_ADVISOR, PIECE_WHITE_KING, PIECE_WHITE_ADVISOR, PIECE_WHITE_BISHOP, PIECE_WHITE_KNIGHT, PIECE_WHITE_ROOK],
-                [PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE],
-                [PIECE_NONE, PIECE_WHITE_CANNON, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_WHITE_CANNON, PIECE_NONE],
-                [PIECE_WHITE_PAWN, PIECE_NONE, PIECE_WHITE_PAWN, PIECE_NONE, PIECE_WHITE_PAWN, PIECE_NONE, PIECE_WHITE_PAWN, PIECE_NONE, PIECE_WHITE_PAWN],
-                [PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE],
-                [PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE],
-                [PIECE_BLACK_PAWN, PIECE_NONE, PIECE_BLACK_PAWN, PIECE_NONE, PIECE_BLACK_PAWN, PIECE_NONE, PIECE_BLACK_PAWN, PIECE_NONE, PIECE_BLACK_PAWN],
-                [PIECE_NONE, PIECE_BLACK_CANNON, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_BLACK_CANNON, PIECE_NONE],
-                [PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE],
-                [PIECE_BLACK_ROOK, PIECE_BLACK_KNIGHT, PIECE_BLACK_BISHOP, PIECE_BLACK_ADVISOR, PIECE_BLACK_KING, PIECE_BLACK_ADVISOR, PIECE_BLACK_BISHOP, PIECE_BLACK_KNIGHT, PIECE_BLACK_ROOK],
+                [
+                    PIECE_WHITE_ROOK,
+                    PIECE_WHITE_KNIGHT,
+                    PIECE_WHITE_BISHOP,
+                    PIECE_WHITE_ADVISOR,
+                    PIECE_WHITE_KING,
+                    PIECE_WHITE_ADVISOR,
+                    PIECE_WHITE_BISHOP,
+                    PIECE_WHITE_KNIGHT,
+                    PIECE_WHITE_ROOK,
+                ],
+                [
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                ],
+                [
+                    PIECE_NONE,
+                    PIECE_WHITE_CANNON,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_WHITE_CANNON,
+                    PIECE_NONE,
+                ],
+                [
+                    PIECE_WHITE_PAWN,
+                    PIECE_NONE,
+                    PIECE_WHITE_PAWN,
+                    PIECE_NONE,
+                    PIECE_WHITE_PAWN,
+                    PIECE_NONE,
+                    PIECE_WHITE_PAWN,
+                    PIECE_NONE,
+                    PIECE_WHITE_PAWN,
+                ],
+                [
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                ],
+                [
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                ],
+                [
+                    PIECE_BLACK_PAWN,
+                    PIECE_NONE,
+                    PIECE_BLACK_PAWN,
+                    PIECE_NONE,
+                    PIECE_BLACK_PAWN,
+                    PIECE_NONE,
+                    PIECE_BLACK_PAWN,
+                    PIECE_NONE,
+                    PIECE_BLACK_PAWN,
+                ],
+                [
+                    PIECE_NONE,
+                    PIECE_BLACK_CANNON,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_NONE,
+                    PIECE_BLACK_CANNON,
+                    PIECE_NONE,
+                ],
+                [
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                ],
+                [
+                    PIECE_BLACK_ROOK,
+                    PIECE_BLACK_KNIGHT,
+                    PIECE_BLACK_BISHOP,
+                    PIECE_BLACK_ADVISOR,
+                    PIECE_BLACK_KING,
+                    PIECE_BLACK_ADVISOR,
+                    PIECE_BLACK_BISHOP,
+                    PIECE_BLACK_KNIGHT,
+                    PIECE_BLACK_ROOK,
+                ],
             ],
             round: 0,
             current_color: component::PieceColor::NONE,
@@ -82,7 +154,6 @@ impl Data {
         return ((src_row, src_col), (dst_row, dst_col));
     }
 }
-
 
 #[cfg(test)]
 mod tests {
