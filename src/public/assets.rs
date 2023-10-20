@@ -1,47 +1,89 @@
-pub const FONT_WENKAI: &str = "fonts/wenkai.ttf";
+pub const FONT_WENKAI: &str = "font/wenkai.ttf";
 
 /// 背景音乐
-pub const SOUND_BGM: &str = "sounds/bgm.mp3";
+pub const SOUND_BGM: &str = "sound/bgm.mp3";
 /// 吃子
-pub const SOUND_EAT: &str = "sounds/eat.mp3";
+pub const SOUND_EAT: &str = "sound/eat.mp3";
 /// 落子
-pub const SOUND_GO: &str = "sounds/go.mp3";
+pub const SOUND_GO: &str = "sound/go.mp3";
 /// 无效
-pub const SOUND_INVALID: &str = "sounds/invalid.mp3";
+pub const SOUND_INVALID: &str = "sound/invalid.mp3";
 /// 选择
-pub const SOUND_SELECT: &str = "sounds/select.mp3";
+pub const SOUND_SELECT: &str = "sound/select.mp3";
 /// 将军
-pub const SOUND_CHECK: &str = "sounds/check.mp3";
+pub const SOUND_CHECK: &str = "sound/check.mp3";
 /// 负
-pub const SOUND_LOSE: &str = "sounds/lose.mp3";
+pub const SOUND_LOSE: &str = "sound/lose.mp3";
 /// 胜
-pub const SOUND_WIN: &str = "sounds/win.mp3";
+pub const SOUND_WIN: &str = "sound/win.mp3";
 /// 警告
-pub const SOUND_ALARM: &str = "sounds/alarm.mp3";
+pub const SOUND_ALARM: &str = "sound/alarm.mp3";
 
-/// scene image
-pub const IMAGE_BACKGROUND: &str = "images/scene/background.png";
-pub const IMAGE_BROAD: &str = "images/scene/broad.png";
-pub const IMAGE_BROAD_W: &str = "images/scene/broad_w.png";
-pub const IMAGE_BROAD_B: &str = "images/scene/broad_b.png";
-pub const IMAGE_COVER: &str = "images/scene/cover.png";
-pub const IMAGE_CHECKMATE: &str = "images/scene/checkmate.png";
-pub const IMAGE_PIECE: &str = "images/scene/piece.png";
-pub const IMAGE_AVATAR: &str = "images/scene/avatar.png";
+// 背景
+pub const IMAGE_BACKGROUND: &str = "image/background.png";
+// 棋盘
+pub const IMAGE_BROAD: &str = "image/broad.png";
+// 主图
+pub const IMAGE_COVER: &str = "image/cover.png";
+// 文本框
+pub const IMAGE_POPUP: &str = "image/popup.png";
+// 选棋阴影
+pub const IMAGE_SELECT_SHADOW: &str = "image/select_shadow.png";
+// 当前棋子起点
+pub const IMAGE_START_POS: &str = "image/start_pos.png";
+// 上一次棋子起点
+pub const IMAGE_START_POSFLAG: &str = "image/start_pos_flag.png";
 
-/// pieces image
-pub const PIECE_ROOK_B: &str = "images/piece/br.png";
-pub const PIECE_KNIGHT_B: &str = "images/piece/br.png";
-pub const PIECE_BISHOP_B: &str = "images/piece/br.png";
-pub const PIECE_ADVISOR_B: &str = "images/piece/br.png";
-pub const PIECE_CANNON_B: &str = "images/piece/br.png";
-pub const PIECE_PAWN_B: &str = "images/piece/br.png";
-pub const PIECE_KING_B: &str = "images/piece/bk.png";
+// 将军动画
+pub const ANIMATE_CHECK_0: &str = "animate/check_0.png";
+pub const ANIMATE_CHECK_1: &str = "animate/check_1.png";
+pub const ANIMATE_CHECK_2: &str = "animate/check_2.png";
+pub const ANIMATE_CHECK_3: &str = "animate/check_3.png";
+pub const ANIMATE_CHECK_4: &str = "animate/check_4.png";
 
-pub const PIECE_ROOK_W: &str = "images/piece/wr.png";
-pub const PIECE_KNIGHT_W: &str = "images/piece/wr.png";
-pub const PIECE_BISHOP_W: &str = "images/piece/wr.png";
-pub const PIECE_ADVISOR_W: &str = "images/piece/wr.png";
-pub const PIECE_CANNON_W: &str = "images/piece/wr.png";
-pub const PIECE_PAWN_W: &str = "images/piece/wr.png";
-pub const PIECE_KING_W: &str = "images/piece/wk.png";
+// 绝杀动画
+pub const ANIMATE_CHECKMATE_0: &str = "animate/checkmate_0.png";
+pub const ANIMATE_CHECKMATE_1: &str = "animate/checkmate_1.png";
+pub const ANIMATE_CHECKMATE_2: &str = "animate/checkmate_2.png";
+pub const ANIMATE_CHECKMATE_3: &str = "animate/checkmate_3.png";
+pub const ANIMATE_CHECKMATE_4: &str = "animate/checkmate_4.png";
+
+// 棋子移动后的动画
+pub const ANIMATE_ENDPOSFLAG_0: &str = "animate/endposflag_0.png";
+pub const ANIMATE_ENDPOSFLAG_1: &str = "animate/endposflag_1.png";
+pub const ANIMATE_ENDPOSFLAG_2: &str = "animate/endposflag_2.png";
+pub const ANIMATE_ENDPOSFLAG_3: &str = "animate/endposflag_3.png";
+pub const ANIMATE_ENDPOSFLAG_4: &str = "animate/endposflag_4.png";
+pub const ANIMATE_ENDPOSFLAG_5: &str = "animate/endposflag_5.png";
+pub const ANIMATE_ENDPOSFLAG_6: &str = "animate/endposflag_6.png";
+pub const ANIMATE_ENDPOSFLAG_7: &str = "animate/endposflag_7.png";
+
+/// 棋子图片
+pub const PIECE_BLACK_ADVISOR: &str = "chess/black_advisor.png";
+pub const PIECE_BLACK_ADVISOR_SELECT: &str = "chess/black_advisor_select.png";
+pub const PIECE_BLACK_BISHOP: &str = "chess/black_bishop.png";
+pub const PIECE_BLACK_BISHOP_SELECT: &str = "chess/black_bishop_select.png";
+pub const PIECE_BLACK_CANNON: &str = "chess/black_cannon.png";
+pub const PIECE_BLACK_CANNON_SELECT: &str = "chess/black_cannon_select.png";
+pub const PIECE_BLACK_KING: &str = "chess/black_king.png";
+pub const PIECE_BLACK_KING_SELECT: &str = "chess/black_king_select.png";
+pub const PIECE_BLACK_KNIGHT: &str = "chess/black_knight.png";
+pub const PIECE_BLACK_KNIGHT_SELECT: &str = "chess/black_knight_select.png";
+pub const PIECE_BLACK_PAWN: &str = "chess/black_pawn.png";
+pub const PIECE_BLACK_PAWN_SELECT: &str = "chess/black_pawn_select.png";
+pub const PIECE_BLACK_ROOK: &str = "chess/black_rook.png";
+pub const PIECE_BLACK_ROOK_SELECT: &str = "chess/black_rook_select.png";
+pub const PIECE_WHITE_ADVISOR: &str = "chess/white_advisor.png";
+pub const PIECE_WHITE_ADVISOR_SELECT: &str = "chess/white_advisor_select.png";
+pub const PIECE_WHITE_BISHOP: &str = "chess/white_bishop.png";
+pub const PIECE_WHITE_BISHOP_SELECT: &str = "chess/white_bishop_select.png";
+pub const PIECE_WHITE_CANNON: &str = "chess/white_cannon.png";
+pub const PIECE_WHITE_CANNON_SELECT: &str = "chess/white_cannon_select.png";
+pub const PIECE_WHITE_KING: &str = "chess/white_king.png";
+pub const PIECE_WHITE_KING_SELECT: &str = "chess/white_king_select.png";
+pub const PIECE_WHITE_KNIGHT: &str = "chess/white_knight.png";
+pub const PIECE_WHITE_KNIGHT_SELECT: &str = "chess/white_knight_select.png";
+pub const PIECE_WHITE_PAWN: &str = "chess/white_pawn.png";
+pub const PIECE_WHITE_PAWN_SELECT: &str = "chess/white_pawn_select.png";
+pub const PIECE_WHITE_ROOK: &str = "chess/white_rook.png";
+pub const PIECE_WHITE_ROOK_SELECT: &str = "chess/white_rook_select.png";

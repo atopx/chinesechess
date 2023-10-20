@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 
-use crate::public::{IMAGE_CHECKMATE_POINT, IMAGE_CHECKMATE_SIZE};
-
 mod component;
 mod game;
 mod plugin;
@@ -13,8 +11,6 @@ mod system;
 fn setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut data: ResMut<game::Data>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut windows: Query<&mut Window>,
 ) {
     // 创建默认镜头
@@ -30,50 +26,11 @@ fn setup_system(
 
     commands.insert_resource(win_size);
 
-    // 加载绝杀动画
-    let texture_handle = asset_server.load(public::assets::IMAGE_CHECKMATE);
-    let texture_atlas = TextureAtlas::from_grid(
-        texture_handle,
-        Vec2::from(IMAGE_CHECKMATE_SIZE),
-        IMAGE_CHECKMATE_POINT.0,
-        IMAGE_CHECKMATE_POINT.1,
-        None,
-        None,
-    );
-
-    let checkmate: Handle<TextureAtlas> = texture_atlases.add(texture_atlas);
-
     // 字体
     let fonts = resource::asset::Fonts {
         wenkai: asset_server.load(public::assets::FONT_WENKAI),
     };
     commands.insert_resource(fonts);
-
-    // 图片资源
-    let images = resource::asset::Images {
-        background: asset_server.load(public::assets::IMAGE_BACKGROUND),
-        broad: asset_server.load(public::assets::IMAGE_BROAD),
-        broad_w: asset_server.load(public::assets::IMAGE_BROAD_W),
-        broad_b: asset_server.load(public::assets::IMAGE_BROAD_B),
-        cover: asset_server.load(public::assets::IMAGE_COVER),
-        piece: asset_server.load(public::assets::IMAGE_PIECE),
-        avatar: asset_server.load(public::assets::IMAGE_AVATAR),
-        piece_rook_b: asset_server.load(public::assets::PIECE_ROOK_B),
-        piece_knight_b: asset_server.load(public::assets::PIECE_KNIGHT_B),
-        piece_bishop_b: asset_server.load(public::assets::PIECE_BISHOP_B),
-        piece_advisor_b: asset_server.load(public::assets::PIECE_ADVISOR_B),
-        piece_cannon_b: asset_server.load(public::assets::PIECE_CANNON_B),
-        piece_pawn_b: asset_server.load(public::assets::PIECE_PAWN_B),
-        piece_king_b: asset_server.load(public::assets::PIECE_KING_B),
-        piece_rook_w: asset_server.load(public::assets::PIECE_ROOK_W),
-        piece_knight_w: asset_server.load(public::assets::PIECE_KNIGHT_W),
-        piece_bishop_w: asset_server.load(public::assets::PIECE_BISHOP_W),
-        piece_advisor_w: asset_server.load(public::assets::PIECE_ADVISOR_W),
-        piece_cannon_w: asset_server.load(public::assets::PIECE_CANNON_W),
-        piece_pawn_w: asset_server.load(public::assets::PIECE_PAWN_W),
-        piece_king_w: asset_server.load(public::assets::PIECE_KING_W),
-        checkmate,
-    };
 
     // 声音
     let sounds = resource::asset::Sounds {
@@ -88,6 +45,17 @@ fn setup_system(
         alarm: asset_server.load(public::assets::SOUND_ALARM),
     };
     commands.insert_resource(sounds);
+
+    // 图片
+    let images = resource::asset::Images {
+        background: asset_server.load(public::assets::IMAGE_BACKGROUND),
+        broad: asset_server.load(public::assets::IMAGE_BROAD),
+        cover: asset_server.load(public::assets::IMAGE_COVER),
+        popup: asset_server.load(public::assets::IMAGE_POPUP),
+        select_shadow: asset_server.load(public::assets::IMAGE_SELECT_SHADOW),
+        start_pos: asset_server.load(public::assets::IMAGE_START_POS),
+        start_posflag: asset_server.load(public::assets::IMAGE_START_POSFLAG),
+    };
 
     // 背景
     commands.spawn(SpriteBundle {
@@ -104,25 +72,85 @@ fn setup_system(
 
     // 棋盘
     commands.spawn(SpriteBundle {
-        texture: images.broad_w.clone(),
+        texture: images.broad.clone(),
         sprite: Sprite {
             custom_size: Some(Vec2 { x: 767., y: 842. }),
             ..Default::default()
         },
         ..Default::default()
     });
-    let t = data.parse_route("a1e4".to_string());
-    println!("{:?}", t);
-    println!("{}", data.white_player.name);
+
+    commands.insert_resource(images);
+
+    // 动画
+    let animates = resource::asset::Amimates {
+        check: vec![
+            asset_server.load(public::assets::ANIMATE_CHECK_0),
+            asset_server.load(public::assets::ANIMATE_CHECK_1),
+            asset_server.load(public::assets::ANIMATE_CHECK_2),
+            asset_server.load(public::assets::ANIMATE_CHECK_3),
+            asset_server.load(public::assets::ANIMATE_CHECK_4),
+        ],
+        checkmate: vec![
+            asset_server.load(public::assets::ANIMATE_CHECKMATE_0),
+            asset_server.load(public::assets::ANIMATE_CHECKMATE_1),
+            asset_server.load(public::assets::ANIMATE_CHECKMATE_2),
+            asset_server.load(public::assets::ANIMATE_CHECKMATE_3),
+            asset_server.load(public::assets::ANIMATE_CHECKMATE_4),
+        ],
+        endposflag: vec![
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_0),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_1),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_2),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_3),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_4),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_5),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_6),
+            asset_server.load(public::assets::ANIMATE_ENDPOSFLAG_7),
+        ],
+    };
+    commands.insert_resource(animates);
+
+    // 棋子
+    let pieces = resource::asset::Pieces {
+        black_advisor: asset_server.load(public::assets::PIECE_BLACK_ADVISOR),
+        black_advisor_select: asset_server.load(public::assets::PIECE_BLACK_ADVISOR_SELECT),
+        black_bishop: asset_server.load(public::assets::PIECE_BLACK_BISHOP),
+        black_bishop_select: asset_server.load(public::assets::PIECE_BLACK_BISHOP_SELECT),
+        black_cannon: asset_server.load(public::assets::PIECE_BLACK_CANNON),
+        black_cannon_select: asset_server.load(public::assets::PIECE_BLACK_CANNON_SELECT),
+        black_king: asset_server.load(public::assets::PIECE_BLACK_KING),
+        black_king_select: asset_server.load(public::assets::PIECE_BLACK_KING_SELECT),
+        black_knight: asset_server.load(public::assets::PIECE_BLACK_KNIGHT),
+        black_knight_select: asset_server.load(public::assets::PIECE_BLACK_KNIGHT_SELECT),
+        black_pawn: asset_server.load(public::assets::PIECE_BLACK_PAWN),
+        black_pawn_select: asset_server.load(public::assets::PIECE_BLACK_PAWN_SELECT),
+        black_rook: asset_server.load(public::assets::PIECE_BLACK_ROOK),
+        black_rook_select: asset_server.load(public::assets::PIECE_BLACK_ROOK_SELECT),
+        white_advisor: asset_server.load(public::assets::PIECE_WHITE_ADVISOR),
+        white_advisor_select: asset_server.load(public::assets::PIECE_WHITE_ADVISOR_SELECT),
+        white_bishop: asset_server.load(public::assets::PIECE_WHITE_BISHOP),
+        white_bishop_select: asset_server.load(public::assets::PIECE_WHITE_BISHOP_SELECT),
+        white_cannon: asset_server.load(public::assets::PIECE_WHITE_CANNON),
+        white_cannon_select: asset_server.load(public::assets::PIECE_WHITE_CANNON_SELECT),
+        white_king: asset_server.load(public::assets::PIECE_WHITE_KING),
+        white_king_select: asset_server.load(public::assets::PIECE_WHITE_KING_SELECT),
+        white_knight: asset_server.load(public::assets::PIECE_WHITE_KNIGHT),
+        white_knight_select: asset_server.load(public::assets::PIECE_WHITE_KNIGHT_SELECT),
+        white_pawn: asset_server.load(public::assets::PIECE_WHITE_PAWN),
+        white_pawn_select: asset_server.load(public::assets::PIECE_WHITE_PAWN_SELECT),
+        white_rook: asset_server.load(public::assets::PIECE_WHITE_ROOK),
+        white_rook_select: asset_server.load(public::assets::PIECE_WHITE_ROOK_SELECT),
+    };
+    commands.insert_resource(pieces);
 }
 
 fn main() {
     App::new()
         // 游戏状态
         .add_state::<game::Status>()
+        // 初始化全局数据
         .insert_resource(game::Data::new())
-        // 背景色
-        .insert_resource(ClearColor(Color::rgb(255., 255., 255.)))
         // 窗口
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
