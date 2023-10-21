@@ -1,6 +1,7 @@
-use bevy::prelude::Component;
+use bevy::prelude::{Component, Entity};
+use crate::component::PieceColor::White;
 
-#[derive(Default, Clone, Copy, Debug)]
+#[derive(Default, Clone, Copy, Debug, Component)]
 pub enum PieceCate {
     /// 空, 默认值
     #[default]
@@ -21,34 +22,18 @@ pub enum PieceCate {
     King,
 }
 
-#[derive(Default, Component, Clone, Copy, Debug)]
+#[derive(Default, Clone, Copy, Debug, Component)]
 pub enum PieceColor {
     /// 空的
     #[default]
-    NONE,
+    None,
     /// 白色方(红色)
     White,
     /// 黑色方
     Black,
 }
 
-pub const PIECE_NONE: Piece = Piece::new(PieceCate::None, PieceColor::NONE);
-pub const PIECE_WHITE_ROOK: Piece = Piece::new(PieceCate::Rook, PieceColor::White);
-pub const PIECE_WHITE_KNIGHT: Piece = Piece::new(PieceCate::Knight, PieceColor::White);
-pub const PIECE_WHITE_BISHOP: Piece = Piece::new(PieceCate::Bishop, PieceColor::White);
-pub const PIECE_WHITE_ADVISOR: Piece = Piece::new(PieceCate::Advisor, PieceColor::White);
-pub const PIECE_WHITE_CANNON: Piece = Piece::new(PieceCate::Cannon, PieceColor::White);
-pub const PIECE_WHITE_PAWN: Piece = Piece::new(PieceCate::Pawn, PieceColor::White);
-pub const PIECE_WHITE_KING: Piece = Piece::new(PieceCate::King, PieceColor::White);
-
-pub const PIECE_BLACK_ROOK: Piece = Piece::new(PieceCate::Rook, PieceColor::Black);
-pub const PIECE_BLACK_KNIGHT: Piece = Piece::new(PieceCate::Knight, PieceColor::Black);
-pub const PIECE_BLACK_BISHOP: Piece = Piece::new(PieceCate::Bishop, PieceColor::Black);
-pub const PIECE_BLACK_ADVISOR: Piece = Piece::new(PieceCate::Advisor, PieceColor::Black);
-pub const PIECE_BLACK_CANNON: Piece = Piece::new(PieceCate::Cannon, PieceColor::Black);
-pub const PIECE_BLACK_PAWN: Piece = Piece::new(PieceCate::Pawn, PieceColor::Black);
-pub const PIECE_BLACK_KING: Piece = Piece::new(PieceCate::King, PieceColor::Black);
-
+pub const PIECE_NONE: Piece = Piece::new(PieceColor::None, PieceCate::None, None);
 
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub enum PlayerIdentity {
@@ -62,23 +47,24 @@ pub struct Player {
     pub name: String,
     pub color: PieceColor,
     pub identity: PlayerIdentity,
+    pub records: Vec<String>,
 }
 
 impl Player {
-    pub fn new_white() -> Self {
+    pub fn new(name: &str, color: PieceColor, identity: PlayerIdentity, records: Vec<String>) -> Self {
         Self {
-            name: "红色方".to_string(),
-            color: PieceColor::White,
-            identity: PlayerIdentity::default(),
+            name: name.to_string(),
+            color,
+            identity,
+            records,
         }
+    }
+    pub fn new_white() -> Self {
+        return Self::new("红色方", White, PlayerIdentity::default(), Vec::new());
     }
 
     pub fn new_black() -> Self {
-        Self {
-            name: "黑色方".to_string(),
-            color: PieceColor::Black,
-            identity: PlayerIdentity::default(),
-        }
+        return Self::new("黑色方", White, PlayerIdentity::default(), Vec::new());
     }
 
     pub fn set_identity(&mut self, identity: PlayerIdentity) {
@@ -91,10 +77,11 @@ impl Player {
 pub struct Piece {
     pub cate: PieceCate,
     pub color: PieceColor,
+    pub entity: Option<Entity>,
 }
 
 impl Piece {
-    const fn new(cate: PieceCate, color: PieceColor) -> Self {
-        Self { cate, color }
+    pub const fn new(color: PieceColor, cate: PieceCate, entity: Option<Entity>) -> Self {
+        Self { cate, color, entity }
     }
 }

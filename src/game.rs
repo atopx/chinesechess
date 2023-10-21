@@ -1,12 +1,9 @@
-use bevy::prelude::{info, Resource, States};
+use bevy::prelude::{Resource, States, trace};
 
 use crate::component;
-use crate::component::{
-    PIECE_BLACK_ADVISOR, PIECE_BLACK_BISHOP, PIECE_BLACK_CANNON, PIECE_BLACK_KING,
-    PIECE_BLACK_KNIGHT, PIECE_BLACK_PAWN, PIECE_BLACK_ROOK, PIECE_NONE, PIECE_WHITE_ADVISOR,
-    PIECE_WHITE_BISHOP, PIECE_WHITE_CANNON, PIECE_WHITE_KING, PIECE_WHITE_KNIGHT, PIECE_WHITE_PAWN,
-    PIECE_WHITE_ROOK,
-};
+use crate::component::{Piece, PIECE_NONE, PieceColor};
+use crate::component::PieceCate::{Advisor, Bishop, Cannon, King, Knight, Pawn, Rook};
+use crate::component::PieceColor::{Black, White};
 use crate::public::ROUTE_OFFSET;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
@@ -20,40 +17,42 @@ pub enum Status {
     EXIT,
 }
 
+
 #[derive(Resource)]
 pub struct Data {
     /// 红色方玩家
     pub white_player: component::Player,
     /// 黑色方玩家
     pub black_player: component::Player,
+    // pub chessbroad: Option<Entity>,
     /// 棋盘地图
-    pub broad_map: [[component::Piece; 9]; 10],
+    pub broad_map: [[Piece; 9]; 10],
     /// 当前回合数
     pub round: usize,
     /// 当前行棋方
-    pub current_color: component::PieceColor,
-    /// 行棋记录(ICCS坐标记录)
-    pub records: Vec<String>,
+    pub current_color: PieceColor,
+    pub previous_state: Option<Status>,
 }
 
 impl Data {
     pub fn new() -> Self {
-        info!("init system data");
+        trace!("init system data");
 
         Self {
+            previous_state: None,
             white_player: component::Player::new_white(),
             black_player: component::Player::new_black(),
             broad_map: [
                 [
-                    PIECE_WHITE_ROOK,
-                    PIECE_WHITE_KNIGHT,
-                    PIECE_WHITE_BISHOP,
-                    PIECE_WHITE_ADVISOR,
-                    PIECE_WHITE_KING,
-                    PIECE_WHITE_ADVISOR,
-                    PIECE_WHITE_BISHOP,
-                    PIECE_WHITE_KNIGHT,
-                    PIECE_WHITE_ROOK,
+                    Piece::new(White, Rook, None),
+                    Piece::new(White, Knight, None),
+                    Piece::new(White, Bishop, None),
+                    Piece::new(White, Advisor, None),
+                    Piece::new(White, King, None),
+                    Piece::new(White, Advisor, None),
+                    Piece::new(White, Bishop, None),
+                    Piece::new(White, Knight, None),
+                    Piece::new(White, Rook, None),
                 ],
                 [
                     PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
@@ -61,54 +60,54 @@ impl Data {
                 ],
                 [
                     PIECE_NONE,
-                    PIECE_WHITE_CANNON,
+                    Piece::new(White, Cannon, None),
                     PIECE_NONE,
                     PIECE_NONE,
                     PIECE_NONE,
                     PIECE_NONE,
                     PIECE_NONE,
-                    PIECE_WHITE_CANNON,
+                    Piece::new(White, Cannon, None),
                     PIECE_NONE,
                 ],
                 [
-                    PIECE_WHITE_PAWN,
+                    Piece::new(White, Pawn, None),
                     PIECE_NONE,
-                    PIECE_WHITE_PAWN,
+                    Piece::new(White, Pawn, None),
                     PIECE_NONE,
-                    PIECE_WHITE_PAWN,
+                    Piece::new(White, Pawn, None),
                     PIECE_NONE,
-                    PIECE_WHITE_PAWN,
+                    Piece::new(White, Pawn, None),
                     PIECE_NONE,
-                    PIECE_WHITE_PAWN,
-                ],
-                [
-                    PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
-                    PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                    Piece::new(White, Pawn, None),
                 ],
                 [
                     PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
                     PIECE_NONE, PIECE_NONE, PIECE_NONE,
                 ],
                 [
-                    PIECE_BLACK_PAWN,
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                    PIECE_NONE, PIECE_NONE, PIECE_NONE,
+                ],
+                [
+                    Piece::new(Black, Pawn, None),
                     PIECE_NONE,
-                    PIECE_BLACK_PAWN,
+                    Piece::new(Black, Pawn, None),
                     PIECE_NONE,
-                    PIECE_BLACK_PAWN,
+                    Piece::new(Black, Pawn, None),
                     PIECE_NONE,
-                    PIECE_BLACK_PAWN,
+                    Piece::new(Black, Pawn, None),
                     PIECE_NONE,
-                    PIECE_BLACK_PAWN,
+                    Piece::new(Black, Pawn, None),
                 ],
                 [
                     PIECE_NONE,
-                    PIECE_BLACK_CANNON,
+                    Piece::new(Black, Cannon, None),
                     PIECE_NONE,
                     PIECE_NONE,
                     PIECE_NONE,
                     PIECE_NONE,
                     PIECE_NONE,
-                    PIECE_BLACK_CANNON,
+                    Piece::new(Black, Cannon, None),
                     PIECE_NONE,
                 ],
                 [
@@ -116,20 +115,19 @@ impl Data {
                     PIECE_NONE, PIECE_NONE, PIECE_NONE,
                 ],
                 [
-                    PIECE_BLACK_ROOK,
-                    PIECE_BLACK_KNIGHT,
-                    PIECE_BLACK_BISHOP,
-                    PIECE_BLACK_ADVISOR,
-                    PIECE_BLACK_KING,
-                    PIECE_BLACK_ADVISOR,
-                    PIECE_BLACK_BISHOP,
-                    PIECE_BLACK_KNIGHT,
-                    PIECE_BLACK_ROOK,
-                ],
+                    Piece::new(Black, Rook, None),
+                    Piece::new(Black, Knight, None),
+                    Piece::new(Black, Bishop, None),
+                    Piece::new(Black, Advisor, None),
+                    Piece::new(Black, King, None),
+                    Piece::new(Black, Advisor, None),
+                    Piece::new(Black, Bishop, None),
+                    Piece::new(Black, Knight, None),
+                    Piece::new(Black, Rook, None),
+                ]
             ],
             round: 0,
-            current_color: component::PieceColor::NONE,
-            records: Vec::new(),
+            current_color: PieceColor::None,
         }
     }
 

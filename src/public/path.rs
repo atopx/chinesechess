@@ -1,22 +1,22 @@
 pub const FONT_WENKAI: &str = "font/wenkai.ttf";
 
-/// 背景音乐
+// 背景音乐
 pub const SOUND_BGM: &str = "sound/bgm.mp3";
-/// 吃子
+// 吃子
 pub const SOUND_EAT: &str = "sound/eat.mp3";
-/// 落子
+// 落子
 pub const SOUND_GO: &str = "sound/go.mp3";
-/// 无效
+// 无效
 pub const SOUND_INVALID: &str = "sound/invalid.mp3";
-/// 选择
+// 选择
 pub const SOUND_SELECT: &str = "sound/select.mp3";
-/// 将军
+// 将军
 pub const SOUND_CHECK: &str = "sound/check.mp3";
-/// 负
+// 负
 pub const SOUND_LOSE: &str = "sound/lose.mp3";
-/// 胜
+// 胜
 pub const SOUND_WIN: &str = "sound/win.mp3";
-/// 警告
+// 警告
 pub const SOUND_ALARM: &str = "sound/alarm.mp3";
 
 // 背景
@@ -33,6 +33,12 @@ pub const IMAGE_SELECT_SHADOW: &str = "image/select_shadow.png";
 pub const IMAGE_START_POS: &str = "image/start_pos.png";
 // 上一次棋子起点
 pub const IMAGE_START_POSFLAG: &str = "image/start_pos_flag.png";
+// 对阵vs
+pub const IMAGE_PLAY_VS: &str = "image/black_avatar.png";
+// 黑色方头像
+pub const IMAGE_BLACK_AVATAR: &str = "image/black_avatar.png";
+// 红色方头像
+pub const IMAGE_WHITE_AVATAR: &str = "image/white_avatar.png";
 
 // 将军动画
 pub const ANIMATE_CHECK_0: &str = "animate/check_0.png";
@@ -58,7 +64,7 @@ pub const ANIMATE_ENDPOSFLAG_5: &str = "animate/endposflag_5.png";
 pub const ANIMATE_ENDPOSFLAG_6: &str = "animate/endposflag_6.png";
 pub const ANIMATE_ENDPOSFLAG_7: &str = "animate/endposflag_7.png";
 
-/// 棋子图片
+// 棋子图片
 pub const PIECE_BLACK_ADVISOR: &str = "chess/black_advisor.png";
 pub const PIECE_BLACK_ADVISOR_SELECT: &str = "chess/black_advisor_select.png";
 pub const PIECE_BLACK_BISHOP: &str = "chess/black_bishop.png";
