@@ -1,4 +1,4 @@
-use bevy::prelude::{Resource, States};
+use bevy::prelude::{info, Resource, States};
 
 use crate::component;
 use crate::component::{
@@ -16,8 +16,8 @@ pub enum Status {
     PENDING,
     /// 对局中
     RUNNING,
-    /// 暂停
-    PAUSED,
+    /// 结束游戏
+    EXIT,
 }
 
 #[derive(Resource)]
@@ -38,6 +38,8 @@ pub struct Data {
 
 impl Data {
     pub fn new() -> Self {
+        info!("init system data");
+
         Self {
             white_player: component::Player::new_white(),
             black_player: component::Player::new_black(),
@@ -166,5 +168,15 @@ mod tests {
         let ((row, col), (dst_row, dst_col)) = Data::new().parse_route(test_str);
         assert_eq!((row, col), (0, 0));
         assert_eq!((dst_row, dst_col), (9, 8));
+    }
+
+    #[test]
+    fn test_match() {
+        let n = 9;
+        match n {
+            1 => { println!("1") }
+            9 => { println!("9") }
+            _ => { println!("n") }
+        }
     }
 }

@@ -1,5 +1,7 @@
+use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
+use crate::game::Status;
 
 mod component;
 mod game;
@@ -7,12 +9,55 @@ mod plugin;
 mod public;
 mod resource;
 mod system;
+mod menu;
+mod chessbroad;
+
+fn main() {
+    App::new()
+        // 初始状态
+        .add_state::<Status>()
+        // 初始化数据
+        .insert_resource(game::Data::new())
+        // 初始化系统
+        .add_systems(Startup, setup_system)
+        // 加载退出游戏系统
+        .add_systems(OnEnter(Status::EXIT), exit_system)
+        // 进入PENDING状态
+        .add_systems(OnEnter(Status::PENDING), menu::setup_pending)
+        // PENDING
+        .add_systems(Update, menu::pending_state_system.run_if(in_state(Status::PENDING)))
+        // 退出PENDING状态
+        .add_systems(OnExit(Status::PENDING), menu::cleanup_menu)
+        // 进入RUNNING状态
+        .add_systems(OnEnter(Status::RUNNING), menu::setup_running)
+        // RUNNING
+        .add_systems(Update, menu::running_state_system.run_if(in_state(Status::RUNNING)))
+
+
+        // 初始化窗口
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: public::WIN_TITLE.to_string(),
+                resolution: (public::WIN_SIZE).into(),
+                mode: WindowMode::Windowed,
+                resizable: false,
+                ..Window::default()
+            }),
+            ..WindowPlugin::default()
+        }))
+        // 初始化游戏
+
+        // 启动 esc 键退出程序
+        // .add_systems(Update, bevy::window::close_on_esc)
+        .run()
+}
 
 fn setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut windows: Query<&mut Window>,
 ) {
+    info!("init system");
     // 创建默认镜头
     commands.spawn(Camera2dBundle::default());
 
@@ -70,20 +115,10 @@ fn setup_system(
         ..Default::default()
     });
 
-    // 棋盘
-    commands.spawn(SpriteBundle {
-        texture: images.broad.clone(),
-        sprite: Sprite {
-            custom_size: Some(Vec2 { x: 767., y: 842. }),
-            ..Default::default()
-        },
-        ..Default::default()
-    });
-
     commands.insert_resource(images);
 
     // 动画
-    let animates = resource::asset::Amimates {
+    let animates = resource::asset::Animates {
         check: vec![
             asset_server.load(public::assets::ANIMATE_CHECK_0),
             asset_server.load(public::assets::ANIMATE_CHECK_1),
@@ -145,26 +180,7 @@ fn setup_system(
     commands.insert_resource(pieces);
 }
 
-fn main() {
-    App::new()
-        // 游戏状态
-        .add_state::<game::Status>()
-        // 初始化全局数据
-        .insert_resource(game::Data::new())
-        // 窗口
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: public::WIN_TITLE.to_string(),
-                resolution: (public::WIN_SIZE).into(),
-                mode: WindowMode::Windowed,
-                resizable: false,
-                ..Window::default()
-            }),
-            ..WindowPlugin::default()
-        }))
-        // 初始化游戏
-        .add_systems(Startup, setup_system)
-        // 启动 esc 键退出程序
-        .add_systems(Update, bevy::window::close_on_esc)
-        .run()
+
+fn exit_system(mut exit: EventWriter<AppExit>) {
+    exit.send(AppExit);
 }

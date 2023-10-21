@@ -31,7 +31,7 @@ pub struct Images {
 }
 
 #[derive(Resource)]
-pub struct Amimates {
+pub struct Animates {
     pub check: Vec<Handle<Image>>,
     pub checkmate: Vec<Handle<Image>>,
     pub endposflag: Vec<Handle<Image>>,
