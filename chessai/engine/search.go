@@ -134,7 +134,7 @@ func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 		for _, mv := range mvs {
 			vls = append(vls, s.HistoryTable[s.engine.HistoryIndex(mv)])
 		}
-		ShellSort(mvs, vls)
+		s.engine.ShellSort(mvs, vls)
 	} else {
 		vl = s.engine.Evaluate()
 		if vl > vlBest {
@@ -147,7 +147,7 @@ func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 			}
 		}
 		mvs = s.engine.GenerateMoves(&vls)
-		ShellSort(mvs, vls)
+		s.engine.ShellSort(mvs, vls)
 		for i := 0; i < len(mvs); i++ {
 			if vls[i] < 10 || (vls[i] < 20 && HOME_HALF(DST(mvs[i]), s.engine.SdPlayer)) {
 				mvs = mvs[:i]

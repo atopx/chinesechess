@@ -75,7 +75,7 @@ func Test_Search(t *testing.T) {
 func Test_ShellSort(t *testing.T) {
 	mvs := []int{22599, 34697, 30615, 34713, 46758, 34728, 46760, 13749, 46773}
 	vls := []int{29, 36, 26, 39, 28, 39, 29, 26, 26}
-	engine.ShellSort(mvs, vls)
+	engine.NewEngine().ShellSort(mvs, vls)
 	expMvs := []int{34728, 34713, 34697, 22599, 46760, 46758, 30615, 13749, 46773}
 	expVls := []int{39, 39, 36, 29, 29, 28, 26, 26, 26}
 	for i := 0; i < 9; i++ {

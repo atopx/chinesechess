@@ -9,37 +9,37 @@ type MoveSort struct {
 }
 
 func NewMoveSort(
-	mvHash int, pos *Engine,
+	mvHash int, eng *Engine,
 	killerTable [][2]int,
 	historyTable []int,
 ) *MoveSort {
 
 	ms := &MoveSort{
-		eng:          pos,
+		eng:          eng,
 		historyTable: historyTable,
 		phase:        PHASE_HASH,
 	}
 
-	if pos.InCheck() {
+	if eng.InCheck() {
 		ms.phase = PHASE_REST
-		mvsAll := pos.GenerateMoves(nil)
+		mvsAll := eng.GenerateMoves(nil)
 		for _, mv := range mvsAll {
-			if !pos.MakeMove(mv) {
+			if !eng.MakeMove(mv) {
 				continue
 			}
-			pos.UndoMakeMove()
+			eng.UndoMakeMove()
 			ms.mvs = append(ms.mvs, mv)
 			if mv == mvHash {
 				ms.vls = append(ms.vls, 0x7fffffff)
 			} else {
-				ms.vls = append(ms.vls, historyTable[pos.HistoryIndex(mv)])
+				ms.vls = append(ms.vls, historyTable[eng.HistoryIndex(mv)])
 			}
-			ShellSort(ms.mvs, ms.vls)
+			eng.ShellSort(ms.mvs, ms.vls)
 			ms.signleReply = len(ms.mvs) == 1
 		}
 		ms.mvHash = mvHash
-		ms.mvKiller1 = killerTable[pos.Distance][0]
-		ms.mvKiller2 = killerTable[pos.Distance][1]
+		ms.mvKiller1 = killerTable[eng.Distance][0]
+		ms.mvKiller2 = killerTable[eng.Distance][1]
 	}
 	return ms
 }
@@ -74,7 +74,7 @@ func (m *MoveSort) Next() int {
 		for _, mv := range m.mvs {
 			m.vls = append(m.vls, m.historyTable[m.eng.HistoryIndex(mv)])
 		}
-		ShellSort(m.mvs, m.vls)
+		m.eng.ShellSort(m.mvs, m.vls)
 		m.index = 0
 	}
 

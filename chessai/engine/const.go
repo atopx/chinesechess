@@ -73,11 +73,12 @@ var IN_FORT_ = [256]int{
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 }
 
-var KING_DELTA = []int{-16, -1, 1, 16}
-var ADVISOR_DELTA = []int{-17, -15, 15, 17}
+var KING_DELTA = [4]int{-16, -1, 1, 16}
+var ADVISOR_DELTA = [4]int{-17, -15, 15, 17}
 var KNIGHT_DELTA = [4][2]int{{-33, -31}, {-18, 14}, {-14, 18}, {31, 33}}
 var KNIGHT_CHECK_DELTA = [4][2]int{{-33, -18}, {-31, -14}, {14, 31}, {18, 33}}
-var MVV_VALUE = []int{50, 10, 10, 30, 40, 30, 20, 0}
+var MVV_VALUE = [8]int{50, 10, 10, 30, 40, 30, 20, 0}
+var SHELL_STEP = [8]int{0, 1, 4, 13, 40, 121, 364, 1093}
 
 var LEGAL_SPAN = []int{
 	0, 0, 0, 0, 0, 0, 0, 0, 0,

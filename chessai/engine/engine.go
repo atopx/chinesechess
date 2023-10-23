@@ -767,3 +767,27 @@ func (p *Engine) ChangeSide() {
 	p.ZobRistKey ^= PreGenZobRistKeyPlayer
 	p.ZobRistLock ^= PreGenZobRistLockPlayer
 }
+
+func (p *Engine) ShellSort(mvs []int, vls []int) {
+	stepLevel := 1
+	for SHELL_STEP[stepLevel] < len(mvs) {
+		stepLevel++
+	}
+	stepLevel--
+	for stepLevel > 0 {
+		step := SHELL_STEP[stepLevel]
+		for i := 0; i < len(mvs); i++ {
+			mvBest := mvs[i]
+			vlBest := vls[i]
+			j := i - step
+			for j >= 0 && vlBest > vls[j] {
+				mvs[j+step] = mvs[j]
+				vls[j+step] = vls[j]
+				j -= step
+			}
+			mvs[j+step] = mvBest
+			vls[j+step] = vlBest
+		}
+		stepLevel--
+	}
+}
