@@ -1,48 +1,49 @@
-package book
+package engine
 
 import (
+	"chessai/book"
 	"math"
 	"math/rand"
 	"strings"
 )
 
-type Position struct {
+type Engine struct {
 	SdPlayer    int
-	ZobristKey  int
-	ZobristLock int
+	ZobRistKey  int
+	ZobRistLock int
 	VlWhite     int
 	Distance    int
 	VlBlack     int
 	MvList      []int
-	pcList      []int
+	PcList      []int
 	KeyList     []int
 	ChkList     []bool
 	Squares     [256]int
 }
 
-func NewPosition() *Position {
-	return new(Position)
+func NewPosition() *Engine {
+	return new(Engine)
 }
 
-func (p *Position) ClearBoard() {
+func (p *Engine) ClearBoard() {
 	p.SdPlayer = 0
-	p.ZobristKey = 0
-	p.ZobristLock = 0
+	p.ZobRistKey = 0
+	p.ZobRistLock = 0
 	p.VlWhite = 0
 	p.VlBlack = 0
 	p.Squares = [256]int{}
 
 }
 
-func (p *Position) SetIrrev() {
+func (p *Engine) SetIrrev() {
 	p.Distance = 0
 	p.MvList = []int{0}
-	p.pcList = []int{0}
+	p.PcList = []int{0}
 	p.KeyList = []int{0}
 	p.ChkList = []bool{p.Checked()}
 }
 
-func (p *Position) Checked() bool {
+func (p *Engine) Checked() bool {
 	pcSelfSide := SIDE_TAG(p.SdPlayer)
 	pcOppSide := OPP_SIDE_TAG(p.SdPlayer)
 
@@ -106,22 +107,22 @@ func (p *Position) Checked() bool {
 	return false
 }
 
-func (p *Position) MateValue() int {
+func (p *Engine) MateValue() int {
 	return p.Distance - MATE_VALUE
 }
 
-func (p *Position) BanValue() int {
+func (p *Engine) BanValue() int {
 	return p.Distance - BAN_VALUE
 }
 
-func (p *Position) DrawValue() int {
+func (p *Engine) DrawValue() int {
 	if p.Distance&1 == 0 {
 		return -DRAW_VALUE
 	}
 	return DRAW_VALUE
 }
 
-func (p *Position) Evaluate() int {
+func (p *Engine) Evaluate() int {
 	var vl int
 	if p.SdPlayer == 0 {
 		vl = p.VlWhite - p.VlBlack
@@ -135,7 +136,7 @@ func (p *Position) Evaluate() int {
 	return vl
 }
 
-func (p *Position) NullOkay() bool {
+func (p *Engine) NullOkay() bool {
 	var vl int
 	if p.SdPlayer == 0 {
 		vl = p.VlWhite
@@ -145,7 +146,7 @@ func (p *Position) NullOkay() bool {
 	return vl > NULL_OKAY_MARGIN
 }
 
-func (p *Position) NullSafe() bool {
+func (p *Engine) NullSafe() bool {
 	var vl int
 	if p.SdPlayer == 0 {
 		vl = p.VlWhite
@@ -155,15 +156,15 @@ func (p *Position) NullSafe() bool {
 	return vl > NULL_SAFE_MARGIN
 }
 
-func (p *Position) InCheck() bool {
+func (p *Engine) InCheck() bool {
 	return p.ChkList[len(p.ChkList)-1]
 }
 
-func (p *Position) Captured() bool {
-	return p.pcList[len(p.pcList)-1] > 0
+func (p *Engine) Captured() bool {
+	return p.PcList[len(p.PcList)-1] > 0
 }
 
-func (p *Position) RepValue(vlRep int) int {
+func (p *Engine) RepValue(vlRep int) int {
 	var vl int
 	if vlRep&2 != 0 {
 		vl = p.BanValue()
@@ -177,38 +178,36 @@ func (p *Position) RepValue(vlRep int) int {
 	return vl
 }
 
-func (p *Position) RepStatus(recur int) int {
+func (p *Engine) RepStatus(recur int) (status int) {
 	selfSide := false
 	perpCheck := true
 	oppPerpCheck := true
 	index := len(p.MvList) - 1
-
-	for p.MvList[index] > 0 && p.pcList[index] == 0 {
+	for p.MvList[index] > 0 && p.PcList[index] == 0 {
 		if selfSide {
 			perpCheck = perpCheck && p.ChkList[index]
-			if p.KeyList[index] == p.ZobristKey {
-				recur -= 1
+			if p.KeyList[index] == p.ZobRistKey {
+				recur--
 				if recur == 0 {
-					status := 1
 					if perpCheck {
 						status += 2
 					}
 					if oppPerpCheck {
 						status += 4
 					}
-					return status
+					return status + 1
 				}
 			}
 		} else {
 			oppPerpCheck = oppPerpCheck && p.ChkList[index]
-			selfSide = !selfSide
-			index--
 		}
+		selfSide = !selfSide
+		index--
 	}
-	return 0
+	return status
 }
 
-func (p *Position) Mirror() *Position {
+func (p *Engine) Mirror() *Engine {
 	pos := NewPosition()
 	pos.ClearBoard()
 	for i := 0; i < len(pos.Squares); i++ {
@@ -223,34 +222,34 @@ func (p *Position) Mirror() *Position {
 	return pos
 }
 
-func (p *Position) BookMove() int {
+func (p *Engine) BookMove() int {
 	var mirror bool
-	lock := UnsignedRightShift(p.ZobristLock, 1)
-	index := BinarySearch(BOOK_DAT, lock)
+	lock := UnsignedRightShift(p.ZobRistLock, 1)
+	index := book.BinarySearch(lock)
 	if index < 0 {
 		mirror = true
-		lock = UnsignedRightShift(p.Mirror().ZobristLock, 1)
-		index = BinarySearch(BOOK_DAT, lock)
+		lock = UnsignedRightShift(p.Mirror().ZobRistLock, 1)
+		index = book.BinarySearch(lock)
 		if index < 0 {
 			return 0
 		}
 	}
 	index--
-	for index >= 0 && BOOK_DAT[index][0] == lock {
+	for index >= 0 && book.DATA[index][0] == lock {
 		index--
 	}
 	mvs := make([]int, 0)
 	vls := make([]int, 0)
 	var value int
 	index += 1
-	for index < len(BOOK_DAT) && BOOK_DAT[index][0] == lock {
-		mv := BOOK_DAT[index][1]
+	for index < len(book.DATA) && book.DATA[index][0] == lock {
+		mv := book.DATA[index][1]
 		if mirror {
 			mv = MIRROR_MOVE(mv)
 		}
 		if p.LegalMove(mv) {
 			mvs = append(mvs, mv)
-			vl := BOOK_DAT[index][2]
+			vl := book.DATA[index][2]
 			vls = append(vls, vl)
 			value += vl
 		}
@@ -259,10 +258,7 @@ func (p *Position) BookMove() int {
 	if value == 0 {
 		return 0
 	}
-	// todo 这里似乎有问题
-	println("v1", value)
 	value = int(math.Floor(rand.Float64() * float64(value)))
-	println("v2", value)
 	for index = 0; index < len(mvs); index++ {
 		value -= vls[index]
 		if value < 0 {
@@ -272,29 +268,29 @@ func (p *Position) BookMove() int {
 	return mvs[index]
 }
 
-func (p *Position) NullMove() {
+func (p *Engine) NullMove() {
 	p.MvList = append(p.MvList, 0)
-	p.pcList = append(p.pcList, 0)
-	p.KeyList = append(p.KeyList, p.ZobristKey)
+	p.PcList = append(p.PcList, 0)
+	p.KeyList = append(p.KeyList, p.ZobRistKey)
 	p.ChangeSide()
 	p.ChkList = append(p.ChkList, false)
 	p.Distance++
 }
 
-func (p *Position) UndoNullMove() {
+func (p *Engine) UndoNullMove() {
 	p.Distance--
 	p.ChkList = p.ChkList[:len(p.ChkList)-1]
 	p.ChangeSide()
 	p.KeyList = p.KeyList[:len(p.KeyList)-1]
-	p.pcList = p.KeyList[:len(p.KeyList)-1]
-	p.MvList = p.KeyList[:len(p.KeyList)-1]
+	p.PcList = p.PcList[:len(p.PcList)-1]
+	p.MvList = p.MvList[:len(p.MvList)-1]
 }
 
-func (p *Position) HistoryIndex(mv int) int {
+func (p *Engine) HistoryIndex(mv int) int {
 	return ((p.Squares[SRC(mv)] - 8) << 8) + DST(mv)
 }
 
-func (p *Position) Winner() int {
+func (p *Engine) Winner() int {
 	if p.IsMate() {
 		return 1 - p.SdPlayer
 	}
@@ -332,7 +328,7 @@ func (p *Position) Winner() int {
 	return 0
 }
 
-func (p *Position) LegalMove(mv int) bool {
+func (p *Engine) LegalMove(mv int) bool {
 	sqSrc := SRC(mv)
 	pcSrc := p.Squares[sqSrc]
 
@@ -398,7 +394,7 @@ func (p *Position) LegalMove(mv int) bool {
 	return false
 }
 
-func (p *Position) IsMate() bool {
+func (p *Engine) IsMate() bool {
 	mvs := p.GenerateMoves(nil)
 	for _, v := range mvs {
 		if p.MakeMove(v) {
@@ -409,7 +405,7 @@ func (p *Position) IsMate() bool {
 	return true
 }
 
-func (p *Position) UndoMakeMove() {
+func (p *Engine) UndoMakeMove() {
 	p.Distance -= 1
 	p.ChkList = p.ChkList[:len(p.ChkList)-1]
 	p.ChangeSide()
@@ -417,7 +413,7 @@ func (p *Position) UndoMakeMove() {
 	p.UndoMovePiece()
 }
 
-func (p *Position) GenerateMoves(vls []int) (mvs []int) {
+func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 	pcSelfSide := SIDE_TAG(p.SdPlayer)
 	pcOppSide := OPP_SIDE_TAG(p.SdPlayer)
 	for sqSrc := 0; sqSrc < 256; sqSrc++ {
@@ -436,13 +432,13 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 
 				pcDst := p.Squares[sqDst]
 
-				if len(vls) == 0 {
+				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
-					vls = append(vls, MVV_LVA(pcDst, 5))
+					*vls = append(*vls, MVV_LVA(pcDst, 5))
 				}
 			}
 
@@ -453,13 +449,13 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 					continue
 				}
 				pcDst := p.Squares[sqDst]
-				if len(vls) == 0 {
+				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
-					vls = append(vls, MVV_LVA(pcDst, 1))
+					*vls = append(*vls, MVV_LVA(pcDst, 1))
 				}
 			}
 
@@ -472,13 +468,13 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 				}
 				sqDst += ADVISOR_DELTA[i]
 				pcDst := p.Squares[sqDst]
-				if len(vls) == 0 {
+				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
-					vls = append(vls, MVV_LVA(pcDst, 1))
+					*vls = append(*vls, MVV_LVA(pcDst, 1))
 				}
 			}
 
@@ -494,13 +490,13 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 						continue
 					}
 					pcDst := p.Squares[sqDst]
-					if len(vls) == 0 {
+					if vls == nil {
 						if (pcDst & pcSelfSide) == 0 {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
 						}
 					} else if (pcDst & pcOppSide) != 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
-						vls = append(vls, MVV_LVA(pcDst, 1))
+						*vls = append(*vls, MVV_LVA(pcDst, 1))
 					}
 				}
 			}
@@ -513,14 +509,14 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 				for IN_BOARD(sqDst) {
 					pcDst := p.Squares[sqDst]
 					if pcDst == 0 {
-						if len(vls) == 0 {
+						if vls == nil {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
 						}
 					} else {
 						if (pcDst & pcOppSide) != 0 {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
-							if len(vls) > 0 {
-								vls = append(vls, MVV_LVA(pcDst, 4))
+							if vls != nil {
+								*vls = append(*vls, MVV_LVA(pcDst, 4))
 							}
 						}
 						break
@@ -536,7 +532,7 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 				for IN_BOARD(sqDst) {
 					pcDst := p.Squares[sqDst]
 					if pcDst == 0 {
-						if len(vls) == 0 {
+						if vls == nil {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
 						}
 					} else {
@@ -551,8 +547,8 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 					if pcDst > 0 {
 						if (pcDst & pcOppSide) != 0 {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
-							if len(vls) > 0 {
-								vls = append(vls, MVV_LVA(pcDst, 4))
+							if vls != nil {
+								*vls = append(*vls, MVV_LVA(pcDst, 4))
 							}
 						}
 						break
@@ -566,13 +562,13 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 			sqDst := SQUARE_FORWARD(sqSrc, p.SdPlayer)
 			if IN_BOARD(sqDst) {
 				pcDst := p.Squares[sqDst]
-				if len(vls) == 0 {
+				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
-					vls = append(vls, MVV_LVA(pcDst, 4))
+					*vls = append(*vls, MVV_LVA(pcDst, 4))
 				}
 			}
 			if AWAY_HALF(sqSrc, p.SdPlayer) {
@@ -580,13 +576,13 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 					sqDst = sqSrc + delta
 					if IN_BOARD(sqDst) {
 						pcDst := p.Squares[sqDst]
-						if len(vls) == 0 {
+						if vls == nil {
 							if (pcDst & pcSelfSide) == 0 {
 								mvs = append(mvs, MOVE(sqSrc, sqDst))
 							}
 						} else {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
-							vls = append(vls, MVV_LVA(pcDst, 4))
+							*vls = append(*vls, MVV_LVA(pcDst, 4))
 						}
 					}
 				}
@@ -598,11 +594,11 @@ func (p *Position) GenerateMoves(vls []int) (mvs []int) {
 	return mvs
 }
 
-func (p *Position) MovePiece(mv int) {
+func (p *Engine) MovePiece(mv int) {
 	sqSrc := SRC(mv)
 	sqDst := DST(mv)
 	pc := p.Squares[sqDst]
-	p.pcList = append(p.pcList, pc)
+	p.PcList = append(p.PcList, pc)
 	if pc > 0 {
 		p.AddPiece(sqDst, pc, DEL_PIECE)
 	}
@@ -612,7 +608,7 @@ func (p *Position) MovePiece(mv int) {
 	p.MvList = append(p.MvList, mv)
 }
 
-func (p *Position) UndoMovePiece() {
+func (p *Engine) UndoMovePiece() {
 	mv := p.MvList[len(p.MvList)-1]
 	p.MvList = p.MvList[:len(p.MvList)-1]
 	sqSrc := SRC(mv)
@@ -620,15 +616,15 @@ func (p *Position) UndoMovePiece() {
 	pc := p.Squares[sqDst]
 	p.AddPiece(sqDst, pc, DEL_PIECE)
 	p.AddPiece(sqSrc, pc, ADD_PIECE)
-	pc = p.pcList[len(p.pcList)-1]
-	p.pcList = p.pcList[:len(p.MvList)-1]
+	pc = p.PcList[len(p.PcList)-1]
+	p.PcList = p.PcList[:len(p.PcList)-1]
 	if pc > 0 {
 		p.AddPiece(sqDst, pc, ADD_PIECE)
 	}
 }
 
-func (p *Position) MakeMove(mv int) bool {
-	zobristKey := p.ZobristKey
+func (p *Engine) MakeMove(mv int) bool {
+	zobristKey := p.ZobRistKey
 	p.MovePiece(mv)
 	if p.Checked() {
 		p.UndoMovePiece()
@@ -641,7 +637,7 @@ func (p *Position) MakeMove(mv int) bool {
 	return true
 }
 
-func (p *Position) AddPiece(sq, pc int, deleted bool) {
+func (p *Engine) AddPiece(sq, pc int, deleted bool) {
 	if deleted {
 		p.Squares[sq] = 0
 	} else {
@@ -668,11 +664,11 @@ func (p *Position) AddPiece(sq, pc int, deleted bool) {
 		pcAdjust += 7
 	}
 
-	p.ZobristKey ^= PreGen_zobristKeyTable[pcAdjust][sq]
-	p.ZobristLock ^= PreGen_zobristLockTable[pcAdjust][sq]
+	p.ZobRistKey ^= PreGenZobRistKeyTable[pcAdjust][sq]
+	p.ZobRistLock ^= PreGenZobRistLockTable[pcAdjust][sq]
 }
 
-func (p *Position) FromFen(fen string) {
+func (p *Engine) FromFen(fen string) {
 	p.ClearBoard()
 	x := FILE_LEFT
 	y := RANK_TOP
@@ -735,7 +731,7 @@ func (p *Position) FromFen(fen string) {
 	p.SetIrrev()
 }
 
-func (p *Position) ToFen() (fen string) {
+func (p *Engine) ToFen() (fen string) {
 	var chars []string
 	for y := RANK_TOP; y < RANK_BOTTOM+1; y++ {
 		k := 0
@@ -755,7 +751,6 @@ func (p *Position) ToFen() (fen string) {
 		if k > 0 {
 			row += string(rune('0' + k))
 		}
-		// fen += "/"
 		chars = append(chars, row)
 	}
 	fen = strings.Join(chars, "/")
@@ -767,8 +762,8 @@ func (p *Position) ToFen() (fen string) {
 	return fen
 }
 
-func (p *Position) ChangeSide() {
+func (p *Engine) ChangeSide() {
 	p.SdPlayer = 1 - p.SdPlayer
-	p.ZobristKey ^= PreGen_zobristKeyPlayer
-	p.ZobristLock ^= PreGen_zobristLockPlayer
+	p.ZobRistKey ^= PreGenZobRistKeyPlayer
+	p.ZobRistLock ^= PreGenZobRistLockPlayer
 }

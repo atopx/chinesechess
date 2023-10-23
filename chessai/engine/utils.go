@@ -1,4 +1,4 @@
-package book
+package engine
 
 import (
 	"encoding/binary"
@@ -33,14 +33,10 @@ func FILE_FLIP(x int) int {
 	return 14 - x
 }
 
-func RANK_FLIP(y int) int {
-	return 15 - y
-}
-
 func MIRROR_SQUARE(sq int) int {
 	return COORD_XY(FILE_FLIP(FILE_X(sq)), RANK_Y(sq))
-
 }
+
 func SQUARE_FORWARD(sq, sd int) int {
 	return sq - 16 + (sd << 5)
 }
@@ -62,7 +58,7 @@ func BISHOP_PIN(sqSrc, sqDst int) int {
 }
 
 func KNIGHT_PIN(sqSrc, sqDst int) int {
-	return sqSrc + KNIGHT_PIN_[sqDst-sqSrc+256]
+	return sqSrc + KNIGHT_SPIN[sqDst-sqSrc+256]
 }
 
 func HOME_HALF(sq, sd int) bool {
@@ -113,7 +109,7 @@ func MVV_LVA(pc, lva int) int {
 }
 
 func CHR(n int) string {
-	return fmt.Sprintf("%x", n)
+	return string(rune(n))
 }
 
 func ASC(c rune) int {
@@ -147,24 +143,6 @@ func CHAR_TO_PIECE(c byte) int {
 	}
 }
 
-func BinarySearch(vlss [][3]int, vl int) int {
-	low := 0
-	high := len(vlss) - 1
-
-	for low <= high {
-		mid := (low + high) >> 1
-		if vlss[mid][0] < vl {
-			low = mid + 1
-		} else if vlss[mid][0] > vl {
-			high = mid - 1
-		} else {
-			return mid
-		}
-
-	}
-	return -1
-}
-
 func UnsignedRightShift(x int, y int) int {
 	x = x & 0xffffffff
 	b := make([]byte, 4)
@@ -173,24 +151,10 @@ func UnsignedRightShift(x int, y int) int {
 	return x >> (y & 0xf)
 }
 
-// func UnsignedRightShift(x, y int) uint64 {
-// 	x = x & 0xffffffff
-// 	xByte := make([]byte, 4)
-// 	for i := 3; i >= 0; i-- {
-// 		xByte[i] = byte(x & 0xff)
-// 		x >>= 8
-// 	}
-// 	xUnsigned := uint64(0)
-// 	for i := 0; i < 4; i++ {
-// 		xUnsigned = (xUnsigned << 8) | uint64(xByte[i])
-// 	}
-// 	return xUnsigned >> (y & 0xf)
-// }
-
 func Cord2uint8(cord string) int {
 	alphabet := cord[0] - 'A' + FILE_LEFT
 	numeric := '9' - cord[1] + RANK_TOP
-	return int((numeric)<<4 + alphabet)
+	return int(numeric<<4 + alphabet)
 }
 
 func Iccs2Move(iccs string) int {
@@ -202,39 +166,10 @@ func Iccs2Move(iccs string) int {
 func Move2Iccs(mv int) string {
 	src := SRC(mv)
 	dst := DST(mv)
-	return fmt.Sprintf("%s%s%s%s",
+	return fmt.Sprintf("%s%s-%s%s",
 		string(rune('A'+FILE_X(src)-FILE_LEFT)),
 		string(rune('9'-RANK_Y(src)+RANK_TOP)),
 		string(rune('A'+FILE_X(dst)-FILE_LEFT)),
 		string(rune('9'-RANK_Y(dst)+RANK_TOP)),
 	)
-}
-
-type HashTableObject struct {
-	Depth, Flag, Vl, Mv, ZobristLock int
-}
-
-func ShellSort(mvs []int, vls []int) {
-	stepLevel := 1
-	for SHELL_STEP[stepLevel] < len(mvs) {
-		stepLevel++
-	}
-	stepLevel--
-
-	for stepLevel > 0 {
-		step := SHELL_STEP[stepLevel]
-		for i := 0; i < len(mvs); i++ {
-			mvBest := mvs[i]
-			vlBest := vls[i]
-			j := i - step
-			for j >= 0 && vlBest > vls[j] {
-				mvs[j+step] = mvs[j]
-				vls[j+step] = vls[j]
-				j -= step
-			}
-			mvs[j+step] = mvBest
-			vls[j+step] = vlBest
-		}
-		stepLevel--
-	}
 }

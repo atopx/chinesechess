@@ -1,16 +1,15 @@
-package book
+package engine
 
 type MoveSort struct {
 	mvs, vls, historyTable       []int
 	mvHash, mvKiller1, mvKiller2 int
-	pos                          *Position
+	pos                          *Engine
 	index, phase                 int
 	signleReply                  bool
 }
 
 func NewMoveSort(
-	mvHash int,
-	pos *Position,
+	mvHash int, pos *Engine,
 	killerTable [][2]int,
 	historyTable []int,
 ) *MoveSort {
