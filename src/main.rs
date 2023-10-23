@@ -12,6 +12,7 @@ mod plugin;
 mod public;
 mod system;
 mod menu;
+mod engine;
 mod chessbroad;
 
 fn main() {

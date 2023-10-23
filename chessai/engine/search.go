@@ -350,7 +350,7 @@ func (s *Search) SearchMain(depth, millis int) int {
 		s.engine.UndoMakeMove()
 	}
 
-	s.HashTable = []*HashObject{}
+	s.HashTable = make([]*HashObject, 0, len(s.HashTable))
 	for i := 0; i < s.HashMask+1; i++ {
 		s.HashTable = append(s.HashTable, &HashObject{
 			Depth: 0, Flag: 0, Vl: 0, Mv: 0, ZobRistLock: 0,

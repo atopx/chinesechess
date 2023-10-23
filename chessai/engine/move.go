@@ -3,7 +3,7 @@ package engine
 type MoveSort struct {
 	mvs, vls, historyTable       []int
 	mvHash, mvKiller1, mvKiller2 int
-	pos                          *Engine
+	eng                          *Engine
 	index, phase                 int
 	signleReply                  bool
 }
@@ -15,7 +15,7 @@ func NewMoveSort(
 ) *MoveSort {
 
 	ms := &MoveSort{
-		pos:          pos,
+		eng:          pos,
 		historyTable: historyTable,
 		phase:        PHASE_HASH,
 	}
@@ -55,24 +55,24 @@ func (m *MoveSort) Next() int {
 
 	if m.phase == PHASE_KILLER_1 {
 		m.phase = PHASE_KILLER_2
-		if m.mvKiller1 != m.mvHash && m.mvKiller1 > 0 && m.pos.LegalMove(m.mvKiller1) {
+		if m.mvKiller1 != m.mvHash && m.mvKiller1 > 0 && m.eng.LegalMove(m.mvKiller1) {
 			return m.mvKiller1
 		}
 	}
 
 	if m.phase == PHASE_KILLER_2 {
 		m.phase = PHASE_GEN_MOVES
-		if m.mvKiller2 != m.mvHash && m.mvKiller2 > 0 && m.pos.LegalMove(m.mvKiller2) {
+		if m.mvKiller2 != m.mvHash && m.mvKiller2 > 0 && m.eng.LegalMove(m.mvKiller2) {
 			return m.mvKiller2
 		}
 	}
 
 	if m.phase == PHASE_GEN_MOVES {
 		m.phase = PHASE_REST
-		m.mvs = m.pos.GenerateMoves(nil)
+		m.mvs = m.eng.GenerateMoves(nil)
 		m.vls = []int{}
 		for _, mv := range m.mvs {
-			m.vls = append(m.vls, m.historyTable[m.pos.HistoryIndex(mv)])
+			m.vls = append(m.vls, m.historyTable[m.eng.HistoryIndex(mv)])
 		}
 		ShellSort(m.mvs, m.vls)
 		m.index = 0

@@ -21,7 +21,7 @@ type Engine struct {
 	Squares     [256]int
 }
 
-func NewPosition() *Engine {
+func NewEngine() *Engine {
 	return new(Engine)
 }
 
@@ -208,7 +208,7 @@ func (p *Engine) RepStatus(recur int) (status int) {
 }
 
 func (p *Engine) Mirror() *Engine {
-	pos := NewPosition()
+	pos := NewEngine()
 	pos.ClearBoard()
 	for i := 0; i < len(pos.Squares); i++ {
 		pc := p.Squares[i]
