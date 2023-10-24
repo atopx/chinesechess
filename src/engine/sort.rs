@@ -11,6 +11,7 @@ pub struct MoveSort {
 impl MoveSort {
     pub fn new(
         eng: super::core::Engine,
+        hash: isize,
         killer_table: Vec<[isize; 2]>,
         history: Vec<isize>,
     ) -> Self {
@@ -31,6 +32,13 @@ impl MoveSort {
                 if sort.eng.make_move(mv) {
                     continue;
                 }
+                sort.eng.undo_make_move();
+                sort.mvs.push(mv);
+                if mv == hash {
+                    sort.vls.push(0x7fffffff);
+                } else {
+                    sort.vls.push(sort.history[sort.eng.history_index(mv)])
+                };
             }
         };
 
