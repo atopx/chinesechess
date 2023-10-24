@@ -9,7 +9,7 @@ pub struct Book {
 static BOOK: OnceLock<Book> = OnceLock::new();
 
 impl Book {
-    fn get() -> &'static Book {
+    pub fn get() -> &'static Book {
         // 获取或初始化 Logger
         BOOK.get_or_init(|| {
             let mut reader = BufReader::new(File::open("book.dat").unwrap());

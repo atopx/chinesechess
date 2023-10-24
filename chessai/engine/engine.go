@@ -208,18 +208,18 @@ func (p *Engine) RepStatus(recur int) (status int) {
 }
 
 func (p *Engine) Mirror() *Engine {
-	pos := NewEngine()
-	pos.ClearBoard()
-	for i := 0; i < len(pos.Squares); i++ {
+	mirror := NewEngine()
+	mirror.ClearBoard()
+	for i := 0; i < len(mirror.Squares); i++ {
 		pc := p.Squares[i]
 		if pc > 0 {
-			pos.AddPiece(MIRROR_SQUARE(i), pc, ADD_PIECE)
+			mirror.AddPiece(MIRROR_SQUARE(i), pc, ADD_PIECE)
 		}
 	}
 	if p.SdPlayer == 1 {
-		pos.ChangeSide()
+		mirror.ChangeSide()
 	}
-	return pos
+	return mirror
 }
 
 func (p *Engine) BookMove() int {

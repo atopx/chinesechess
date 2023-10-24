@@ -10,7 +10,7 @@ pub fn coord_xy(x: isize, y: isize) -> isize {
     x + (y << 4)
 }
 
-pub fn square_fltp(sq: isize) -> isize {
+pub fn square_fltp(sq: usize) -> usize {
     254 - sq
 }
 
