@@ -32,7 +32,7 @@ func TestMoves(t *testing.T) {
 
 func Test_Search(t *testing.T) {
 	eng := engine.NewEngine()
-	search := engine.NewSearch(eng, 256)
+	search := engine.NewSearch(eng, 16)
 
 	t.Run("26215", func(t *testing.T) {
 		fen := "9/2Cca4/3k1C3/4P1p2/4N1b2/4R1r2/4c1n2/3p1n3/2rNK4/9 w"
@@ -41,7 +41,6 @@ func Test_Search(t *testing.T) {
 		if mv != 26215 {
 			t.Fatalf("error, excep: 26215: get %d", mv)
 		}
-		t.Logf("fen: %s, move: %s", fen, engine.Move2Iccs(mv))
 	})
 
 	t.Run("17751", func(t *testing.T) {

@@ -5,18 +5,20 @@ use super::{
     pregen::{self, IN_BROAD},
     util,
 };
+
+#[derive(Clone)]
 pub struct Engine {
-    sd_player: usize,
-    zobrist_key: isize,
-    zobrist_lock: isize,
+    pub sd_player: usize,
+    pub zobrist_key: isize,
+    pub zobrist_lock: isize,
     vl_white: isize,
     vl_black: isize,
-    distance: isize,
+    pub distance: usize,
     mv_list: Vec<isize>,
     pc_list: Vec<usize>,
     key_list: Vec<isize>,
     chk_list: Vec<bool>,
-    squares: [usize; 256],
+    pub squares: [usize; 256],
 }
 
 impl Engine {
@@ -36,7 +38,95 @@ impl Engine {
         }
     }
 
-    pub fn clearborad(&mut self) {
+    pub fn from_fen(&mut self, fen: &str) {
+        self.clearboard();
+        let mut x = pregen::FILE_LEFT;
+        let mut y = pregen::RANK_TOP;
+        let mut index = 0;
+
+        if fen.len() == index {
+            self.set_irrev();
+            return;
+        }
+        
+        let mut chars = fen.chars();
+        let mut c = chars.next().unwrap();
+        while c != ' ' {
+            if c == '/' {
+                x = pregen::FILE_LEFT;
+                y += 1;
+                if y > pregen::RANK_BOTTOM {
+                    break;
+                }
+            } else if c >= '1' && c <= '9' {
+                x += (c as u8 - b'0') as isize;
+            } else if c >= 'A' && c <= 'Z' {
+                if x <= pregen::FILE_RIGHT {
+                    if let Some(pt) = pregen::from_char(c){
+                        self.add_piece(util::coord_xy(x, y) as usize, pt + 8, pregen::PieceAction::ADD);
+                    };
+                    x += 1;
+                }
+            } else if c >= 'a' && c <= 'z' {
+                if x <= pregen::FILE_RIGHT {
+                    let pt = pregen::from_char((c as u8 + b'A' - b'a') as char);
+                    if let Some(pt) = pregen::from_char((c as u8 + b'A' - b'a') as char) {
+                        self.add_piece(util::coord_xy(x, y) as usize, pt + 16, pregen::PieceAction::ADD);
+                    }
+                    x += 1;
+                }
+            }
+            index += 1;
+            if index == fen.len() {
+                self.set_irrev();
+                return;
+            }
+            c = chars.next().unwrap();
+        }
+        index += 1;
+        if index == fen.len() {
+            self.set_irrev();
+            return;
+        }
+        let player = if fen.chars().nth(index).unwrap() == 'b' { 0 } else { 1 };
+        if self.sd_player == player {
+            self.change_side();
+        }
+        self.set_irrev();
+    }
+
+    pub fn to_fen(&self) -> String {
+        let mut chars: Vec<String> = Vec::new();
+        for y in pregen::RANK_TOP..pregen::RANK_BOTTOM+1 {
+            let mut k = 0;
+            let mut row = String::new();
+            for x in pregen::FILE_LEFT..pregen::FILE_RIGHT+1 {
+                let pc = self.squares[util::coord_xy(x, y) as usize];
+                if pc > 0 {
+                    if k > 0 {
+                        row.push((k as u8 + b'0') as char);
+                        k = 0;
+                    }
+                    row.push(pregen::FEN_PIECE[pc]);
+                } else {
+                    k += 1;
+                }
+            }
+            if k > 0 {
+                row.push((k as u8 + b'0') as char);
+            }
+            chars.push(row);
+        }
+        let mut fen = chars.join("/");
+        if self.sd_player == 0 {
+            fen.push_str(" w");
+        } else {
+            fen.push_str(" b");
+        }
+        fen
+    }
+
+    pub fn clearboard(&mut self) {
         self.sd_player = 0;
         self.zobrist_key = 0;
         self.zobrist_lock = 0;
@@ -53,12 +143,12 @@ impl Engine {
         self.chk_list = vec![self.checked()];
     }
 
-    pub fn mate_valie(&self) -> isize {
-        self.distance - pregen::MATE_VALUE
+    pub fn mate_value(&self) -> usize {
+        self.distance.saturating_add_signed(pregen::MATE_VALUE)
     }
 
-    pub fn ban_value(&self) -> isize {
-        self.distance - pregen::BAN_VALUE
+    pub fn ban_value(&self) -> usize {
+        self.distance.saturating_add_signed(pregen::BAN_VALUE)
     }
 
     pub fn draw_value(&self) -> isize {
@@ -125,10 +215,10 @@ impl Engine {
     pub fn rep_value(&self, vl_rep: isize) -> isize {
         let mut vl: isize = 0;
         if vl_rep & 2 != 0 {
-            vl = self.ban_value();
+            vl = self.ban_value() as isize;
         };
         if vl_rep & 4 != 0 {
-            vl -= self.ban_value();
+            vl -= self.ban_value() as isize;
         };
         match vl {
             0 => self.draw_value(),
@@ -177,19 +267,19 @@ impl Engine {
     }
 
     pub fn book_move(&self) -> isize {
-        let mut mirrorOption: bool = false;
+        let mut mirror_opt: bool = false;
         let mut lock = util::unsigned_right_shift(self.zobrist_lock, 1);
-        let mut indexOption = Book::get().search(lock);
+        let mut index_opt = Book::get().search(lock);
         let book = Book::get();
-        if indexOption.is_none() {
-            mirrorOption = true;
+        if index_opt.is_none() {
+            mirror_opt = true;
             lock = util::unsigned_right_shift(self.mirror().zobrist_lock, 1);
-            indexOption = book.search(lock);
-            if indexOption.is_none() {
+            index_opt = book.search(lock);
+            if index_opt.is_none() {
                 return 0;
             }
         };
-        let mut index = indexOption.unwrap() - 1;
+        let mut index = index_opt.unwrap() - 1;
         while index >= 0 && book.data[index][0] == lock {
             index -= 1;
         }
@@ -200,7 +290,7 @@ impl Engine {
         let book = Book::get();
         while index < book.data.len() && book.data[index][0] == lock {
             let mv = book.data[index][1];
-            if mirrorOption {
+            if mirror_opt {
                 let mv = util::mirror_move(mv);
             }
             if self.legal_move(mv) {
@@ -306,7 +396,7 @@ impl Engine {
 
     pub fn mirror(&self) -> Self {
         let mut mirror = Self::new();
-        mirror.clearborad();
+        mirror.clearboard();
         for i in 0..mirror.squares.len() {
             let pc = self.squares[i];
             if pc > 0 {
@@ -380,12 +470,12 @@ impl Engine {
             let score = pregen::PIECE_VALUE[adjust][sq];
             self.squares[sq] = match action {
                 pregen::PieceAction::ADD => {
-                    self.vl_white -= score;
-                    0
-                }
-                pregen::PieceAction::DEL => {
                     self.vl_white += score;
                     pc
+                }
+                pregen::PieceAction::DEL => {
+                    self.vl_white -= score;
+                    0
                 }
             }
         } else {
@@ -394,12 +484,12 @@ impl Engine {
             adjust += 7;
             self.squares[sq] = match action {
                 pregen::PieceAction::ADD => {
-                    self.vl_black -= score;
-                    0
-                }
-                pregen::PieceAction::DEL => {
                     self.vl_black += score;
                     pc
+                }
+                pregen::PieceAction::DEL => {
+                    self.vl_black -= score;
+                    0
                 }
             }
         }
@@ -474,7 +564,7 @@ impl Engine {
         return false;
     }
 
-    pub fn generate_mvs(&self, vls_opt: &mut Option<Vec<usize>>) -> Vec<isize> {
+    pub fn generate_mvs(&self, vls_opt: &mut Option<Vec<isize>>) -> Vec<isize> {
         let self_side = util::side_tag(self.sd_player as isize) as usize;
         let opp_side = util::opp_side_tag(self.sd_player as isize) as usize;
         let mut mvs = vec![];
@@ -497,7 +587,7 @@ impl Engine {
                             Some(vls) => {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                    vls.push(pregen::MVV_LVA(pc_dst, 5));
+                                    vls.push(pregen::MVV_LVA(pc_dst, 5) as isize);
                                 }
                             }
                             None => {
@@ -520,7 +610,7 @@ impl Engine {
                             Some(vls) => {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                    vls.push(pregen::MVV_LVA(pc_dst, 1));
+                                    vls.push(pregen::MVV_LVA(pc_dst, 1) as isize);
                                 }
                             }
                             None => {
@@ -547,7 +637,7 @@ impl Engine {
                             Some(vls) => {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                    vls.push(pregen::MVV_LVA(pc_dst, 1));
+                                    vls.push(pregen::MVV_LVA(pc_dst, 1) as isize);
                                 }
                             }
                             None => {
@@ -574,7 +664,7 @@ impl Engine {
                                 Some(vls) => {
                                     if pc_dst & opp_side != 0 {
                                         mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                        vls.push(pregen::MVV_LVA(pc_dst, 1));
+                                        vls.push(pregen::MVV_LVA(pc_dst, 1) as isize);
                                     }
                                 }
                                 None => {
@@ -601,7 +691,7 @@ impl Engine {
                                     mvs.push(util::merge(sq_src as isize, sq_dst as isize));
 
                                     if let Some(vls) = vls_opt {
-                                        vls.push(pregen::MVV_LVA(pc_dst, 4));
+                                        vls.push(pregen::MVV_LVA(pc_dst, 4) as isize);
                                     };
                                 };
                             };
@@ -632,7 +722,7 @@ impl Engine {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst as isize));
                                     if let Some(vls) = vls_opt {
-                                        vls.push(pregen::MVV_LVA(pc_dst, 4));
+                                        vls.push(pregen::MVV_LVA(pc_dst, 4) as isize);
                                     };
                                 }
                                 break;
@@ -649,7 +739,7 @@ impl Engine {
                             Some(vls) => {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                    vls.push(pregen::MVV_LVA(pc_dst, 4));
+                                    vls.push(pregen::MVV_LVA(pc_dst, 4) as isize);
                                 }
                             }
                             None => {
@@ -668,7 +758,7 @@ impl Engine {
                                     Some(vls) => {
                                         if pc_dst & opp_side != 0 {
                                             mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                            vls.push(pregen::MVV_LVA(pc_dst, 4));
+                                            vls.push(pregen::MVV_LVA(pc_dst, 4) as isize);
                                         }
                                     }
                                     None => {
@@ -716,7 +806,7 @@ impl Engine {
         let mut vl_rep = self.rep_status(3);
         if vl_rep > 0 {
             vl_rep = self.rep_value(vl_rep);
-            if -pregen::WIN_VALUE < vl_rep && vl_rep < pregen::WIN_VALUE {
+            if -pregen::WIN_VALUE < vl_rep && vl_rep < pregen::WIN_VALUE  as isize {
                 return 2;
             }
             return self.sd_player;

@@ -1,12 +1,13 @@
+#[derive(PartialEq)]
 pub enum Phase {
     HASH = 0,
-    KILLER_1 = 1,
-    KILLER_2 = 2,
+    KILLER_FIRST = 1,
+    KILLER_SECOND = 2,
     GEN_MOVES = 3,
     REST = 4,
 }
 
-pub const LIMIT_DEPTH: isize = 64;
+pub const LIMIT_DEPTH: usize = 64;
 pub const NULL_DEPTH: isize = 2;
 pub const RANDOMNESS: isize = 8;
 pub const HASH_ALPHA: isize = 1;
@@ -51,6 +52,8 @@ pub fn from_char(c: char) -> Option<usize> {
         _ => None,
     }
 }
+
+pub const FEN_PIECE: [char; 24] = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'K', 'A', 'B', 'N', 'R', 'C', 'P', ' ', 'k', 'a', 'b', 'n', 'r', 'c', 'p', ' ']; 
 
 pub const BROAD: [i8; 256] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -115,6 +118,7 @@ pub const fn MVV_LVA(pc: usize, lva: usize) -> usize {
     MVV_VALUE[pc & 7] - lva
 }
 
+#[derive(Debug)]
 pub enum PieceAction {
     ADD,
     DEL,
