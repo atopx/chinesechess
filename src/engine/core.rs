@@ -6,7 +6,7 @@ use super::{
     util,
 };
 
-#[derive(Clone)]
+#[derive(Clone)] // TODO 优化为指针
 pub struct Engine {
     pub sd_player: usize,
     pub zobrist_key: isize,
@@ -48,7 +48,7 @@ impl Engine {
             self.set_irrev();
             return;
         }
-        
+
         let mut chars = fen.chars();
         let mut c = chars.next().unwrap();
         while c != ' ' {
@@ -62,8 +62,12 @@ impl Engine {
                 x += (c as u8 - b'0') as isize;
             } else if c >= 'A' && c <= 'Z' {
                 if x <= pregen::FILE_RIGHT {
-                    if let Some(pt) = pregen::from_char(c){
-                        self.add_piece(util::coord_xy(x, y) as usize, pt + 8, pregen::PieceAction::ADD);
+                    if let Some(pt) = pregen::from_char(c) {
+                        self.add_piece(
+                            util::coord_xy(x, y) as usize,
+                            pt + 8,
+                            pregen::PieceAction::ADD,
+                        );
                     };
                     x += 1;
                 }
@@ -71,7 +75,11 @@ impl Engine {
                 if x <= pregen::FILE_RIGHT {
                     let pt = pregen::from_char((c as u8 + b'A' - b'a') as char);
                     if let Some(pt) = pregen::from_char((c as u8 + b'A' - b'a') as char) {
-                        self.add_piece(util::coord_xy(x, y) as usize, pt + 16, pregen::PieceAction::ADD);
+                        self.add_piece(
+                            util::coord_xy(x, y) as usize,
+                            pt + 16,
+                            pregen::PieceAction::ADD,
+                        );
                     }
                     x += 1;
                 }
@@ -88,7 +96,11 @@ impl Engine {
             self.set_irrev();
             return;
         }
-        let player = if fen.chars().nth(index).unwrap() == 'b' { 0 } else { 1 };
+        let player = if fen.chars().nth(index).unwrap() == 'b' {
+            0
+        } else {
+            1
+        };
         if self.sd_player == player {
             self.change_side();
         }
@@ -97,10 +109,10 @@ impl Engine {
 
     pub fn to_fen(&self) -> String {
         let mut chars: Vec<String> = Vec::new();
-        for y in pregen::RANK_TOP..pregen::RANK_BOTTOM+1 {
+        for y in pregen::RANK_TOP..pregen::RANK_BOTTOM + 1 {
             let mut k = 0;
             let mut row = String::new();
-            for x in pregen::FILE_LEFT..pregen::FILE_RIGHT+1 {
+            for x in pregen::FILE_LEFT..pregen::FILE_RIGHT + 1 {
                 let pc = self.squares[util::coord_xy(x, y) as usize];
                 if pc > 0 {
                     if k > 0 {
@@ -205,11 +217,11 @@ impl Engine {
     }
 
     pub fn in_check(&self) -> bool {
-        *self.chk_list.last().unwrap()
+        self.chk_list[self.chk_list.len() - 1]
     }
 
     pub fn captured(&self) -> bool {
-        *self.pc_list.last().unwrap() > 0
+        self.pc_list[self.pc_list.len() - 1] > 0
     }
 
     pub fn rep_value(&self, vl_rep: isize) -> isize {
@@ -806,7 +818,7 @@ impl Engine {
         let mut vl_rep = self.rep_status(3);
         if vl_rep > 0 {
             vl_rep = self.rep_value(vl_rep);
-            if -pregen::WIN_VALUE < vl_rep && vl_rep < pregen::WIN_VALUE  as isize {
+            if -pregen::WIN_VALUE < vl_rep && vl_rep < pregen::WIN_VALUE as isize {
                 return 2;
             }
             return self.sd_player;
