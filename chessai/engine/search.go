@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -116,26 +115,21 @@ func (s *Search) SetBestMove(mv, depth int) {
 
 func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 	s.AllNodes += 1
-	fmt.Printf("search_pruning - 1 all_nodes %d distance %d\n", s.AllNodes, s.engine.Distance)
 	vl := s.engine.MateValue()
 	if vl >= vlBeta {
 		return vl
 	}
-	fmt.Println("search_pruning - 2")
 	vlRep := s.engine.RepStatus(1)
 	if vlRep > 0 {
 		return s.engine.RepValue(vlRep)
 	}
-	fmt.Println("search_pruning - 3")
 	if s.engine.Distance == LIMIT_DEPTH {
 		return s.engine.Evaluate()
 	}
-	fmt.Println("search_pruning - 4", s.engine.ChkList)
 	vlBest := -MATE_VALUE
 	var mvs, vls []int
 
 	if s.engine.InCheck() {
-		fmt.Println("search_pruning - 5")
 		mvs = s.engine.GenerateMoves(nil)
 		for _, mv := range mvs {
 			vls = append(vls, s.HistoryTable[s.engine.HistoryIndex(mv)])
@@ -143,7 +137,6 @@ func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 		s.engine.ShellSort(mvs, vls)
 	} else {
 		vl = s.engine.Evaluate()
-		fmt.Println("search_pruning - 6", vl, vlBest, vlAlpha, vlBeta)
 		if vl > vlBest {
 			if vl >= vlBeta {
 				return vl
@@ -153,7 +146,6 @@ func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 				vlAlpha = vl
 			}
 		}
-		fmt.Println("search_pruning - 7")
 		mvs = s.engine.GenerateMoves(&vls)
 		s.engine.ShellSort(mvs, vls)
 		for i := 0; i < len(mvs); i++ {
@@ -163,7 +155,6 @@ func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 			}
 		}
 	}
-	fmt.Println("search_pruning - 8")
 	for i := 0; i < len(mvs); i++ {
 		if !s.engine.MakeMove(mvs[i]) {
 			continue
@@ -180,42 +171,33 @@ func (s *Search) SearchPruning(vlAlpha, vlBeta int) int {
 			}
 		}
 	}
-	fmt.Println("search_pruning - 9")
 	if vlBest == -MATE_VALUE {
 		return s.engine.MateValue()
 	}
-	fmt.Println("search_pruning - 10")
 	return vlBest
 }
 
 func (s *Search) SearchFull(vlAlpha, vlBeta, depth int, noNull bool) int {
-	fmt.Println("search_full 1")
 	if depth <= 0 {
-		fmt.Println("search_full 1 - break")
 		return s.SearchPruning(vlAlpha, vlBeta)
 	}
-	fmt.Println("search_full 2")
 	s.AllNodes++
 	vl := s.engine.MateValue()
 	if vl >= vlBeta {
 		return vl
 	}
-	fmt.Println("search_full 3")
 	vlRep := s.engine.RepStatus(1)
 	if vlRep > 0 {
 		return s.engine.RepValue(vlRep)
 	}
-	fmt.Println("search_full 4")
 	mvHash := []int{0}
 	vl = s.ProbeHash(vlAlpha, vlBeta, depth, mvHash)
 	if vl > -MATE_VALUE {
 		return vl
 	}
-	fmt.Println("search_full 5")
 	if s.engine.Distance == LIMIT_DEPTH {
 		return s.engine.Evaluate()
 	}
-	fmt.Println("search_full 6")
 	if !noNull && !s.engine.InCheck() && s.engine.NullOkay() {
 		s.engine.NullMove()
 		vl = -s.SearchFull(-vlBeta, 1-vlBeta, depth-NULL_DEPTH-1, true)
@@ -224,7 +206,6 @@ func (s *Search) SearchFull(vlAlpha, vlBeta, depth int, noNull bool) int {
 			return vl
 		}
 	}
-	fmt.Println("search_full 7")
 	hashFlag := HASH_ALPHA
 	vlBest := -MATE_VALUE
 	mvBest := 0
@@ -270,11 +251,9 @@ func (s *Search) SearchFull(vlAlpha, vlBeta, depth int, noNull bool) int {
 			}
 		}
 	}
-	fmt.Println("search_full 8")
 	if vlBest == -MATE_VALUE {
 		return s.engine.MateValue()
 	}
-	fmt.Println("search_full 9")
 	s.RecordHash(hashFlag, vlBest, depth, mvBest)
 	if mvBest > 0 {
 		s.SetBestMove(mvBest, depth)
@@ -284,49 +263,37 @@ func (s *Search) SearchFull(vlAlpha, vlBeta, depth int, noNull bool) int {
 
 func (s *Search) SearchRoot(depth int) int {
 	vlBest := -MATE_VALUE
-	fmt.Println("search_root 1")
 	sort := NewMoveSort(s.MvResult, s.engine, s.KillerTable, s.HistoryTable)
-	fmt.Println("search_root 2")
 	for {
 		mv := sort.Next()
 		if mv <= 0 {
-			fmt.Println("search_root 2 - break {:?}", s.engine.MvList)
 			break
 		}
-		fmt.Println("search_root 3 mv", mv)
 		if !s.engine.MakeMove(mv) {
-			fmt.Println("search_root 3 - 1")
 			continue
 		}
-		fmt.Println("search_root 3 - 2")
 		newDepth := 0
 		if s.engine.InCheck() {
 			newDepth = depth
 		} else {
 			newDepth = depth - 1
 		}
-		fmt.Printf("search_root 4 new_depth %d depth %d vl_best %d\n", newDepth, depth, vlBest)
 
 		var vl int
 		if vlBest == -MATE_VALUE {
-			fmt.Println("search_root 4 - 1")
 			vl = -s.SearchFull(-MATE_VALUE, MATE_VALUE, newDepth, true)
 		} else {
-			fmt.Println("search_root 4 - 2")
 			vl = -s.SearchFull(-vlBest-1, -vlBest, newDepth, false)
 			if vl > vlBest {
-				fmt.Println("search_root 4 - 2 - 1")
 				vl = -s.SearchFull(-MATE_VALUE, -vlBest, newDepth, false)
 			}
 		}
-		fmt.Printf("search_root 5 vl %d vl_best %d\n", vl, vlBest)
 		s.engine.UndoMakeMove()
 		if vl > vlBest {
 			vlBest = vl
 			s.MvResult = mv
 			if -WIN_VALUE < vlBest && vlBest < WIN_VALUE {
 				vlBest += int(math.Floor(rand.Float64()*RANDOMNESS) - math.Floor(rand.Float64()*RANDOMNESS))
-				fmt.Println("search_root - vl_best: {vl_best}")
 				if vlBest == s.engine.DrawValue() {
 					vlBest--
 				}

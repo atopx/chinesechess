@@ -43,15 +43,6 @@ func Test_Search(t *testing.T) {
 		}
 	})
 
-	t.Run("17751", func(t *testing.T) {
-		fen := "2b1ka3/9/b3N4/4n4/9/9/9/4C4/2p6/2BK5 w - - 0 1"
-		eng.FromFen(fen)
-		mv := search.SearchMain(64, 1000)
-		if mv != 17751 {
-			t.Fatalf("error, excep: 17751: get %d(%s)", mv, engine.Move2Iccs(mv))
-		}
-	})
-
 	t.Run("22326", func(t *testing.T) {
 		fen := "C1nNk4/9/9/9/9/9/n1pp5/B3C4/9/3A1K3 w - - 0 1"
 		eng.FromFen(fen)

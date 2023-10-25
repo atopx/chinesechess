@@ -1,11 +1,11 @@
-use std::process::exit;
 use std::time::{Duration, Instant};
 
-use rand::Rng;
+use self::state::{MoveState, Status};
 
 mod book;
-pub mod pregen;
-pub mod util;
+mod pregen;
+mod state;
+mod util;
 
 #[derive(Clone, Copy, Default)]
 struct Hash {
@@ -28,22 +28,12 @@ pub struct ChessAi {
     key_list: Vec<isize>,
     chk_list: Vec<bool>,
     squares: [isize; 256],
-
     mask: isize,
     hash_table: Vec<Hash>,
     history: Vec<isize>,
     killer_table: Vec<[isize; 2]>,
     result: isize,
     all_nodes: isize,
-
-    mvs: Vec<isize>,
-    vls: Vec<isize>,
-    index: usize,
-    hash: isize,
-    killer_first: isize,
-    killer_second: isize,
-    phase: pregen::Phase,
-    pub signle: bool,
 }
 
 impl ChessAi {
@@ -66,14 +56,6 @@ impl ChessAi {
             killer_table: vec![],
             result: 0,
             all_nodes: 0,
-            mvs: vec![],
-            vls: vec![],
-            index: 0,
-            hash: 0,
-            killer_first: 0,
-            killer_second: 0,
-            phase: pregen::Phase::HASH,
-            signle: false,
         }
     }
 
@@ -102,22 +84,14 @@ impl ChessAi {
             } else if c >= 'A' && c <= 'Z' {
                 if x <= pregen::FILE_RIGHT {
                     if let Some(pt) = pregen::from_char(c) {
-                        self.add_piece(
-                            util::coord_xy(x, y),
-                            pt + 8,
-                            pregen::PieceAction::ADD,
-                        );
+                        self.add_piece(util::coord_xy(x, y), pt + 8, pregen::PieceAction::ADD);
                     };
                     x += 1;
                 }
             } else if c >= 'a' && c <= 'z' {
                 if x <= pregen::FILE_RIGHT {
                     if let Some(pt) = pregen::from_char((c as u8 + b'A' - b'a') as char) {
-                        self.add_piece(
-                            util::coord_xy(x, y),
-                            pt + 16,
-                            pregen::PieceAction::ADD,
-                        );
+                        self.add_piece(util::coord_xy(x, y), pt + 16, pregen::PieceAction::ADD);
                     }
                     x += 1;
                 }
@@ -191,7 +165,6 @@ impl ChessAi {
         self.pc_list = vec![0];
         self.key_list = vec![0];
         self.chk_list = vec![self.checked()];
-        println!("SetIrrev {}", self.checked())
     }
 
     pub fn mate_value(&self) -> isize {
@@ -337,7 +310,6 @@ impl ChessAi {
         }
         let mut mvs = vec![];
         let mut vls = vec![];
-        // todo
         let mut value = 0;
         let book = book::Book::get();
         while index < book.data.len() && book.data[index][0] == lock {
@@ -356,9 +328,7 @@ impl ChessAi {
         if value == 0 {
             return 0;
         };
-        let mut rng = rand::thread_rng();
-        let num: f64 = rng.gen_range(0.0..1.0);
-        value = (num.floor() * (value as f64)) as isize;
+        value = util::randf64(value) as isize;
         for index in 0..mvs.len() {
             value -= vls[index];
             if value < 0 {
@@ -474,26 +444,25 @@ impl ChessAi {
             self.add_piece(sq_dst, pc_dst, pregen::PieceAction::DEL);
         }
         let pc_src = self.squares[sq_src as usize];
+
         self.add_piece(sq_src, pc_src, pregen::PieceAction::DEL);
         self.add_piece(sq_dst, pc_src, pregen::PieceAction::ADD);
         self.mv_list.push(mv);
     }
 
     pub fn make_move(&mut self, mv: isize) -> bool {
-        println!("make_move 1 mv {mv}");
         self.move_piece(mv);
-        println!("make_move 2");
+
         if self.checked() {
-            println!("make_move 2 - 1 checked");
             self.undo_move_piece();
             return false;
         }
-        println!("make_move 3");
+
         self.key_list.push(self.zobrist_key);
         self.change_side();
         self.chk_list.push(self.checked());
         self.distance += 1;
-        println!("make_move 4 distance {}, push check {}", self.distance, self.checked());
+
         return true;
     }
 
@@ -506,12 +475,11 @@ impl ChessAi {
     }
 
     pub fn undo_move_piece(&mut self) {
-        println!("undo_move_piece 1");
         let mv = self.mv_list.pop().unwrap();
         let sq_src = util::src(mv);
         let sq_dst = util::dst(mv);
         let pc_dst = self.squares[sq_dst as usize];
-        println!("undo_move_piece 2 -- mv {mv} sq_src {sq_src} sq_dst {sq_dst} pc_dst {pc_dst}");
+
         self.add_piece(sq_dst, pc_dst, pregen::PieceAction::DEL);
         self.add_piece(sq_src, pc_dst, pregen::PieceAction::ADD);
         let pc_src = self.pc_list.pop().unwrap();
@@ -521,7 +489,6 @@ impl ChessAi {
     }
 
     pub fn add_piece(&mut self, sq: isize, pc: isize, action: pregen::PieceAction) {
-        println!("add_piece 1 sq {sq} pc {pc} action {action:?}");
         self.squares[sq as usize] = match action {
             pregen::PieceAction::DEL => 0,
             pregen::PieceAction::ADD => pc,
@@ -558,27 +525,22 @@ impl ChessAi {
     pub fn checked(&self) -> bool {
         let self_side = util::side_tag(self.sd_player);
         let opp_side = util::opp_side_tag(self.sd_player);
-        println!("checked 1 self_side {self_side} opp_side {opp_side} player {}", self.sd_player);
+
         for sq_src in 0..256 {
-            // self_side 8, opp_side 16, player 0
             if self.squares[sq_src as usize] != self_side + pregen::PIECE_KING {
                 continue;
             }
 
             let side_pawn = pregen::PIECE_PAWN + opp_side;
-
-            // println!("checked 2 sq_src {sq_src} sd_player {} oppside {opp_side} PIECE_PAWN: {}", self.sd_player, pregen::PIECE_PAWN);
             if self.squares[util::square_forward(sq_src, self.sd_player) as usize] == side_pawn {
                 return true;
             }
 
             if self.squares[(sq_src - 1) as usize] == side_pawn {
-                println!("checked 3");
                 return true;
             }
-
-            if self.squares[(sq_src - 1) as usize] == side_pawn {
-                println!("checked 4");
+            // self_side 16 opp_side 8 player 1
+            if self.squares[(sq_src + 1) as usize] == side_pawn {
                 return true;
             }
 
@@ -590,8 +552,9 @@ impl ChessAi {
                 let side_knight = pregen::PIECE_KNIGHT + opp_side;
 
                 for n in 0..2usize {
-                    if self.squares[(sq_src + pregen::KNIGHT_CHECK_DELTA[i][n]) as usize] == side_knight {
-                        println!("checked 5");
+                    if self.squares[(sq_src + pregen::KNIGHT_CHECK_DELTA[i][n]) as usize]
+                        == side_knight
+                    {
                         return true;
                     }
                 }
@@ -606,7 +569,6 @@ impl ChessAi {
                         if pc_dst == pregen::PIECE_ROOK + opp_side
                             || pc_dst == pregen::PIECE_KING + opp_side
                         {
-                            println!("checked 6");
                             return true;
                         }
                         break;
@@ -618,7 +580,6 @@ impl ChessAi {
                     let pc_dst = self.squares[sq_dst as usize];
                     if pc_dst > 0 {
                         if pc_dst == pregen::PIECE_CANNON + opp_side {
-                            println!("checked 7");
                             return true;
                         }
                         break;
@@ -632,7 +593,6 @@ impl ChessAi {
     }
 
     pub fn generate_mvs(&self, vls_opt: Option<Vec<isize>>) -> (Vec<isize>, Vec<isize>) {
-        println!("generate_mvs 1");
         let self_side = util::side_tag(self.sd_player);
         let opp_side = util::opp_side_tag(self.sd_player);
         let mut mvs = vec![];
@@ -646,20 +606,17 @@ impl ChessAi {
             // }
         }
 
-        println!("generate_mvs 2");
         for sq_src in 0..self.squares.len() {
             let pc_src = self.squares[sq_src];
             if pc_src & self_side == 0 {
-                println!("generate_mvs 2 -- 1");
                 continue;
             }
-            println!("generate_mvs 2 -- 2");
+
             match pc_src - self_side {
                 pregen::PIECE_KING => {
-                    println!("generate_mvs 2 -- 3");
                     for i in 0..4usize {
                         let sq_dst = sq_src as isize + pregen::KING_DELTA[i];
-                        println!("generate_mvs 2 -- 3 -- {i} sq_dst={sq_dst} sq_src={sq_src}");
+
                         if !pregen::IN_FORT(sq_dst) {
                             continue;
                         }
@@ -670,24 +627,20 @@ impl ChessAi {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
                                     vls.push(pregen::MVV_LVA(pc_dst, 5));
-                                    println!("push PIECE_KING 2 mv {}", mvs[mvs.len() - 1]);
-                                    println!("push PIECE_KING 2 vls {}", vls[vls.len() - 1]);
                                 }
                             }
                             None => {
                                 if pc_dst & self_side == 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_KING 1 mv {}", mvs[mvs.len() - 1]);
                                 }
                             }
                         }
                     }
                 }
                 pregen::PIECE_ADVISOR => {
-                    println!("generate_mvs 2 -- 4");
                     for i in 0..4usize {
                         let sq_dst = sq_src as isize + pregen::ADVISOR_DELTA[i];
-                        println!("generate_mvs 2 -- 4 -- {i} sq_dst={sq_dst} sq_src={sq_src}");
+
                         if !pregen::IN_FORT(sq_dst) {
                             continue;
                         }
@@ -698,24 +651,20 @@ impl ChessAi {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
                                     vls.push(pregen::MVV_LVA(pc_dst, 1));
-                                    println!("push PIECE_ADVISOR 2 mv {}", mvs[mvs.len() - 1]);
-                                    println!("push PIECE_ADVISOR 2 vls {}", vls[vls.len() - 1]);
                                 }
                             }
                             None => {
                                 if pc_dst & self_side == 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_ADVISOR 1 mv {}", mvs[mvs.len() - 1]);
                                 }
                             }
                         }
                     }
                 }
                 pregen::PIECE_BISHOP => {
-                    println!("generate_mvs 2 -- 5");
                     for i in 0..4usize {
                         let mut sq_dst = sq_src as isize + pregen::ADVISOR_DELTA[i];
-                        println!("generate_mvs 2 -- 5 -- {i} sq_dst={sq_dst} sq_src={sq_src}");
+
                         if !(pregen::IN_BROAD(sq_dst)
                             && pregen::HOME_HALF(sq_dst, self.sd_player)
                             && self.squares[sq_dst as usize] == 0)
@@ -730,24 +679,20 @@ impl ChessAi {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
                                     vls.push(pregen::MVV_LVA(pc_dst, 1));
-                                    println!("push PIECE_BISHOP 2 mv {}", mvs[mvs.len() - 1]);
-                                    println!("push PIECE_BISHOP 2 vls {}", vls[vls.len() - 1]);
                                 }
                             }
                             None => {
                                 if pc_dst & self_side == 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_BISHOP 2 mv {}", mvs[mvs.len() - 1]);
                                 }
                             }
                         }
                     }
                 }
                 pregen::PIECE_KNIGHT => {
-                    println!("generate_mvs 2 -- 6");
                     for i in 0..4usize {
                         let mut sq_dst = sq_src.saturating_add_signed(pregen::KING_DELTA[i]);
-                        println!("generate_mvs 2 -- 6 -- {i} sq_dst={sq_dst} sq_src={sq_src}");
+
                         if self.squares[sq_dst] > 0 {
                             continue;
                         }
@@ -762,14 +707,11 @@ impl ChessAi {
                                     if pc_dst & opp_side != 0 {
                                         mvs.push(util::merge(sq_src as isize, sq_dst as isize));
                                         vls.push(pregen::MVV_LVA(pc_dst, 1));
-                                        println!("push PIECE_KNIGHT 2 mv {}", mvs[mvs.len() - 1]);
-                                        println!("push PIECE_KNIGHT 2 vls {}", vls[vls.len() - 1]);
                                     }
                                 }
                                 None => {
                                     if pc_dst & self_side == 0 {
                                         mvs.push(util::merge(sq_src as isize, sq_dst as isize));
-                                        println!("push PIECE_KNIGHT 1 mv {}", mvs[mvs.len() - 1]);
                                     }
                                 }
                             }
@@ -777,25 +719,22 @@ impl ChessAi {
                     }
                 }
                 pregen::PIECE_ROOK => {
-                    println!("generate_mvs 2 -- 7");
                     for i in 0..4usize {
                         let delta = pregen::KING_DELTA[i];
                         let mut sq_dst = sq_src as isize + delta;
-                        println!("generate_mvs 2 -- 7 -- {i} delta={delta} sq_dst={sq_dst} sq_src={sq_src}");
+
                         while pregen::IN_BROAD(sq_dst) {
                             let pc_dst = self.squares[sq_dst as usize];
                             if pc_dst == 0 {
                                 if vls_opt.is_none() {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_ROOK 1 mv {}", mvs[mvs.len() - 1]);
                                 }
                             } else {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_ROOK 2 mv {}", mvs[mvs.len() - 1]);
+
                                     if let Some(_) = vls_opt {
                                         vls.push(pregen::MVV_LVA(pc_dst, 4));
-                                        println!("push PIECE_ROOK 2 vls {}", vls[vls.len() - 1]);
                                     };
                                 };
                                 break;
@@ -805,23 +744,16 @@ impl ChessAi {
                     }
                 }
                 pregen::PIECE_CANNON => {
-                    println!("generate_mvs 2 -- 8");
                     for i in 0..4usize {
                         let delta = pregen::KING_DELTA[i];
                         let mut sq_dst = sq_src as isize + delta;
                         // i=1 delta= -1 sq_dst= 52 sq_src= 53
-                        println!("generate_mvs 2 -- 8 -- {i} delta={delta} sq_dst={sq_dst} sq_src={sq_src}");
+
                         while pregen::IN_BROAD(sq_dst) {
                             let pc_dst = self.squares[sq_dst as usize];
-                            // if delta == -1 && sq_dst==52 && sq_src==53 {
-                            //     println!("{:?}", self.squares);
-                            //     println!("{pc_dst}");
-                            //     exit(0)
-                            // }
                             if pc_dst == 0 {
                                 if vls_opt.is_none() {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_CANNON 1 mv {}", mvs[mvs.len() - 1]);
                                 }
                             } else {
                                 break;
@@ -835,10 +767,9 @@ impl ChessAi {
                             if pc_dst > 0 {
                                 if pc_dst & opp_side != 0 {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
-                                    println!("push PIECE_CANNON 2 mv {}", mvs[mvs.len() - 1]);
+
                                     if let Some(_) = vls_opt {
                                         vls.push(pregen::MVV_LVA(pc_dst, 4));
-                                        println!("push PIECE_CANNON 2 vls {}", vls[vls.len() - 1]);
                                     };
                                 }
                                 break;
@@ -848,9 +779,7 @@ impl ChessAi {
                     }
                 }
                 pregen::PIECE_PAWN => {
-                    println!("generate_mvs 2 -- 9");
                     let mut sq_dst = util::square_forward(sq_src as isize, self.sd_player);
-                    println!("generate_mvs 2 -- 9 -- sq_dst={sq_dst} sq_src={sq_src}");
 
                     if pregen::IN_BROAD(sq_dst) {
                         let pc_dst = self.squares[sq_dst as usize];
@@ -858,13 +787,10 @@ impl ChessAi {
                         if vls_opt.is_none() {
                             if pc_dst & self_side == 0 {
                                 mvs.push(util::merge(sq_src as isize, sq_dst));
-                                println!("push PIECE_PAWN 1 mv {}", mvs[mvs.len() - 1]);
                             }
                         } else if pc_dst & opp_side != 0 {
                             mvs.push(util::merge(sq_src as isize, sq_dst));
                             vls.push(pregen::MVV_LVA(pc_dst, 4));
-                            println!("push PIECE_PAWN 2 mv {}", mvs[mvs.len() - 1]);
-                            println!("push PIECE_PAWN 2 vls {}", vls[vls.len() - 1]);
                         };
                     }
 
@@ -876,13 +802,10 @@ impl ChessAi {
                                 if vls_opt.is_none() {
                                     if pc_dst & self_side == 0 {
                                         mvs.push(util::merge(sq_src as isize, sq_dst));
-                                        println!("push PIECE_PAWN 1 mv {}", mvs[mvs.len() - 1]);
                                     }
                                 } else {
                                     mvs.push(util::merge(sq_src as isize, sq_dst));
                                     vls.push(pregen::MVV_LVA(pc_dst, 4));
-                                    println!("push PIECE_PAWN 2 mv {}", mvs[mvs.len() - 1]);
-                                    println!("push PIECE_PAWN 2 vls {}", vls[vls.len() - 1]);
                                 }
                             }
                         }
@@ -891,7 +814,7 @@ impl ChessAi {
                 _ => continue,
             };
         }
-        println!("generate_mvs 3");
+
         (mvs, vls)
     }
 
@@ -942,95 +865,84 @@ impl ChessAi {
         0
     }
 
-    pub fn clean_state(&mut self, hash: isize) {
-        self.mvs = vec![];
-        self.vls = vec![];
-        self.hash = 0;
-        self.killer_first = 0;
-        self.killer_second = 0;
-        self.index = 0;
-        self.phase = pregen::Phase::HASH;
-        self.signle = false;
-
+    pub fn new_state(&mut self, hash: isize) -> MoveState {
+        let mut state = MoveState::new(self.history.clone(), hash);
         if self.in_check() {
-            self.phase = pregen::Phase::REST;
+            state.phase = Status::REST;
             let (all_mvs, _) = self.generate_mvs(None);
             for mv in all_mvs {
-                if self.make_move(mv) {
+                if !self.make_move(mv) {
                     continue;
                 }
                 self.undo_make_move();
-                self.mvs.push(mv);
-                if mv == self.hash {
-                    self.vls.push(0x7fffffff);
+                state.mvs.push(mv);
+                if mv == state.hash {
+                    state.vls.push(0x7fffffff);
                 } else {
-                    self.vls.push(self.history[self.history_index(mv) as usize])
+                    state
+                        .vls
+                        .push(self.history[self.history_index(mv) as usize])
                 };
-                util::shell_sort(&mut self.mvs, &mut self.vls);
-                self.signle = self.mvs.len() == 1
+                util::shell_sort(&mut state.mvs, &mut state.vls);
+                state.signle = state.mvs.len() == 1
             }
-            self.hash = hash;
-            self.killer_first = self.killer_table[self.distance as usize][0];
-            self.killer_second = self.killer_table[self.distance as usize][1];
+            state.hash = hash;
+            state.killer_first = self.killer_table[self.distance as usize][0];
+            state.killer_second = self.killer_table[self.distance as usize][1];
         }
+        state
     }
 
-    pub fn next_state(&mut self) -> isize {
-        println!("next_state 0 phase {:?}", &self.phase);
-        if self.phase == pregen::Phase::HASH {
-            println!("next_state 0 - in");
-            self.phase = pregen::Phase::KILLER_FIRST;
-            if self.hash > 0 {
-                return self.hash;
+    pub fn next_state(&mut self, state: &mut MoveState) -> isize {
+        if state.phase == Status::HASH {
+            state.phase = Status::KILLER_FIRST;
+            if state.hash > 0 {
+                return state.hash;
             }
         };
-        println!("next_state 1");
-        if self.phase == pregen::Phase::KILLER_FIRST {
-            println!("next_state 1 - in");
-            self.phase = pregen::Phase::KILLER_SECOND;
-            if self.killer_first != self.hash
-                && self.killer_first > 0
-                && self.legal_move(self.killer_first)
+
+        if state.phase == Status::KILLER_FIRST {
+            state.phase = Status::KILLER_SECOND;
+            if state.killer_first != state.hash
+                && state.killer_first > 0
+                && self.legal_move(state.killer_first)
             {
-                return self.killer_first;
+                return state.killer_first;
             }
         };
-        println!("next_state 2");
-        if self.phase == pregen::Phase::KILLER_SECOND {
-            println!("next_state 2 - in");
-            self.phase = pregen::Phase::GEN_MOVES;
-            if self.killer_second != self.hash
-                && self.killer_second > 0
-                && self.legal_move(self.killer_second)
+
+        if state.phase == Status::KILLER_SECOND {
+            state.phase = Status::GEN_MOVES;
+            if state.killer_second != state.hash
+                && state.killer_second > 0
+                && self.legal_move(state.killer_second)
             {
-                return self.killer_second;
+                return state.killer_second;
             }
         };
-        println!("next_state 3");
-        if self.phase == pregen::Phase::GEN_MOVES {
-            println!("next_state 3 -- 1");
-            self.phase = pregen::Phase::REST;
-            println!("next_state 3 -- 2");
+
+        if state.phase == Status::GEN_MOVES {
+            state.phase = Status::REST;
+
             let (mvs, _) = self.generate_mvs(None);
-            self.mvs = mvs;
-            println!("{} next_state 3 -- 3, {:?}", self.all_nodes, self.mvs);
-            self.vls = vec![];
-            for mv in self.mvs.iter() {
-                self.vls.push(self.history[self.history_index(*mv) as usize]);
+            state.mvs = mvs;
+            state.vls = vec![];
+            for mv in state.mvs.iter() {
+                state
+                    .vls
+                    .push(self.history[self.history_index(*mv) as usize]);
             }
-            util::shell_sort(&mut self.mvs, &mut self.vls);
-            self.index = 0;
+            util::shell_sort(&mut state.mvs, &mut state.vls);
+            state.index = 0;
         };
-        println!("next_state 4");
-        while self.index < self.mvs.len() {
-            println!("next_state 4 - in");
-            let mv = self.mvs[self.index];
-            self.index += 1;
-            if mv != self.hash && mv != self.killer_first && mv != self.killer_second {
+
+        while state.index < state.mvs.len() {
+            let mv = state.mvs[state.index];
+            state.index += 1;
+            if mv != state.hash && mv != state.killer_first && mv != state.killer_second {
                 return mv;
             }
         }
-        println!("next_state 5");
         0
     }
 
@@ -1119,7 +1031,7 @@ impl ChessAi {
 
     pub fn set_best_move(&mut self, mv: isize, depth: isize) {
         let idx = self.history_index(mv) as usize;
-        println!("set_best_move 1 mv{mv} depth{depth} idx{idx} {}", self.history_index(mv));
+
         self.history[idx] += depth * depth;
         let killer = self.killer_table[self.distance as usize];
         if killer[0] != mv {
@@ -1129,27 +1041,26 @@ impl ChessAi {
 
     pub fn search_pruning(&mut self, mut vl_alpha: isize, vl_beta: isize) -> isize {
         self.all_nodes += 1;
-        println!("search_pruning - 1 all_nodes {} distance {}", self.all_nodes, self.distance);
+
         let mut vl = self.mate_value();
         if vl >= vl_beta {
             return vl;
         };
-        println!("search_pruning - 2");
+
         let vl_rep = self.rep_status(1);
         if vl_rep > 0 {
             return self.rep_value(vl_rep);
         };
-        println!("search_pruning - 3");
+
         if self.distance == pregen::LIMIT_DEPTH as isize {
             return self.evaluate();
         };
-        println!("search_pruning - 4 {:?}", self.chk_list);
+
         let mut vl_best = -pregen::MATE_VALUE;
         let mut mvs = vec![];
         let mut vls = vec![];
 
         if self.in_check() {
-            println!("search_pruning - 5");
             (mvs, _) = self.generate_mvs(None);
             for mv in mvs.iter() {
                 vls.push(self.history[self.history_index(*mv) as usize]);
@@ -1157,7 +1068,7 @@ impl ChessAi {
             util::shell_sort(&mut mvs, &mut vls);
         } else {
             vl = self.evaluate();
-            println!("search_pruning - 6 {} {} {} {}", vl, vl_best, vl_alpha, vl_beta);
+
             if vl > vl_best {
                 if vl >= vl_beta {
                     return vl;
@@ -1167,22 +1078,21 @@ impl ChessAi {
                     vl_alpha = vl;
                 }
             };
-            println!("search_pruning - 7");
+
             let (mt, vt) = self.generate_mvs(Some(vls));
             mvs = mt;
             vls = vt;
             util::shell_sort(&mut mvs, &mut vls);
             for i in 0..mvs.len() {
                 if vls[i] < 10
-                    || (vls[i] < 20
-                    && pregen::HOME_HALF(util::dst(mvs[i]), self.sd_player))
+                    || (vls[i] < 20 && pregen::HOME_HALF(util::dst(mvs[i]), self.sd_player))
                 {
                     mvs = mvs[0..i].to_vec();
                     break;
                 }
             }
         };
-        println!("search_pruning - 8");
+
         for i in 0..mvs.len() {
             if !self.make_move(mvs[i]) {
                 continue;
@@ -1199,69 +1109,66 @@ impl ChessAi {
                 };
             }
         }
-        println!("search_pruning - 9");
+
         if vl_best == -pregen::MATE_VALUE {
             return self.mate_value();
         }
-        println!("search_pruning - 10");
+
         return vl_best;
     }
 
     pub fn search_full(
         &mut self,
-        vl_alpha: isize,
+        mut vl_alpha: isize,
         vl_beta: isize,
         depth: isize,
         not_null: bool,
     ) -> isize {
-        println!("search_full 1");
         if depth <= 0 {
-            println!("search_full 1 - break");
             return self.search_pruning(vl_alpha, vl_beta);
         };
-        println!("search_full 2");
+
         self.all_nodes += 1;
         let mut vl = self.mate_value() as isize;
         if vl > vl_beta {
             return vl;
         };
-        println!("search_full 3");
+
         let vl_rep = self.rep_status(1);
         if vl_rep > 0 {
             return self.rep_value(vl_rep);
         };
-        println!("search_full 4");
+
         let mut mv_hash = vec![0];
         vl = self.probe_hash(vl_alpha, vl_beta, depth, &mut mv_hash);
         if vl > -pregen::MATE_VALUE {
             return vl;
         };
-        println!("search_full 5");
+
         if self.distance == pregen::LIMIT_DEPTH as isize {
             return self.evaluate();
         };
-        println!("search_full 6");
+
         if !not_null && !self.in_check() && self.null_okay() {
             self.null_move();
             vl = -self.search_full(-vl_beta, 1 - vl_beta, depth - pregen::NULL_DEPTH - 1, true);
             self.undo_null_move();
             if vl >= vl_beta
                 && (self.null_safe()
-                || self.search_full(vl_alpha, vl_beta, depth - pregen::NULL_DEPTH, true)
-                >= vl_beta)
+                    || self.search_full(vl_alpha, vl_beta, depth - pregen::NULL_DEPTH, true)
+                        >= vl_beta)
             {
                 return vl;
             }
         };
-        println!("search_full 7");
+
         let mut hash_flag = pregen::HASH_ALPHA;
         let mut vl_best = -pregen::MATE_VALUE;
         let mut mv_best = 0;
-        let mut vl_alpha = vl_alpha;
 
-        self.clean_state(mv_hash[0]);
+        let mut state = self.new_state(mv_hash[0]);
         loop {
-            let mv = self.next_state();
+            let mv = self.next_state(&mut state);
             if mv <= 0 {
                 break;
             };
@@ -1269,7 +1176,7 @@ impl ChessAi {
                 continue;
             };
 
-            let new_depth = match self.in_check() || self.signle {
+            let new_depth = match self.in_check() || state.signle {
                 true => depth,
                 false => depth - 1,
             };
@@ -1297,11 +1204,11 @@ impl ChessAi {
                 }
             };
         }
-        println!("search_full 8");
+
         if vl_best == -pregen::MATE_VALUE {
             return self.mate_value();
         };
-        println!("search_full 9");
+
         self.record_hash(hash_flag, vl_best, depth, mv_best);
         if mv_best > 0 {
             self.set_best_move(mv_best, depth);
@@ -1311,54 +1218,42 @@ impl ChessAi {
 
     pub fn search_root(&mut self, depth: isize) -> isize {
         let mut vl_best: isize = -pregen::MATE_VALUE;
-        println!("search_root 1");
-        self.clean_state(self.result);
-        println!("search_root 2");
+
+        let mut state = self.new_state(self.result);
+        let mut i = 0;
         loop {
-            let mv = self.next_state();
+            i += 1;
+            let mv = self.next_state(&mut state);
             if mv <= 0 {
-                println!("search_root 2 - break {:?}", self.mvs);
                 break;
             };
-            println!("search_root 3 mv {mv}");
+
             if !self.make_move(mv) {
-                println!("search_root 3 - 1");
                 continue;
             };
-            println!("search_root 3 - 2");
+
             let new_depth: isize = match self.in_check() {
                 true => depth,
                 false => depth - 1,
             };
-            println!("search_root 4 new_depth {new_depth} depth {depth} vl_best {vl_best}");
-
 
             let mut vl = 0;
             if vl_best == -pregen::MATE_VALUE {
-                println!("search_root 4 - 1");
                 vl = -self.search_full(-pregen::MATE_VALUE, pregen::MATE_VALUE, new_depth, true);
             } else {
-                println!("search_root 4 - 2");
                 vl = -self.search_full(-vl_best - 1, -vl_best, new_depth, false);
                 if vl > vl_best {
-                    println!("search_root 4 - 2 - 2");
                     vl = -self.search_full(-pregen::MATE_VALUE, -vl_best, new_depth, false);
                 };
             };
-
-            println!("search_root 5 vl {vl} vl_best {vl_best}");
             self.undo_make_move();
             if vl > vl_best {
                 vl_best = vl;
                 self.result = mv;
                 if vl_best > -pregen::WIN_VALUE && vl_best < pregen::WIN_VALUE {
-                    let mut rng = rand::thread_rng();
-                    let n1: f64 = rng.gen_range(0.0..1.0);
-                    let n2: f64 = rng.gen_range(0.0..1.0);
-                    vl_best += (n1.floor() * pregen::RANDOMNESS as f64
-                        - n2.floor() * pregen::RANDOMNESS as f64)
+                    vl_best += (util::randf64(pregen::RANDOMNESS)
+                        - util::randf64(pregen::RANDOMNESS))
                         as isize;
-                    println!("search_root - vl_best: {vl_best}");
                     if vl_best == self.draw_value() {
                         vl_best -= 1;
                     }
@@ -1370,11 +1265,11 @@ impl ChessAi {
     }
 
     pub fn search_unique(&mut self, vl_beta: isize, depth: isize) -> bool {
-        self.clean_state(self.result);
-        self.next_state();
+        let mut state = self.new_state(self.result);
+        self.next_state(&mut state);
 
         loop {
-            let mv = self.next_state();
+            let mv = self.next_state(&mut state);
             if mv <= 0 {
                 break;
             };
@@ -1405,10 +1300,7 @@ impl ChessAi {
             self.undo_make_move();
         };
 
-        self.hash_table = vec![];
-        for _ in 0..self.mask {
-            self.hash_table.push(Hash::default());
-        }
+        self.hash_table = vec![Hash::default(); self.mask as usize + 1];
         self.killer_table = vec![[0, 0]; pregen::LIMIT_DEPTH];
         self.history = vec![0; 4096];
         self.result = 0;
@@ -1446,10 +1338,29 @@ mod tests {
     }
 
     #[test]
-    fn test_engineds() {
+    fn test_engine_26215() {
+        let fen: &str = "9/2Cca4/3k1C3/4P1p2/4N1b2/4R1r2/4c1n2/3p1n3/2rNK4/9 w";
         let mut engine = ChessAi::new();
-        engine.from_fen("9/2Cca4/3k1C3/4P1p2/4N1b2/4R1r2/4c1n2/3p1n3/2rNK4/9 w");
+        engine.from_fen(fen);
         let mv = engine.search_main(64, 1000);
         assert_eq!(mv, 26215);
+    }
+
+    #[test]
+    fn test_engine_22326() {
+        let fen: &str = "C1nNk4/9/9/9/9/9/n1pp5/B3C4/9/3A1K3 w - - 0 1";
+        let mut engine = ChessAi::new();
+        engine.from_fen(fen);
+        let mv = engine.search_main(64, 1000);
+        assert_eq!(mv, 22326);
+    }
+    
+    #[test]
+    fn test_engine_22985() {
+        let fen: &str = "4kab2/4a4/8b/9/9/9/9/9/9/4K1R2 w - - 0 1";
+        let mut engine = ChessAi::new();
+        engine.from_fen(fen);
+        let mv = engine.search_main(64, 1000);
+        assert_eq!(mv, 22985);
     }
 }
