@@ -29,3 +29,11 @@ rustflags = ["-Zshare-generics=y"]
 [[bin]]
 name ="book"
 path ="src/book/main.rs"
+
+[[example]]
+name = "book"
+path = "examples/book.rs"
+
+[[example]]
+name = "chessai"
+path = "examples/chessai.rs"

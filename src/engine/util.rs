@@ -10,8 +10,8 @@ pub fn coord_xy(x: isize, y: isize) -> isize {
     x + (y << 4)
 }
 
-pub fn square_fltp(sq: usize) -> usize {
-    254 - sq
+pub fn square_fltp(sq: isize) -> usize {
+    (254 - sq) as usize
 }
 
 pub fn file_fltp(x: isize) -> isize {
@@ -22,7 +22,7 @@ pub fn mirror_square(sq: isize) -> isize {
     coord_xy(file_fltp(file_x(sq)), rank_y(sq))
 }
 
-pub fn square_forward(sq: usize, sd: usize) -> usize {
+pub fn square_forward(sq: isize, sd: isize) -> isize {
     sq - 16 + (sd << 5)
 }
 

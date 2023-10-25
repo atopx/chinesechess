@@ -1,4 +1,4 @@
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum Phase {
     HASH = 0,
     KILLER_FIRST = 1,
@@ -30,15 +30,15 @@ pub const RANK_BOTTOM: isize = 12;
 pub const FILE_LEFT: isize = 3;
 pub const FILE_RIGHT: isize = 11;
 
-pub const PIECE_KING: usize = 0;
-pub const PIECE_ADVISOR: usize = 1;
-pub const PIECE_BISHOP: usize = 2;
-pub const PIECE_KNIGHT: usize = 3;
-pub const PIECE_ROOK: usize = 4;
-pub const PIECE_CANNON: usize = 5;
-pub const PIECE_PAWN: usize = 6;
+pub const PIECE_KING: isize = 0;
+pub const PIECE_ADVISOR: isize = 1;
+pub const PIECE_BISHOP: isize = 2;
+pub const PIECE_KNIGHT: isize = 3;
+pub const PIECE_ROOK: isize = 4;
+pub const PIECE_CANNON: isize = 5;
+pub const PIECE_PAWN: isize = 6;
 
-pub fn from_char(c: char) -> Option<usize> {
+pub fn from_char(c: char) -> Option<isize> {
     match c {
         'K' => Some(PIECE_KING),
         'A' => Some(PIECE_ADVISOR),
@@ -66,56 +66,56 @@ pub const BROAD: [i8; 256] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
-pub const fn IN_BROAD(idx: usize) -> bool {
-    !(BROAD[idx] == 0)
+pub const fn IN_BROAD(idx: isize) -> bool {
+    !(BROAD[idx as usize] == 0)
 }
 
-pub const fn IN_FORT(idx: usize) -> bool {
-    BROAD[idx] == 2
+pub const fn IN_FORT(idx: isize) -> bool {
+    BROAD[idx as usize] == 2
 }
 
-pub const fn KING_SPAN(src: usize, dst: usize) -> bool {
-    LEGAL_SPAN[dst - src + 256] == 1
+pub const fn KING_SPAN(src: isize, dst: isize) -> bool {
+    LEGAL_SPAN[(dst - src + 256) as usize] == 1
 }
 
-pub const fn ADVISOR_SPAN(src: usize, dst: usize) -> bool {
-    LEGAL_SPAN[dst - src + 256] == 2
+pub const fn ADVISOR_SPAN(src: isize, dst: isize) -> bool {
+    LEGAL_SPAN[(dst - src + 256) as usize] == 2
 }
 
-pub const fn BISHOP_SPAN(src: usize, dst: usize) -> bool {
-    LEGAL_SPAN[dst - src + 256] == 3
+pub const fn BISHOP_SPAN(src: isize, dst: isize) -> bool {
+    LEGAL_SPAN[(dst - src + 256) as usize] == 3
 }
 
-pub const fn BISHOP_PIN(src: usize, dst: usize) -> usize {
-    (src + dst) >> 1
+pub const fn BISHOP_PIN(src: isize, dst: isize) -> usize {
+    ((src + dst) >> 1) as usize
 }
 
-pub const fn KNIGHT_PIN(src: usize, dst: usize) -> usize {
-    src + KNIGHT_SPIN[dst - src + 256] as usize
+pub const fn KNIGHT_PIN(src: isize, dst: isize) -> isize {
+    src + KNIGHT_SPIN[(dst - src + 256) as usize]
 }
 
-pub const fn HOME_HALF(sq: usize, sd: usize) -> bool {
+pub const fn HOME_HALF(sq: isize, sd: isize) -> bool {
     (sq & 0x80) != (sd << 7)
 }
 
-pub const fn AWAY_HALF(sq: usize, sd: usize) -> bool {
+pub const fn AWAY_HALF(sq: isize, sd: isize) -> bool {
     (sq & 0x80) == (sd << 7)
 }
 
-pub const fn SAME_HALF(src: usize, dst: usize) -> bool {
+pub const fn SAME_HALF(src: isize, dst: isize) -> bool {
     ((src ^ dst) & 0x80) == 0
 }
 
-pub const fn SAME_RANK(src: usize, dst: usize) -> bool {
+pub const fn SAME_RANK(src: isize, dst: isize) -> bool {
     ((src ^ dst) & 0xf0) == 0
 }
 
-pub const fn SAME_FILE(src: usize, dst: usize) -> bool {
+pub const fn SAME_FILE(src: isize, dst: isize) -> bool {
     ((src ^ dst) & 0x0f) == 0
 }
 
-pub const fn MVV_LVA(pc: usize, lva: usize) -> usize {
-    MVV_VALUE[pc & 7] - lva
+pub const fn MVV_LVA(pc: isize, lva: isize) -> isize {
+    MVV_VALUE[(pc & 7) as usize] - lva
 }
 
 #[derive(Debug)]
@@ -128,7 +128,7 @@ pub const KING_DELTA: [isize; 4] = [-16, -1, 1, 16];
 pub const ADVISOR_DELTA: [isize; 4] = [-17, -15, 15, 17];
 pub const KNIGHT_DELTA: [[isize; 2]; 4] = [[-33, -31], [-18, 14], [-14, 18], [31, 33]];
 pub const KNIGHT_CHECK_DELTA: [[isize; 2]; 4] = [[-33, -18], [-31, -14], [14, 31], [18, 33]];
-pub const MVV_VALUE: [usize; 8] = [50, 10, 10, 30, 40, 30, 20, 0];
+pub const MVV_VALUE: [isize; 8] = [50, 10, 10, 30, 40, 30, 20, 0];
 
 pub const LEGAL_SPAN: [isize; 512] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

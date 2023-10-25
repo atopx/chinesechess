@@ -2,6 +2,7 @@ package engine
 
 import (
 	"chessai/book"
+	"fmt"
 	"math"
 	"math/rand"
 	"strings"
@@ -41,26 +42,32 @@ func (p *Engine) SetIrrev() {
 	p.PcList = []int{0}
 	p.KeyList = []int{0}
 	p.ChkList = []bool{p.Checked()}
+	fmt.Println("SetIrrev", p.Checked())
 }
 
 func (p *Engine) Checked() bool {
+
 	pcSelfSide := SIDE_TAG(p.SdPlayer)
 	pcOppSide := OPP_SIDE_TAG(p.SdPlayer)
-
+	fmt.Printf("checked 1 self_side %d opp_side %d player %d\n", pcSelfSide, pcOppSide, p.SdPlayer)
 	for sqSrc := 0; sqSrc < 256; sqSrc++ {
+		// self_side 8, opp_side 16, player 0
 		if p.Squares[sqSrc] != (pcSelfSide + PIECE_KING) {
 			continue
 		}
 
+		//fmt.Printf("checked 2 sq_src %d sd_player %d oppside %d PIECE_PAWN: %d\n", sqSrc, p.SdPlayer, pcOppSide, PIECE_PAWN)
 		if p.Squares[SQUARE_FORWARD(sqSrc, p.SdPlayer)] == (pcOppSide + PIECE_PAWN) {
 			return true
 		}
 
 		if p.Squares[sqSrc-1] == (pcOppSide + PIECE_PAWN) {
+			fmt.Println("checked 3")
 			return true
 		}
 
 		if p.Squares[sqSrc+1] == (pcOppSide + PIECE_PAWN) {
+			fmt.Println("checked 4")
 			return true
 		}
 
@@ -72,6 +79,7 @@ func (p *Engine) Checked() bool {
 			for j := 0; j < 2; j++ {
 				pcDst := p.Squares[sqSrc+KNIGHT_CHECK_DELTA[i][j]]
 				if pcDst == (pcOppSide + PIECE_KNIGHT) {
+					fmt.Println("checked 5")
 					return true
 				}
 			}
@@ -84,6 +92,7 @@ func (p *Engine) Checked() bool {
 				pcDst := p.Squares[sqDst]
 				if pcDst > 0 {
 					if pcDst == (pcOppSide+PIECE_ROOK) || pcDst == (pcOppSide+PIECE_KING) {
+						fmt.Println("checked 6")
 						return true
 					}
 					break
@@ -95,6 +104,7 @@ func (p *Engine) Checked() bool {
 				pcDst := p.Squares[sqDst]
 				if pcDst > 0 {
 					if pcDst == (pcOppSide + PIECE_CANNON) {
+						fmt.Println("checked 7")
 						return true
 					}
 					break
@@ -414,18 +424,23 @@ func (p *Engine) UndoMakeMove() {
 }
 
 func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
+	fmt.Println("generate_mvs 1")
 	pcSelfSide := SIDE_TAG(p.SdPlayer)
 	pcOppSide := OPP_SIDE_TAG(p.SdPlayer)
+	fmt.Println("generate_mvs 2")
 	for sqSrc := 0; sqSrc < 256; sqSrc++ {
 		pcSrc := p.Squares[sqSrc]
 		if (pcSrc & pcSelfSide) == 0 {
+			fmt.Println("generate_mvs 2 -- 1")
 			continue
 		}
-
+		fmt.Println("generate_mvs 2 -- 2")
 		switch pcSrc - pcSelfSide {
 		case PIECE_KING:
+			fmt.Println("generate_mvs 2 -- 3")
 			for i := 0; i < 4; i++ {
 				sqDst := sqSrc + KING_DELTA[i]
+				fmt.Printf("generate_mvs 2 -- 3 -- %d sq_dst=%d sq_src=%d\n", i, sqDst, sqSrc)
 				if !IN_FORT(sqDst) {
 					continue
 				}
@@ -435,16 +450,21 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
+						fmt.Println("push PIECE_KING 1 mv", mvs[len(mvs)-1])
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
+					fmt.Println("push PIECE_KING 2 mv", MOVE(sqSrc, sqDst))
 					*vls = append(*vls, MVV_LVA(pcDst, 5))
+					fmt.Println("push PIECE_KING 2 vls", (*vls)[len(*vls)-1])
 				}
 			}
 
 		case PIECE_ADVISOR:
+			fmt.Println("generate_mvs 2 -- 4")
 			for i := 0; i < 4; i++ {
 				sqDst := sqSrc + ADVISOR_DELTA[i]
+				fmt.Printf("generate_mvs 2 -- 4 -- %d sq_dst=%d sq_src=%d\n", i, sqDst, sqSrc)
 				if !IN_FORT(sqDst) {
 					continue
 				}
@@ -452,17 +472,21 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
+						fmt.Println("push PIECE_ADVISOR 1 mv", mvs[len(mvs)-1])
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
+					fmt.Println("push PIECE_ADVISOR 2 mv", mvs[len(mvs)-1])
 					*vls = append(*vls, MVV_LVA(pcDst, 1))
+					fmt.Println("push PIECE_ADVISOR 2 vls", (*vls)[len(*vls)-1])
 				}
 			}
 
 		case PIECE_BISHOP:
-
+			fmt.Println("generate_mvs 2 -- 5")
 			for i := 0; i < 4; i++ {
 				sqDst := sqSrc + ADVISOR_DELTA[i]
+				fmt.Printf("generate_mvs 2 -- 5 -- %d sq_dst=%d sq_src=%d\n", i, sqDst, sqSrc)
 				if !(IN_BOARD(sqDst) && HOME_HALF(sqDst, p.SdPlayer) && p.Squares[sqDst] == 0) {
 					continue
 				}
@@ -471,16 +495,21 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
+						fmt.Println("push PIECE_BISHOP 1 mv", mvs[len(mvs)-1])
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
+					fmt.Println("push PIECE_BISHOP 2 mv", mvs[len(mvs)-1])
 					*vls = append(*vls, MVV_LVA(pcDst, 1))
+					fmt.Println("push PIECE_BISHOP 2 vls", (*vls)[len(*vls)-1])
 				}
 			}
 
 		case PIECE_KNIGHT:
+			fmt.Println("generate_mvs 2 -- 6")
 			for i := 0; i < 4; i++ {
 				sqDst := sqSrc + KING_DELTA[i]
+				fmt.Printf("generate_mvs 2 -- 6 -- %d sq_dst=%d sq_src=%d\n", i, sqDst, sqSrc)
 				if p.Squares[sqDst] > 0 {
 					continue
 				}
@@ -493,30 +522,37 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 					if vls == nil {
 						if (pcDst & pcSelfSide) == 0 {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
+							fmt.Println("push PIECE_KNIGHT 1 mv", mvs[len(mvs)-1])
 						}
 					} else if (pcDst & pcOppSide) != 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
+						fmt.Println("push PIECE_KNIGHT 2 mv", mvs[len(mvs)-1])
 						*vls = append(*vls, MVV_LVA(pcDst, 1))
+						fmt.Println("push PIECE_KNIGHT 2 vls", (*vls)[len(*vls)-1])
 					}
 				}
 			}
 
 		case PIECE_ROOK:
-
+			fmt.Println("generate_mvs 2 -- 7")
 			for i := 0; i < 4; i++ {
 				delta := KING_DELTA[i]
 				sqDst := sqSrc + delta
+				fmt.Printf("generate_mvs 2 -- 7 -- %d delta=%d sq_dst=%d sq_src=%d\n", i, delta, sqDst, sqSrc)
 				for IN_BOARD(sqDst) {
 					pcDst := p.Squares[sqDst]
 					if pcDst == 0 {
 						if vls == nil {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
+							fmt.Println("push PIECE_ROOK 1 mv", mvs[len(mvs)-1])
 						}
 					} else {
 						if (pcDst & pcOppSide) != 0 {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
+							fmt.Println("push PIECE_ROOK 2 mv", mvs[len(mvs)-1])
 							if vls != nil {
 								*vls = append(*vls, MVV_LVA(pcDst, 4))
+								fmt.Println("push PIECE_ROOK 2 vls", (*vls)[len(*vls)-1])
 							}
 						}
 						break
@@ -526,14 +562,22 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 			}
 
 		case PIECE_CANNON:
+			fmt.Println("generate_mvs 2 -- 8")
 			for i := 0; i < 4; i++ {
 				delta := KING_DELTA[i]
 				sqDst := sqSrc + delta
+				fmt.Printf("generate_mvs 2 -- 8 -- %d delta=%d sq_dst=%d sq_src=%d\n", i, delta, sqDst, sqSrc)
 				for IN_BOARD(sqDst) {
 					pcDst := p.Squares[sqDst]
+					//if delta == -1 && sqDst == 52 && sqSrc == 53 {
+					//	fmt.Println(p.Squares)
+					//	fmt.Println(pcDst)
+					//	os.Exit(0)
+					//}
 					if pcDst == 0 {
 						if vls == nil {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
+							fmt.Println("push PIECE_CANNON 1 mv", mvs[len(mvs)-1])
 						}
 					} else {
 						break
@@ -547,8 +591,10 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 					if pcDst > 0 {
 						if (pcDst & pcOppSide) != 0 {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
+							fmt.Println("push PIECE_CANNON 2 mv", mvs[len(mvs)-1])
 							if vls != nil {
 								*vls = append(*vls, MVV_LVA(pcDst, 4))
+								fmt.Println("push PIECE_CANNON 2 vls", (*vls)[len(*vls)-1])
 							}
 						}
 						break
@@ -558,17 +604,21 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 			}
 
 		case PIECE_PAWN:
-
+			fmt.Println("generate_mvs 2 -- 9")
 			sqDst := SQUARE_FORWARD(sqSrc, p.SdPlayer)
 			if IN_BOARD(sqDst) {
 				pcDst := p.Squares[sqDst]
+				fmt.Printf("generate_mvs 2 -- 9 -- sq_dst=%d sq_src=%d\n", sqDst, sqSrc)
 				if vls == nil {
 					if (pcDst & pcSelfSide) == 0 {
 						mvs = append(mvs, MOVE(sqSrc, sqDst))
+						fmt.Println("push PIECE_PAWN 1 mv", mvs[len(mvs)-1])
 					}
 				} else if (pcDst & pcOppSide) != 0 {
 					mvs = append(mvs, MOVE(sqSrc, sqDst))
+					fmt.Println("push PIECE_PAWN 2 mv", mvs[len(mvs)-1])
 					*vls = append(*vls, MVV_LVA(pcDst, 4))
+					fmt.Println("push PIECE_PAWN 2 vls", (*vls)[len(*vls)-1])
 				}
 			}
 			if AWAY_HALF(sqSrc, p.SdPlayer) {
@@ -579,10 +629,13 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 						if vls == nil {
 							if (pcDst & pcSelfSide) == 0 {
 								mvs = append(mvs, MOVE(sqSrc, sqDst))
+								fmt.Println("push PIECE_PAWN 1 mv", mvs[len(mvs)-1])
 							}
 						} else {
 							mvs = append(mvs, MOVE(sqSrc, sqDst))
+							fmt.Println("push PIECE_PAWN 2 mv", mvs[len(mvs)-1])
 							*vls = append(*vls, MVV_LVA(pcDst, 4))
+							fmt.Println("push PIECE_PAWN 2 vls", (*vls)[len(*vls)-1])
 						}
 					}
 				}
@@ -590,7 +643,7 @@ func (p *Engine) GenerateMoves(vls *[]int) (mvs []int) {
 
 		}
 	}
-
+	fmt.Println("generate_mvs 3")
 	return mvs
 }
 
@@ -609,11 +662,13 @@ func (p *Engine) MovePiece(mv int) {
 }
 
 func (p *Engine) UndoMovePiece() {
+	fmt.Println("undo_move_piece 1")
 	mv := p.MvList[len(p.MvList)-1]
 	p.MvList = p.MvList[:len(p.MvList)-1]
 	sqSrc := SRC(mv)
 	sqDst := DST(mv)
 	pc := p.Squares[sqDst]
+	fmt.Printf("undo_move_piece 2 -- mv %d sq_src %d sq_dst %d pc_dst %d\n", mv, sqSrc, sqDst, pc)
 	p.AddPiece(sqDst, pc, DEL_PIECE)
 	p.AddPiece(sqSrc, pc, ADD_PIECE)
 	pc = p.PcList[len(p.PcList)-1]
@@ -624,23 +679,29 @@ func (p *Engine) UndoMovePiece() {
 }
 
 func (p *Engine) MakeMove(mv int) bool {
-	zobristKey := p.ZobRistKey
+	fmt.Println("make_move 1 mv", mv)
 	p.MovePiece(mv)
+	fmt.Println("make_move 2")
 	if p.Checked() {
+		fmt.Println("make_move 2 - 1 checked")
 		p.UndoMovePiece()
 		return false
 	}
-	p.KeyList = append(p.KeyList, zobristKey)
+	fmt.Println("make_move 3")
+	p.KeyList = append(p.KeyList, p.ZobRistKey)
 	p.ChangeSide()
 	p.ChkList = append(p.ChkList, p.Checked())
 	p.Distance++
+	fmt.Printf("make_move 4 distance %d, push check %v\n", p.Distance, p.Checked())
 	return true
 }
 
 func (p *Engine) AddPiece(sq, pc int, deleted bool) {
 	if deleted {
+		fmt.Printf("add_piece 1 sq %d pc %d action DEL\n", sq, pc)
 		p.Squares[sq] = 0
 	} else {
+		fmt.Printf("add_piece 1 sq %d pc %d action ADD\n", sq, pc)
 		p.Squares[sq] = pc
 	}
 

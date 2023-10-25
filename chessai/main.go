@@ -7,8 +7,9 @@ import (
 
 func main() {
 	eng := engine.NewEngine()
-	eng.FromFen("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
-	search := engine.NewSearch(eng, 32)
-	mv := search.SearchMain(200, 5000)
+	search := engine.NewSearch(eng, 16)
+	fen := "9/2Cca4/3k1C3/4P1p2/4N1b2/4R1r2/4c1n2/3p1n3/2rNK4/9 w"
+	eng.FromFen(fen)
+	mv := search.SearchMain(64, 1000)
 	fmt.Println(engine.Move2Iccs(mv))
 }
