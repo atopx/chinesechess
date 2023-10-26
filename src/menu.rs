@@ -314,11 +314,11 @@ pub fn game_chess_system(
     mut data: ResMut<Data>,
     sounds: Res<public::asset::Sounds>,
     mut interaction_query: Query<
-        (&Interaction, &mut BackgroundColor, &PieceColor, &PieceCate),
+        (&Interaction, &PieceColor, &PieceCate),
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut color, piece_color, piece_cate) in &mut interaction_query {
+    for (interaction, piece_color, piece_cate) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 // 只有当前行棋方才有效
