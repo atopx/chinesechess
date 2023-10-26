@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::{fs, process::exit};
 
 fn main() {
+    // book builder
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.len() == 0 {
         eprintln!("missing input file, usage: cargo run --bin book `book file`");

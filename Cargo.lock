@@ -1173,11 +1173,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
+name = "chessai"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81e0a012620521d0d7adb5a1c4b984413cdedfbf2ce7d31953b33e314878279c"
+dependencies = [
+ "bincode",
+ "rand",
+]
+
+[[package]]
 name = "chinesebroad"
 version = "0.1.0"
 dependencies = [
  "bevy",
  "bincode",
+ "chessai",
  "rand",
 ]
 
