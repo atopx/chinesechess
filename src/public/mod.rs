@@ -26,7 +26,7 @@ pub const MAIN_MANU_PRESSED_BUTTON_COLOR: Color = Color::rgb(0.45, 0.45, 0.45);
 
 pub const MAIN_MENU_CONTINUE_GAME_TEXT: &str = " 继续游戏";
 pub const MAIN_MENU_AI_GAME_TEXT: &str = " 人机对弈";
-pub const MAIN_MENU_INTER_GAME_TEXT: &str = "联机对弈";
+pub const MAIN_MENU_INTER_GAME_TEXT: &str = " 联机对弈";
 pub const MAIN_MENU_DEDUCE_GAME_TEXT: &str = " 打谱推演";
 pub const MAIN_MENU_SETTING_GAME_TEXT: &str = " 系统设置";
 pub const MAIN_MENU_EXIT_GAME_TEXT: &str = " 退出游戏";

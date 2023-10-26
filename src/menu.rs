@@ -6,7 +6,7 @@ use crate::game::{Data, Status};
 use crate::public::{
     self, GAME_MENU_ADMIT_DEFEAT_TEXT, GAME_MENU_HOVERED_BUTTON_COLOR, GAME_MENU_NEW_GAME_TEXT,
     GAME_MENU_NORMAL_BUTTON_COLOR, GAME_MENU_PEACE_TEXT, GAME_MENU_PRESSED_BUTTON_COLOR,
-    GAME_MENU_PROMPT_TEXT, GAME_MENU_RETRACT_TEXT, GAME_MENU_ROLL_TEXT, GAME_MENU_SWAP_TEXT,
+    GAME_MENU_PROMPT_TEXT, GAME_MENU_RETRACT_TEXT, GAME_MENU_ROLL_TEXT, GAME_MENU_SWAP_TEXT, MAIN_MENU_INTER_GAME_TEXT,
 };
 use crate::public::{
     BROAD_SIZE, MAIN_MANU_HOVERED_BUTTON_COLOR, MAIN_MANU_NORMAL_BUTTON_COLOR,
@@ -145,8 +145,8 @@ fn make_main_menu_text_bundle(
         .spawn((
             ButtonBundle {
                 style: Style {
-                    width: Val::Px(158.),
-                    height: Val::Px(65.),
+                    width: Val::Px(204_f32),
+                    height: Val::Px(65_f32),
                     top: Val::Px(top_px),
                     align_items: AlignItems::Center,
                     position_type: PositionType::Absolute,
@@ -164,7 +164,6 @@ fn make_main_menu_text_bundle(
                     font,
                     font_size: 40.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
-                    ..default()
                 },
             ));
         });
@@ -186,38 +185,45 @@ pub fn setup_pending(mut commands: Commands, fonts: Res<public::asset::Fonts>) {
         .with_children(|parent| {
             make_main_menu_text_bundle(
                 parent,
-                fonts.wenkai.clone(),
+                fonts.xiaoli.clone(),
                 MAIN_MENU_CONTINUE_GAME_TEXT,
                 MainMenu::ContinueGame,
-                160_f32,
+                140_f32,
             );
             make_main_menu_text_bundle(
                 parent,
-                fonts.wenkai.clone(),
+                fonts.xiaoli.clone(),
                 MAIN_MENU_AI_GAME_TEXT,
                 MainMenu::NewAiGame,
-                250_f32,
+                230_f32,
             );
             make_main_menu_text_bundle(
                 parent,
-                fonts.wenkai.clone(),
+                fonts.xiaoli.clone(),
+                MAIN_MENU_INTER_GAME_TEXT,
+                MainMenu::NewInterGame,
+                320_f32,
+            );
+            make_main_menu_text_bundle(
+                parent,
+                fonts.xiaoli.clone(),
                 MAIN_MENU_DEDUCE_GAME_TEXT,
                 MainMenu::NewDeduceGame,
-                340_f32,
+                410_f32,
             );
             make_main_menu_text_bundle(
                 parent,
-                fonts.wenkai.clone(),
+                fonts.xiaoli.clone(),
                 MAIN_MENU_SETTING_GAME_TEXT,
                 MainMenu::SettingGame,
-                430_f32,
+                500_f32,
             );
             make_main_menu_text_bundle(
                 parent,
-                fonts.wenkai.clone(),
+                fonts.xiaoli.clone(),
                 MAIN_MENU_EXIT_GAME_TEXT,
                 MainMenu::ExitGame,
-                520_f32,
+                590_f32,
             );
         })
         .id();
