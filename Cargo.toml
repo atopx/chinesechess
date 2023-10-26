@@ -26,15 +26,3 @@ opt-level = 3
 [target.x86_64-pc-windows-msvc]
 linker = "rust-lld.exe"
 rustflags = ["-Zshare-generics=y"]
-
-[[bin]]
-name ="book"
-path ="src/book/main.rs"
-
-[[example]]
-name = "book"
-path = "examples/book.rs"
-
-[[example]]
-name = "chessai"
-path = "examples/chessai.rs"

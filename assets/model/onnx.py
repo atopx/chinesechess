@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import onnxruntime
-import time
 
 CLASSES = [
     'BN',
@@ -27,10 +26,10 @@ class YOLOV5():
         self.onnx_session = onnxruntime.InferenceSession(onnxpath)
         self.input_name = self.get_input_name()
         self.output_name = self.get_output_name()
-    # -------------------------------------------------------
-        #   获取输入输出的名字
-        # -------------------------------------------------------
 
+    # -------------------------------------------------------
+    #   获取输入输出的名字
+    # -------------------------------------------------------
     def get_input_name(self):
         input_name = []
         for node in self.onnx_session.get_inputs():
@@ -42,27 +41,28 @@ class YOLOV5():
         for node in self.onnx_session.get_outputs():
             output_name.append(node.name)
         return output_name
-    # -------------------------------------------------------
-        #   输入图像
-        # -------------------------------------------------------
 
+    # -------------------------------------------------------
+    #   输入图像
+    # -------------------------------------------------------
     def get_input_feed(self, img_tensor):
         input_feed = {}
         for name in self.input_name:
             input_feed[name] = img_tensor
         return input_feed
-    # -------------------------------------------------------
-        #   1.cv2读取图像并resize
-        # 2.图像转BGR2RGB和HWC2CHW
-        # 3.图像归一化
-        # 4.图像增加维度
-        # 5.onnx_session 推理
-        # -------------------------------------------------------
 
+    # -------------------------------------------------------
+    # 1.cv2读取图像并resize
+    # 2.图像转BGR2RGB和HWC2CHW
+    # 3.图像归一化
+    # 4.图像增加维度
+    # 5.onnx_session 推理
+    # -------------------------------------------------------
     def inference(self, img_path):
         img = cv2.imread(img_path)
         or_img = cv2.resize(img, (640, 640))
-        img = or_img[:, :, ::-1].transpose(2, 0, 1)  # BGR2RGB和HWC2CHW
+        # BGR2RGB和HWC2CHW
+        img = or_img[:, :, ::-1].transpose(2, 0, 1)
         img = img.astype(dtype=np.float32)
         img /= 255.0
         img = np.expand_dims(img, axis=0)
@@ -70,11 +70,10 @@ class YOLOV5():
         pred = self.onnx_session.run(None, input_feed)[0]
         return pred, or_img
 
-# dets:  array [x,6] 6个值分别为x1,y1,x2,y2,score,class
-# thresh: 阈值
-
 
 def nms(dets, thresh):
+    # dets:  array [x,6] 6个值分别为x1,y1,x2,y2,score,class
+    # thresh: 阈值
     x1 = dets[:, 0]
     y1 = dets[:, 1]
     x2 = dets[:, 2]
@@ -125,7 +124,8 @@ def xywh2xyxy(x):
     return y
 
 
-def filter_box(org_box, conf_thres, iou_thres):  # 过滤掉无用的框
+# 过滤掉无用的框
+def filter_box(org_box, conf_thres, iou_thres):
     # -------------------------------------------------------
     #   删除为1的维度
     # 删除置信度小于conf_thres的BOX
