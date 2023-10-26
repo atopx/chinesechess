@@ -5,6 +5,7 @@ use crate::component::{Piece, PieceCate, PieceColor};
 #[derive(Resource)]
 pub struct Fonts {
     pub wenkai: Handle<Font>,
+    pub xiaoli: Handle<Font>,
 }
 
 #[derive(Resource)]

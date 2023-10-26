@@ -1,7 +1,7 @@
-use bevy::prelude::{Component, Entity};
+use bevy::prelude::{Component, Entity, Resource};
 use crate::component::PieceColor::White;
 
-#[derive(Default, Clone, Copy, Debug, Component)]
+#[derive(Default, Clone, Copy, Debug, Component, PartialEq)]
 pub enum PieceCate {
     /// 空, 默认值
     #[default]
@@ -22,7 +22,7 @@ pub enum PieceCate {
     King,
 }
 
-#[derive(Default, Clone, Copy, Debug, Component)]
+#[derive(Default, Clone, Copy, Debug, Component, PartialEq)]
 pub enum PieceColor {
     /// 空的
     #[default]
@@ -73,7 +73,7 @@ impl Player {
 }
 
 
-#[derive(Component, Clone, Copy, Debug, Default)]
+#[derive(Resource, Clone, Copy, Debug, Default)]
 pub struct Piece {
     pub cate: PieceCate,
     pub color: PieceColor,

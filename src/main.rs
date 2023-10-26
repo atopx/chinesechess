@@ -26,17 +26,20 @@ fn main() {
         .add_systems(OnEnter(Status::EXIT), exit_system)
         // 进入PENDING状态
         .add_systems(OnEnter(Status::PENDING), menu::setup_pending)
-        // PENDING
+        // 全局菜单系统
         .add_systems(Update, menu::pending_state_system.run_if(in_state(Status::PENDING)))
         // 退出PENDING状态
         .add_systems(OnExit(Status::PENDING), menu::cleanup_menu)
         // 进入RUNNING状态
         .add_systems(OnEnter(Status::RUNNING), menu::setup_running)
+        // 棋子系统
+        .add_systems(Update, menu::game_chess_system.run_if(in_state(Status::RUNNING)))
+        // 棋面菜单系统
+        .add_systems(Update, menu::game_menu_system.run_if(in_state(Status::RUNNING)))
         // 退出RUNNING状态
         .add_systems(OnExit(Status::RUNNING), menu::cleanup_chessbroad)
         // ESC事件
         .add_systems(Update, menu::esc_event_system)
-
         // 初始化窗口
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -68,6 +71,7 @@ fn setup_system(
     // 字体
     let fonts = public::asset::Fonts {
         wenkai: asset_server.load(public::path::FONT_WENKAI),
+        xiaoli: asset_server.load(public::path::FONT_XIAOLI),
     };
     commands.insert_resource(fonts);
 
@@ -180,13 +184,6 @@ fn setup_system(
 
 fn exit_system(mut exit: EventWriter<AppExit>) {
     exit.send(AppExit);
-}
-
-fn resize_notificator(resize_event: Res<Events<WindowResized>>) {
-    let mut reader = resize_event.get_reader();
-    for e in reader.iter(&resize_event) {
-        trace!("width = {} height = {}", e.width, e.height);
-    }
 }
 
 #[cfg(test)]

@@ -1,4 +1,7 @@
+// 字体: 文楷
 pub const FONT_WENKAI: &str = "font/wenkai.ttf";
+// 字体: 汉中小隶
+pub const FONT_XIAOLI: &str = "font/xiaoli.ttf";
 
 // 背景音乐
 pub const SOUND_BGM: &str = "sound/bgm.mp3";
