@@ -14,6 +14,7 @@ use crate::public::{
     MAIN_MENU_DEDUCE_GAME_TEXT, MAIN_MENU_EXIT_GAME_TEXT, MAIN_MENU_SETTING_GAME_TEXT,
     PIECE_POS_MAP, PIECE_SIZE, WIN_SIZE,
 };
+use crate::system::Audio;
 
 #[derive(Resource)]
 pub struct EntityResources {
@@ -308,8 +309,10 @@ pub fn game_menu_system(
 
 // 棋子系统
 pub fn game_chess_system(
+    mut commands: Commands,
     mut state: ResMut<NextState<Status>>,
     mut data: ResMut<Data>,
+    sounds: Res<public::asset::Sounds>,
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &PieceColor, &PieceCate),
         (Changed<Interaction>, With<Button>),
@@ -317,20 +320,30 @@ pub fn game_chess_system(
 ) {
     for (interaction, mut color, piece_color, piece_cate) in &mut interaction_query {
         match *interaction {
-            Interaction::Pressed => match *piece_color {
-                PieceColor::None => {}
-                PieceColor::White => {
-                    println!("选择红色方棋子 {:?}", piece_cate);
+            Interaction::Pressed => {
+                // 只有当前行棋方才有效
+                if data.current_color == *piece_color {
+                    match *piece_color {
+                        PieceColor::None => {}
+                        PieceColor::White => {
+                            println!("选择红色方棋子 {:?}", piece_cate);
+                            // 播放音效
+                            commands.spawn(Audio::play_once(sounds.select.clone()));
+                            // todo 抬棋子动画
+
+                        }
+                        PieceColor::Black => {
+                            println!("选择黑色方棋子 {:?}", piece_cate);
+                        }
+                    }
                 }
-                PieceColor::Black => {
-                    println!("选择黑色方棋子 {:?}", piece_cate);
-                }
-            },
+            }
             Interaction::Hovered => {}
             Interaction::None => {}
         }
     }
 }
+
 
 pub fn pending_state_system(
     mut state: ResMut<NextState<Status>>,
@@ -505,6 +518,4 @@ pub fn setup_running(
         })
         .id();
     entity.chessbroad = Some(chessbroad_entity);
-
-    // entity.game_menus = Some(menus_entity);
 }

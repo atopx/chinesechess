@@ -1,5 +1,5 @@
 use bevy::asset::Handle;
-use bevy::prelude::{AudioSource, Font, Image, Resource};
+use bevy::prelude::{Font, Image, Resource, AudioSource};
 use crate::component::{Piece, PieceCate, PieceColor};
 
 #[derive(Resource)]
