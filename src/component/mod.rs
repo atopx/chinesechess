@@ -1,5 +1,5 @@
-use bevy::prelude::{Component, Entity, Resource};
 use crate::component::PieceColor::White;
+use bevy::prelude::{Component, Entity, Resource};
 
 #[derive(Default, Clone, Copy, Debug, Component, PartialEq)]
 pub enum PieceCate {
@@ -33,7 +33,7 @@ pub enum PieceColor {
     Black,
 }
 
-pub const PIECE_NONE: Piece = Piece::new(PieceColor::None, PieceCate::None, None);
+pub const PIECE_NONE: Piece = Piece::new(PieceColor::None, PieceCate::None);
 
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub enum PlayerIdentity {
@@ -51,7 +51,12 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(name: &str, color: PieceColor, identity: PlayerIdentity, records: Vec<String>) -> Self {
+    pub fn new(
+        name: &str,
+        color: PieceColor,
+        identity: PlayerIdentity,
+        records: Vec<String>,
+    ) -> Self {
         Self {
             name: name.to_string(),
             color,
@@ -72,16 +77,21 @@ impl Player {
     }
 }
 
-
 #[derive(Resource, Clone, Copy, Debug, Default)]
 pub struct Piece {
     pub cate: PieceCate,
     pub color: PieceColor,
     pub entity: Option<Entity>,
+    pub select_entity: Option<Entity>,
 }
 
 impl Piece {
-    pub const fn new(color: PieceColor, cate: PieceCate, entity: Option<Entity>) -> Self {
-        Self { cate, color, entity }
+    pub const fn new(color: PieceColor, cate: PieceCate) -> Self {
+        Self {
+            cate,
+            color,
+            entity: None,
+            select_entity: None,
+        }
     }
 }

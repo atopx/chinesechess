@@ -331,6 +331,18 @@ pub fn game_chess_system(
                             commands.spawn(Audio::play_once(sounds.select.clone()));
                             // todo 抬棋子动画
 
+                            // 找到棋子
+                            for rows in data.broad_map {
+                                for piece in rows {
+                                    if piece.color == *piece_color && piece.cate == *piece_cate {
+                                        // 取消旧棋子
+                                        commands.get_entity(piece.entity.unwrap()).unwrap().despawn();
+                                        // todo 渲染抬起的棋子
+                                        // commands.spawn(bundle)
+                                    }
+                                }
+                            }
+
                         }
                         PieceColor::Black => {
                             println!("选择黑色方棋子 {:?}", piece_cate);

@@ -16,6 +16,7 @@ mod menu;
 mod plugin;
 mod public;
 mod system;
+mod player;
 
 fn main() {
     App::new()
