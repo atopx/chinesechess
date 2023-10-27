@@ -16,7 +16,6 @@ mod menu;
 mod plugin;
 mod public;
 mod system;
-mod player;
 
 fn main() {
     App::new()
@@ -26,7 +25,7 @@ fn main() {
         // 初始化数据
         .insert_resource(game::Data::new())
         // 初始化系统
-        .add_systems(Startup, setup_system)
+        .add_systems(Startup, (set_window_icon, setup_system))
         // 加载退出游戏系统
         .add_systems(OnEnter(Status::EXIT), exit_system)
         // 进入PENDING状态
