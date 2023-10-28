@@ -1,6 +1,6 @@
-use bevy::asset::Handle;
-use bevy::prelude::{Font, Image, Resource, AudioSource};
 use crate::component::{Piece, PieceCate, PieceColor};
+use bevy::asset::Handle;
+use bevy::prelude::{AudioSource, Font, Image, Resource};
 
 #[derive(Resource)]
 pub struct Fonts {
@@ -77,37 +77,108 @@ pub struct Pieces {
 impl Pieces {
     pub fn get_handle(&self, piece: &Piece, selected: bool) -> Option<Handle<Image>> {
         match piece.color {
-            PieceColor::None => {
-                None
-            }
-            PieceColor::White => {
-                match piece.cate {
-                    PieceCate::None => {
-                        None
+            PieceColor::White => match piece.cate {
+                PieceCate::Rook => {
+                    if selected {
+                        Some(self.white_rook_select.clone())
+                    } else {
+                        Some(self.white_rook.clone())
                     }
-                    PieceCate::Rook => { if selected { Some(self.white_rook_select.clone()) } else { Some(self.white_rook.clone()) } }
-                    PieceCate::Knight => { if selected { Some(self.white_knight_select.clone()) } else { Some(self.white_knight.clone()) } }
-                    PieceCate::Bishop => { if selected { Some(self.white_bishop_select.clone()) } else { Some(self.white_bishop.clone()) } }
-                    PieceCate::Advisor => { if selected { Some(self.white_advisor_select.clone()) } else { Some(self.white_advisor.clone()) } }
-                    PieceCate::Cannon => { if selected { Some(self.white_cannon_select.clone()) } else { Some(self.white_cannon.clone()) } }
-                    PieceCate::Pawn => { if selected { Some(self.white_pawn_select.clone()) } else { Some(self.white_pawn.clone()) } }
-                    PieceCate::King => { if selected { Some(self.white_king_select.clone()) } else { Some(self.white_king.clone()) } }
                 }
-            }
-            PieceColor::Black => {
-                match piece.cate {
-                    PieceCate::None => {
-                        None
+                PieceCate::Knight => {
+                    if selected {
+                        Some(self.white_knight_select.clone())
+                    } else {
+                        Some(self.white_knight.clone())
                     }
-                    PieceCate::Rook => { if selected { Some(self.black_rook_select.clone()) } else { Some(self.black_rook.clone()) } }
-                    PieceCate::Knight => { if selected { Some(self.black_knight_select.clone()) } else { Some(self.black_knight.clone()) } }
-                    PieceCate::Bishop => { if selected { Some(self.black_bishop_select.clone()) } else { Some(self.black_bishop.clone()) } }
-                    PieceCate::Advisor => { if selected { Some(self.black_advisor_select.clone()) } else { Some(self.black_advisor.clone()) } }
-                    PieceCate::Cannon => { if selected { Some(self.black_cannon_select.clone()) } else { Some(self.black_cannon.clone()) } }
-                    PieceCate::Pawn => { if selected { Some(self.black_pawn_select.clone()) } else { Some(self.black_pawn.clone()) } }
-                    PieceCate::King => { if selected { Some(self.black_king_select.clone()) } else { Some(self.black_king.clone()) } }
                 }
-            }
+                PieceCate::Bishop => {
+                    if selected {
+                        Some(self.white_bishop_select.clone())
+                    } else {
+                        Some(self.white_bishop.clone())
+                    }
+                }
+                PieceCate::Advisor => {
+                    if selected {
+                        Some(self.white_advisor_select.clone())
+                    } else {
+                        Some(self.white_advisor.clone())
+                    }
+                }
+                PieceCate::Cannon => {
+                    if selected {
+                        Some(self.white_cannon_select.clone())
+                    } else {
+                        Some(self.white_cannon.clone())
+                    }
+                }
+                PieceCate::Pawn => {
+                    if selected {
+                        Some(self.white_pawn_select.clone())
+                    } else {
+                        Some(self.white_pawn.clone())
+                    }
+                }
+                PieceCate::King => {
+                    if selected {
+                        Some(self.white_king_select.clone())
+                    } else {
+                        Some(self.white_king.clone())
+                    }
+                }
+            },
+            PieceColor::Black => match piece.cate {
+                PieceCate::Rook => {
+                    if selected {
+                        Some(self.black_rook_select.clone())
+                    } else {
+                        Some(self.black_rook.clone())
+                    }
+                }
+                PieceCate::Knight => {
+                    if selected {
+                        Some(self.black_knight_select.clone())
+                    } else {
+                        Some(self.black_knight.clone())
+                    }
+                }
+                PieceCate::Bishop => {
+                    if selected {
+                        Some(self.black_bishop_select.clone())
+                    } else {
+                        Some(self.black_bishop.clone())
+                    }
+                }
+                PieceCate::Advisor => {
+                    if selected {
+                        Some(self.black_advisor_select.clone())
+                    } else {
+                        Some(self.black_advisor.clone())
+                    }
+                }
+                PieceCate::Cannon => {
+                    if selected {
+                        Some(self.black_cannon_select.clone())
+                    } else {
+                        Some(self.black_cannon.clone())
+                    }
+                }
+                PieceCate::Pawn => {
+                    if selected {
+                        Some(self.black_pawn_select.clone())
+                    } else {
+                        Some(self.black_pawn.clone())
+                    }
+                }
+                PieceCate::King => {
+                    if selected {
+                        Some(self.black_king_select.clone())
+                    } else {
+                        Some(self.black_king.clone())
+                    }
+                }
+            },
         }
     }
 }

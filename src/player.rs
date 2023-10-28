@@ -1,5 +1,5 @@
-use bevy::prelude::Component;
 use crate::component::PieceColor;
+use bevy::prelude::*;
 
 #[derive(Component, Clone, Debug)]
 pub struct Record {
@@ -8,22 +8,42 @@ pub struct Record {
     pub value: String,
 }
 
-/// PlayerState 玩家状态
-#[derive(Component, Clone, Copy, Debug, Default)]
-pub enum PlayerState {
-    // 空闲
-    #[default]
-    None,
-    // 思考中
-    Thinking,
-    // 已选棋
-    Selected,
-}
-
 #[derive(Component, Clone, Debug)]
 pub struct Player {
     pub id: String,
     pub name: String,
     pub color: PieceColor,
-    pub records: Vec<String>,
+    pub records: Vec<Record>,
+}
+
+impl Player {
+    pub fn new_white() -> Self {
+        Self {
+            id: String::new(),
+            name: String::new(),
+            records: Vec::new(),
+            color: PieceColor::White,
+        }
+    }
+
+    pub fn new_black() -> Self {
+        Self {
+            id: String::new(),
+            name: String::new(),
+            color: PieceColor::White,
+            records: Vec::new(),
+        }
+    }
+
+    pub fn set_id(&mut self, id: &str) {
+        self.id = id.to_string();
+    }
+
+    pub fn set_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
+
+    pub fn push(&mut self, record: Record) {
+        self.records.push(record);
+    }
 }

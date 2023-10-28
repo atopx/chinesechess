@@ -1,11 +1,7 @@
-use crate::component::PieceColor::White;
-use bevy::prelude::{Component, Entity, Resource};
+use bevy::prelude::Component;
 
-#[derive(Default, Clone, Copy, Debug, Component, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Eq, Copy)]
 pub enum PieceCate {
-    /// 空, 默认值
-    #[default]
-    None,
     // 車
     Rook,
     // 马
@@ -22,76 +18,29 @@ pub enum PieceCate {
     King,
 }
 
-#[derive(Default, Clone, Copy, Debug, Component, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Eq, Copy)]
 pub enum PieceColor {
-    /// 空的
-    #[default]
-    None,
-    /// 白色方(红色)
+    // 白色方(红色)
     White,
-    /// 黑色方
+    // 黑色方
     Black,
 }
 
-pub const PIECE_NONE: Piece = Piece::new(PieceColor::None, PieceCate::None);
-
-#[derive(Component, Clone, Copy, Debug, Default)]
-pub enum PlayerIdentity {
-    AI,
-    #[default]
-    Person,
-}
-
-#[derive(Component, Clone, Debug)]
-pub struct Player {
-    pub name: String,
-    pub color: PieceColor,
-    pub identity: PlayerIdentity,
-    pub records: Vec<String>,
-}
-
-impl Player {
-    pub fn new(
-        name: &str,
-        color: PieceColor,
-        identity: PlayerIdentity,
-        records: Vec<String>,
-    ) -> Self {
-        Self {
-            name: name.to_string(),
-            color,
-            identity,
-            records,
-        }
-    }
-    pub fn new_white() -> Self {
-        return Self::new("红色方", White, PlayerIdentity::default(), Vec::new());
-    }
-
-    pub fn new_black() -> Self {
-        return Self::new("黑色方", White, PlayerIdentity::default(), Vec::new());
-    }
-
-    pub fn set_identity(&mut self, identity: PlayerIdentity) {
-        self.identity = identity
-    }
-}
-
-#[derive(Resource, Clone, Copy, Debug, Default)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct Piece {
     pub cate: PieceCate,
     pub color: PieceColor,
-    pub entity: Option<Entity>,
-    pub select_entity: Option<Entity>,
+    pub row: usize,
+    pub col: usize,
 }
 
 impl Piece {
-    pub const fn new(color: PieceColor, cate: PieceCate) -> Self {
+    pub fn new(color: PieceColor, cate: PieceCate, row: usize, col: usize) -> Self {
         Self {
             cate,
             color,
-            entity: None,
-            select_entity: None,
+            row,
+            col,
         }
     }
 }
