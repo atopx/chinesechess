@@ -61,50 +61,171 @@ pub fn setup_running(
     // todo 开局动画 选边
     data.set_ai_game(component::PieceColor::White);
 
-    // 棋盘
-    let broad_left = (WIN_SIZE.w - BROAD_SIZE.w) / 2_f32; // min x
-    let broad_bottom = 10_f32;
-    trace!("渲染棋盘: left {}, bottom {}", broad_left, broad_bottom);
     let chessbroad_entity = commands
         .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::NONE),
+            // background_color: BackgroundColor(Color::NONE),
             style: Style {
-                position_type: PositionType::Absolute,
-                left: Val::Px(broad_left),
-                bottom: Val::Px(broad_bottom),
-                width: Val::Px(BROAD_SIZE.w),
-                height: Val::Px(BROAD_SIZE.h),
+                width: Val::Percent(100_f32),
+                height: Val::Percent(100_f32),
                 ..default()
             },
             ..default()
         })
         .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                image: UiImage::new(images.broad.clone()),
-                ..default()
-            });
-        })
-        .with_children(|parent| {
+            // 渲染棋盘
+            let broad_left = ((WIN_SIZE.w - BROAD_SIZE.w) / 2_f32) / WIN_SIZE.w * 100_f32; // min x
+            let broad_bottom = (10_f32);
+            trace!("渲染棋盘: left {}, bottom {}", broad_left, broad_bottom);
+            parent
+                .spawn(ImageBundle {
+                    image: UiImage::new(images.broad.clone()),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        left: Val::Percent(20_f32),
+                        bottom: Val::Percent(2_f32),
+                        width: Val::Percent(60_f32),
+                        height: Val::Percent(100_f32),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|parent| {
+                    let data = &mut *data;
 
-            let data = &mut *data;
-
-            // 渲染棋子
-            for (row, rows_data) in data.broad_map.iter_mut().enumerate() {
-                for (col, piece_some) in rows_data.iter_mut().enumerate() {
-                    if let Some(piece) = piece_some {
-                        if let Some(image) = pieces.get_handle(piece, false) {
-                            let (left, bottom) = PIECE_POS_MAP[row][col];
-                            if piece.color == PieceColor::White {
-                                make_piece_bundle(parent, data.white_player.clone(), *piece, image, left, bottom);
-                            } else {
-                                make_piece_bundle(parent, data.black_player.clone(), *piece, image, left, bottom);
+                    // 渲染棋子
+                    for (row, rows_data) in data.broad_map.iter_mut().enumerate() {
+                        for (col, piece_some) in rows_data.iter_mut().enumerate() {
+                            if let Some(piece) = piece_some {
+                                if let Some(image) = pieces.get_handle(piece, false) {
+                                    let (left, bottom) = PIECE_POS_MAP[row][col];
+                                    if piece.color == PieceColor::White {
+                                        make_piece_bundle(
+                                            parent,
+                                            data.white_player.clone(),
+                                            *piece,
+                                            image,
+                                            left,
+                                            bottom,
+                                        );
+                                    } else {
+                                        make_piece_bundle(
+                                            parent,
+                                            data.black_player.clone(),
+                                            *piece,
+                                            image,
+                                            left,
+                                            bottom,
+                                        );
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
 
-            super::button::make_chess_buttons(parent, fonts);
+                    super::button::make_chess_buttons(parent, fonts.xiaoli.clone());
+                });
+
+            // 黑色方信息框
+            parent
+                .spawn(ImageBundle {
+                    image: UiImage::new(images.player_frame.clone()),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        top: Val::Percent(20_f32),
+                        left: Val::Percent(6_f32),
+                        width: Val::Px(200_f32),
+                        height: Val::Px(400_f32),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // 头像
+                    parent.spawn(ImageBundle {
+                        image: UiImage::new(images.black_avatar.clone()),
+                        style: Style {
+                            position_type: PositionType::Relative,
+                            top: Val::Percent(10_f32),
+                            left: Val::Percent(25_f32),
+                            width: Val::Percent(50_f32),
+                            height: Val::Percent(25_f32),
+                            ..default()
+                        },
+                        ..default()
+                    });
+
+                    parent.spawn(TextBundle {
+                        style: Style {
+                            left: Val::Percent(-10_f32),
+                            ..default()
+                        },
+                        text: Text::from_section(
+                            "黑方",
+                            TextStyle {
+                                font: fonts.xiaoli.clone(),
+                                font_size: 25_f32,
+                                color: Color::ANTIQUE_WHITE,
+                            },
+                        ),
+                        ..default()
+                    });
+
+                    // 计时器
+
+                    // 机器评分
+                });
+
+            // 红色方信息框
+            parent
+                .spawn(ImageBundle {
+                    image: UiImage::new(images.player_frame.clone()),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        top: Val::Percent(20_f32),
+                        right: Val::Percent(6_f32),
+                        width: Val::Px(200_f32),
+                        height: Val::Px(400_f32),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|parent| {
+                    
+                    // 头像
+                    parent.spawn(ImageBundle {
+                        image: UiImage::new(images.white_avatar.clone()),
+                        style: Style {
+                            position_type: PositionType::Relative,
+                            top: Val::Percent(10_f32),
+                            left: Val::Percent(25_f32),
+                            width: Val::Percent(50_f32),
+                            height: Val::Percent(25_f32),
+                            ..default()
+                        },
+                        ..default()
+                    });
+
+                    parent.spawn(TextBundle {
+                        style: Style {
+                            left: Val::Percent(-10_f32),
+                            ..default()
+                        },
+                        text: Text::from_section(
+                            "红方",
+                            TextStyle {
+                                font: fonts.xiaoli.clone(),
+                                font_size: 25_f32,
+                                color: Color::ANTIQUE_WHITE,
+                            },
+                        ),
+                        ..default()
+                    });
+
+
+                    // 计时器
+
+                    // 机器评分
+                });
         })
         .id();
     entity.chessbroad = Some(chessbroad_entity);

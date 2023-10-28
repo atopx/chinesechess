@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{component, game::Data, public, player::{Player}};
+use crate::{component, game::Data, public, player::Player};
 
 use super::event;
 

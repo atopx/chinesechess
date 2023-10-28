@@ -6,6 +6,6 @@ pub struct TmpDebugEvent(pub Entity);
 
 pub fn tmp_debug_consumer(mut data: ResMut<Data>, mut events: EventReader<TmpDebugEvent>) {
     for event in events.iter() {
-        eprintln!("Entity {:?} tmp debug event!", event.0);
+        trace!("Entity {:?} tmp debug event!", event.0);
     }
 }

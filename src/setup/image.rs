@@ -10,6 +10,7 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
         background: asset_server.load(public::path::IMAGE_BACKGROUND),
         broad: asset_server.load(public::path::IMAGE_BROAD),
         cover: asset_server.load(public::path::IMAGE_COVER),
+        player_frame: asset_server.load(public::path::IMAGE_PLAYER_FRAME),
         popup: asset_server.load(public::path::IMAGE_POPUP),
         select_shadow: asset_server.load(public::path::IMAGE_SELECT_SHADOW),
         start_pos: asset_server.load(public::path::IMAGE_START_POS),

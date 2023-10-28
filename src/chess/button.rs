@@ -35,10 +35,10 @@ pub const GAME_MENU_NORMAL_BUTTON_COLOR: Color = Color::NONE;
 pub const GAME_MENU_HOVERED_BUTTON_COLOR: Color = Color::rgb(0.30, 0.30, 0.30);
 pub const GAME_MENU_PRESSED_BUTTON_COLOR: Color = Color::rgb(0.45, 0.45, 0.45);
 
-pub fn make_chess_buttons(parent: &mut ChildBuilder, fonts: Res<public::asset::Fonts>) {
+pub fn make_chess_buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_NEW_GAME_TEXT,
         ChessButton::NewGame,
         60_f32,
@@ -46,42 +46,42 @@ pub fn make_chess_buttons(parent: &mut ChildBuilder, fonts: Res<public::asset::F
 
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_RETRACT_TEXT,
         ChessButton::Retract,
         150_f32,
     );
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_PEACE_TEXT,
         ChessButton::Peact,
         240_f32,
     );
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_PROMPT_TEXT,
         ChessButton::Prompt,
         330_f32,
     );
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_ADMIT_DEFEAT_TEXT,
         ChessButton::AdmitDefeat,
         420_f32,
     );
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_SWAP_TEXT,
         ChessButton::Swap,
         510_f32,
     );
     make_text_bundle(
         parent,
-        fonts.xiaoli.clone(),
+        font.clone(),
         GAME_MENU_ROLL_TEXT,
         ChessButton::Roll,
         600_f32,
@@ -117,9 +117,8 @@ pub fn make_text_bundle(
                 text,
                 TextStyle {
                     font,
-                    font_size: 22.0,
+                    font_size: 22_f32,
                     color: Color::ANTIQUE_WHITE,
-                    ..default()
                 },
             ));
         });

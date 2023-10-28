@@ -28,6 +28,8 @@ pub const IMAGE_BACKGROUND: &str = "image/background.png";
 pub const IMAGE_BROAD: &str = "image/broad.png";
 // 主图
 pub const IMAGE_COVER: &str = "image/cover.png";
+// 用户信息框
+pub const IMAGE_PLAYER_FRAME: &str = "image/player_frame.png";
 // 文本框
 pub const IMAGE_POPUP: &str = "image/popup.png";
 // 选棋阴影
