@@ -20,7 +20,7 @@ impl Plugin for AssetLoading {
                 image::loading,
                 animate::loading,
             ),
-        );
+        ).add_systems(Update, image::on_window_resize);
     }
 }
 

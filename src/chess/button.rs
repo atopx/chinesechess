@@ -41,7 +41,7 @@ pub fn make_chess_buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
         font.clone(),
         GAME_MENU_NEW_GAME_TEXT,
         ChessButton::NewGame,
-        60_f32,
+        8_f32,
     );
 
     make_text_bundle(
@@ -49,42 +49,42 @@ pub fn make_chess_buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
         font.clone(),
         GAME_MENU_RETRACT_TEXT,
         ChessButton::Retract,
-        150_f32,
+        20_f32,
     );
     make_text_bundle(
         parent,
         font.clone(),
         GAME_MENU_PEACE_TEXT,
         ChessButton::Peact,
-        240_f32,
+        32_f32,
     );
     make_text_bundle(
         parent,
         font.clone(),
         GAME_MENU_PROMPT_TEXT,
         ChessButton::Prompt,
-        330_f32,
+        44_f32,
     );
     make_text_bundle(
         parent,
         font.clone(),
         GAME_MENU_ADMIT_DEFEAT_TEXT,
         ChessButton::AdmitDefeat,
-        420_f32,
+        56_f32,
     );
     make_text_bundle(
         parent,
         font.clone(),
         GAME_MENU_SWAP_TEXT,
         ChessButton::Swap,
-        510_f32,
+        68_f32,
     );
     make_text_bundle(
         parent,
         font.clone(),
         GAME_MENU_ROLL_TEXT,
         ChessButton::Roll,
-        600_f32,
+        80_f32,
     );
 }
 
@@ -101,8 +101,8 @@ pub fn make_text_bundle(
                 style: Style {
                     width: Val::Px(90_f32),
                     height: Val::Px(50_f32),
-                    left: Val::Px(left_px),
-                    bottom: Val::Px(20_f32),
+                    left: Val::Percent(left_px),
+                    bottom: Val::Percent(3_f32),
                     align_items: AlignItems::Center,
                     position_type: PositionType::Absolute,
                     ..default()

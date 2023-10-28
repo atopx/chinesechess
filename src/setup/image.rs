@@ -1,6 +1,9 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResized};
 
 use crate::public;
+
+#[derive(Component)]
+pub struct Background;
 
 pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
     trace!("loading asset images");
@@ -21,7 +24,7 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
     };
 
     // 背景
-    commands.spawn(SpriteBundle {
+    commands.spawn((SpriteBundle {
         texture: images.background.clone(),
         sprite: Sprite {
             custom_size: Some(Vec2 {
@@ -31,7 +34,7 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..Default::default()
         },
         ..Default::default()
-    });
+    }, Background));
 
     commands.insert_resource(images);
 
@@ -96,4 +99,17 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
         white_rook_select: asset_server.load(public::path::PIECE_WHITE_ROOK_SELECT),
     };
     commands.insert_resource(pieces);
+}
+
+pub fn on_window_resize(
+    mut q: Query<&mut Sprite, With<Background>>,
+    mut resize_events: EventReader<WindowResized>,
+) {
+    let mut bg = q.single_mut();
+    for e in resize_events.iter() {
+        bg.custom_size = Some(Vec2 {
+            x: e.width,
+            y: e.height,
+        })
+    }
 }

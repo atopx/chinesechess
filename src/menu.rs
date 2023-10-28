@@ -31,6 +31,7 @@ pub enum MainMenu {
     // 退出游戏
     ExitGame,
 }
+
 fn make_main_menu_text_bundle(
     parent: &mut ChildBuilder,
     font: Handle<Font>,
@@ -44,7 +45,7 @@ fn make_main_menu_text_bundle(
                 style: Style {
                     width: Val::Px(204_f32),
                     height: Val::Px(65_f32),
-                    top: Val::Px(top_px),
+                    top: Val::Percent(top_px),
                     align_items: AlignItems::Center,
                     position_type: PositionType::Absolute,
                     ..default()
@@ -85,42 +86,42 @@ pub fn setup_pending(mut commands: Commands, fonts: Res<public::asset::Fonts>) {
                 fonts.xiaoli.clone(),
                 MAIN_MENU_CONTINUE_GAME_TEXT,
                 MainMenu::ContinueGame,
-                140_f32,
+                16_f32,
             );
             make_main_menu_text_bundle(
                 parent,
                 fonts.xiaoli.clone(),
                 MAIN_MENU_AI_GAME_TEXT,
                 MainMenu::NewAiGame,
-                230_f32,
+                26_f32,
             );
             make_main_menu_text_bundle(
                 parent,
                 fonts.xiaoli.clone(),
                 MAIN_MENU_INTER_GAME_TEXT,
                 MainMenu::NewInterGame,
-                320_f32,
+                36_f32,
             );
             make_main_menu_text_bundle(
                 parent,
                 fonts.xiaoli.clone(),
                 MAIN_MENU_DEDUCE_GAME_TEXT,
                 MainMenu::NewDeduceGame,
-                410_f32,
+                46_f32,
             );
             make_main_menu_text_bundle(
                 parent,
                 fonts.xiaoli.clone(),
                 MAIN_MENU_SETTING_GAME_TEXT,
                 MainMenu::SettingGame,
-                500_f32,
+                56_f32,
             );
             make_main_menu_text_bundle(
                 parent,
                 fonts.xiaoli.clone(),
                 MAIN_MENU_EXIT_GAME_TEXT,
                 MainMenu::ExitGame,
-                590_f32,
+                66_f32,
             );
         })
         .id();
