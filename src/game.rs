@@ -93,7 +93,7 @@ impl Data {
                     None,
                     None,
                     None,
-                    Some(Piece::new(White, Cannon, 2, 1)),
+                    Some(Piece::new(White, Cannon, 2, 7)),
                     None,
                 ],
                 [

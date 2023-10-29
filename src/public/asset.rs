@@ -28,6 +28,7 @@ pub struct Images {
     pub cover: Handle<Image>,
     pub popup: Handle<Image>,
     pub player_frame: Handle<Image>,
+    pub player_focus: Handle<Image>,
     pub select_shadow: Handle<Image>,
     pub start_pos: Handle<Image>,
     pub start_posflag: Handle<Image>,

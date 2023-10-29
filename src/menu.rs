@@ -129,18 +129,19 @@ pub fn setup_pending(mut commands: Commands, fonts: Res<public::asset::Fonts>) {
     commands.insert_resource(public::EntityResources {
         main_menus: Some(menus),
         chessbroad: None,
+        selected: None,
     });
 }
 
 pub fn pending_state_system(
     mut state: ResMut<NextState<Status>>,
-    mut interaction_query: Query<
+    mut query: Query<
         (&Interaction, &mut BackgroundColor, &MainMenu),
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut color, menu) in &mut interaction_query {
-        match *interaction {
+    for (interact, mut color, menu) in &mut query {
+        match *interact {
             Interaction::Pressed => {
                 *color = MAIN_MANU_PRESSED_BUTTON_COLOR.into();
                 match menu {

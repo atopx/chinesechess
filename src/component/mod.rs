@@ -44,3 +44,6 @@ impl Piece {
         }
     }
 }
+
+#[derive(Component)]
+pub struct PieceSelect;

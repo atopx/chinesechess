@@ -28,4 +28,5 @@ pub fn get_piece_render_percent(row: usize, col: usize) -> (f32, f32) {
 pub struct EntityResources {
     pub main_menus: Option<Entity>,
     pub chessbroad: Option<Entity>,
+    pub selected: Option<Entity>,
 }

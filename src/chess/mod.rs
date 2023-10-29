@@ -13,8 +13,8 @@ impl Plugin for ChessPlugin {
     fn build(&self, app: &mut App) {
         app
             // 测试事件
-            .add_event::<event::TmpDebugEvent>()
-            .add_systems(Update, event::tmp_debug_consumer)
+            .add_event::<event::SwithPlayerEvent>()
+            .add_systems(Update, event::swith_player_event)
             // 进入RUNNING状态
             .add_systems(OnEnter(Status::RUNNING), broad::setup_running)
             // 退出RUNNING状态

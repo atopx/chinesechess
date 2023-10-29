@@ -14,6 +14,7 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
         broad: asset_server.load(public::path::IMAGE_BROAD),
         cover: asset_server.load(public::path::IMAGE_COVER),
         player_frame: asset_server.load(public::path::IMAGE_PLAYER_FRAME),
+        player_focus: asset_server.load(public::path::IMAGE_PLAYER_FOCUS),
         popup: asset_server.load(public::path::IMAGE_POPUP),
         select_shadow: asset_server.load(public::path::IMAGE_SELECT_SHADOW),
         start_pos: asset_server.load(public::path::IMAGE_START_POS),
@@ -102,10 +103,10 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 pub fn on_window_resize(
-    mut q: Query<&mut Sprite, With<Background>>,
+    mut query: Query<&mut Sprite, With<Background>>,
     mut resize_events: EventReader<WindowResized>,
 ) {
-    let mut bg = q.single_mut();
+    let mut bg = query.single_mut();
     for e in resize_events.iter() {
         bg.custom_size = Some(Vec2 {
             x: e.width,

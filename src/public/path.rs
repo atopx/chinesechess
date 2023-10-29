@@ -30,6 +30,8 @@ pub const IMAGE_BROAD: &str = "image/broad.png";
 pub const IMAGE_COVER: &str = "image/cover.png";
 // 用户信息框
 pub const IMAGE_PLAYER_FRAME: &str = "image/player_frame.png";
+// 用户聚焦框
+pub const IMAGE_PLAYER_FOCUS: &str = "image/player_focus.png";
 // 文本框
 pub const IMAGE_POPUP: &str = "image/popup.png";
 // 选棋阴影

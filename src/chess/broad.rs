@@ -1,4 +1,5 @@
 use crate::component::PieceColor;
+use crate::player::PlayerFocus;
 use crate::{component, player};
 use crate::{
     game::Data,
@@ -63,7 +64,6 @@ pub fn setup_running(
 
     let chessbroad_entity = commands
         .spawn(NodeBundle {
-            // background_color: BackgroundColor(Color::NONE),
             style: Style {
                 width: Val::Percent(100_f32),
                 height: Val::Percent(100_f32),
@@ -73,9 +73,7 @@ pub fn setup_running(
         })
         .with_children(|parent| {
             // 渲染棋盘
-            let broad_left = ((WIN_SIZE.w - BROAD_SIZE.w) / 2_f32) / WIN_SIZE.w * 100_f32; // min x
-            let broad_bottom = (10_f32);
-            trace!("渲染棋盘: left {}, bottom {}", broad_left, broad_bottom);
+            trace!("渲染棋盘");
             parent
                 .spawn(ImageBundle {
                     image: UiImage::new(images.broad.clone()),
@@ -121,7 +119,6 @@ pub fn setup_running(
                             }
                         }
                     }
-
                     super::button::make_chess_buttons(parent, fonts.xiaoli.clone());
                 });
 
@@ -131,10 +128,10 @@ pub fn setup_running(
                     image: UiImage::new(images.player_frame.clone()),
                     style: Style {
                         position_type: PositionType::Absolute,
-                        top: Val::Percent(20_f32),
+                        top: Val::Percent(8_f32),
                         left: Val::Percent(6_f32),
                         width: Val::Px(200_f32),
-                        height: Val::Px(400_f32),
+                        height: Val::Px(250_f32),
                         ..default()
                     },
                     ..default()
@@ -145,10 +142,10 @@ pub fn setup_running(
                         image: UiImage::new(images.black_avatar.clone()),
                         style: Style {
                             position_type: PositionType::Relative,
-                            top: Val::Percent(10_f32),
+                            top: Val::Percent(15_f32),
                             left: Val::Percent(25_f32),
                             width: Val::Percent(50_f32),
-                            height: Val::Percent(25_f32),
+                            height: Val::Percent(40_f32),
                             ..default()
                         },
                         ..default()
@@ -170,10 +167,99 @@ pub fn setup_running(
                         ..default()
                     });
 
-                    // 计时器
+                    // 局计时器
+                    parent.spawn(
+                        TextBundle {
+                            style: Style {
+                                position_type: PositionType::Absolute,
+                                top: Val::Percent(65_f32),
+                                left: Val::Percent(22_f32),
+                                ..default()
+                            },
+                            text: Text::from_section(
+                                format!("局时 {}", data.black_player.get_total_timer()),
+                                TextStyle {
+                                    font: fonts.wenkai.clone(),
+                                    font_size: 24_f32,
+                                    color: Color::ANTIQUE_WHITE,
+                                },
+                            ),
+                            ..default()
+                        }
+                        .with_no_wrap(),
+                    );
 
-                    // 机器评分
+                    // 步计时器
+                    parent.spawn(
+                        TextBundle {
+                            style: Style {
+                                position_type: PositionType::Absolute,
+                                top: Val::Percent(80_f32),
+                                left: Val::Percent(22_f32),
+                                ..default()
+                            },
+                            text: Text::from_section(
+                                format!(r"步时 {}", data.black_player.get_current_timer()),
+                                TextStyle {
+                                    font: fonts.wenkai.clone(),
+                                    font_size: 24_f32,
+                                    color: Color::ANTIQUE_WHITE,
+                                },
+                            ),
+                            ..default()
+                        }
+                        .with_no_wrap(),
+                    );
                 });
+            // 黑方行动信息
+            parent
+                .spawn(ImageBundle {
+                    image: UiImage::new(images.popup.clone()),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        top: Val::Percent(50_f32),
+                        left: Val::Percent(6_f32),
+                        width: Val::Px(200_f32),
+                        height: Val::Px(60_f32),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(
+                        TextBundle::from_section(
+                            data.black_player.get_action(),
+                            TextStyle {
+                                font: fonts.xiaoli.clone(),
+                                font_size: 24_f32,
+                                color: Color::DARK_GREEN,
+                            },
+                        )
+                        .with_style(Style {
+                            position_type: PositionType::Absolute,
+                            left: Val::Percent(32_f32),
+                            top: Val::Percent(20_f32),
+                            ..default()
+                        }),
+                    );
+                });
+
+            // 聚焦框
+            parent.spawn((
+                ImageBundle {
+                    image: UiImage::new(images.player_focus.clone()),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        top: Val::Percent(7.5_f32),
+                        right: Val::Percent(5.5_f32),
+                        width: Val::Px(220_f32),
+                        height: Val::Px(262_f32),
+                        ..default()
+                    },
+                    ..default()
+                },
+                PlayerFocus,
+            ));
 
             // 红色方信息框
             parent
@@ -181,10 +267,10 @@ pub fn setup_running(
                     image: UiImage::new(images.player_frame.clone()),
                     style: Style {
                         position_type: PositionType::Absolute,
-                        top: Val::Percent(20_f32),
+                        top: Val::Percent(8_f32),
                         right: Val::Percent(6_f32),
                         width: Val::Px(200_f32),
-                        height: Val::Px(400_f32),
+                        height: Val::Px(250_f32),
                         ..default()
                     },
                     ..default()
@@ -195,10 +281,10 @@ pub fn setup_running(
                         image: UiImage::new(images.white_avatar.clone()),
                         style: Style {
                             position_type: PositionType::Relative,
-                            top: Val::Percent(10_f32),
+                            top: Val::Percent(15_f32),
                             left: Val::Percent(25_f32),
                             width: Val::Percent(50_f32),
-                            height: Val::Percent(25_f32),
+                            height: Val::Percent(40_f32),
                             ..default()
                         },
                         ..default()
@@ -220,9 +306,82 @@ pub fn setup_running(
                         ..default()
                     });
 
-                    // 计时器
+                    // 局计时器
+                    parent.spawn(
+                        TextBundle {
+                            style: Style {
+                                position_type: PositionType::Absolute,
+                                top: Val::Percent(65_f32),
+                                left: Val::Percent(22_f32),
+                                ..default()
+                            },
+                            text: Text::from_section(
+                                format!(r"局时 {}", data.white_player.get_total_timer()),
+                                TextStyle {
+                                    font: fonts.wenkai.clone(),
+                                    font_size: 24_f32,
+                                    color: Color::ANTIQUE_WHITE,
+                                },
+                            ),
+                            ..default()
+                        }
+                        .with_no_wrap(),
+                    );
 
-                    // 机器评分
+                    // 步计时器
+                    parent.spawn(
+                        TextBundle {
+                            style: Style {
+                                position_type: PositionType::Absolute,
+                                top: Val::Percent(80_f32),
+                                left: Val::Percent(22_f32),
+                                ..default()
+                            },
+                            text: Text::from_section(
+                                format!("步时 {}", data.white_player.get_current_timer()),
+                                TextStyle {
+                                    font: fonts.wenkai.clone(),
+                                    font_size: 24_f32,
+                                    color: Color::ANTIQUE_WHITE,
+                                },
+                            ),
+                            ..default()
+                        }
+                        .with_no_wrap(),
+                    );
+                });
+
+            // 红方行动信息
+            parent
+                .spawn(ImageBundle {
+                    image: UiImage::new(images.popup.clone()),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        top: Val::Percent(50_f32),
+                        right: Val::Percent(6_f32),
+                        width: Val::Px(200_f32),
+                        height: Val::Px(60_f32),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(
+                        TextBundle::from_section(
+                            data.white_player.get_action(),
+                            TextStyle {
+                                font: fonts.xiaoli.clone(),
+                                font_size: 24_f32,
+                                color: Color::DARK_GREEN,
+                            },
+                        )
+                        .with_style(Style {
+                            position_type: PositionType::Absolute,
+                            right: Val::Percent(32_f32),
+                            top: Val::Percent(20_f32),
+                            ..default()
+                        }),
+                    );
                 });
         })
         .id();
