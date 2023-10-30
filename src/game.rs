@@ -1,7 +1,7 @@
 use crate::component::PieceCate::{Advisor, Bishop, Cannon, King, Knight, Pawn, Rook};
 use crate::component::PieceColor::{Black, White};
 use crate::component::{Piece, PieceColor};
-use crate::public::ROUTE_OFFSET;
+use crate::public::{ROUTE_OFFSET, START_POS};
 use bevy::input::keyboard::KeyboardInput;
 use bevy::prelude::*;
 
@@ -50,11 +50,11 @@ pub struct Data {
     // 黑色方玩家
     pub black_player: player::Player,
     // 棋盘地图
-    pub broad_map: [[Option<Piece>; 9]; 10],
+    pub broad_map: [[Piece; 9]; 10],
     // 当前回合数
     pub round: usize,
     // 当前行棋方
-    pub current_color: Option<PieceColor>,
+    pub current_color: PieceColor,
     // 当前选择的棋子
     pub current_select: Option<Piece>,
     // 上一个状态
@@ -66,7 +66,6 @@ pub struct Data {
 impl Data {
     pub fn new() -> Self {
         trace!("init system data");
-
         Self {
             engine: chessai::Engine::new(),
             previous_state: None,
@@ -74,85 +73,127 @@ impl Data {
             black_player: player::Player::new_black(),
             broad_map: [
                 [
-                    Some(Piece::new(White, Rook, 0, 0)),
-                    Some(Piece::new(White, Knight, 0, 1)),
-                    Some(Piece::new(White, Bishop, 0, 2)),
-                    Some(Piece::new(White, Advisor, 0, 3)),
-                    Some(Piece::new(White, King, 0, 4)),
-                    Some(Piece::new(White, Advisor, 0, 5)),
-                    Some(Piece::new(White, Bishop, 0, 6)),
-                    Some(Piece::new(White, Knight, 0, 7)),
-                    Some(Piece::new(White, Rook, 0, 8)),
-                ],
-                [None, None, None, None, None, None, None, None, None],
-                [
-                    None,
-                    Some(Piece::new(White, Cannon, 2, 1)),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    Some(Piece::new(White, Cannon, 2, 7)),
-                    None,
+                    Piece::new(White, Rook, 0, 0),
+                    Piece::new(White, Knight, 0, 1),
+                    Piece::new(White, Bishop, 0, 2),
+                    Piece::new(White, Advisor, 0, 3),
+                    Piece::new(White, King, 0, 4),
+                    Piece::new(White, Advisor, 0, 5),
+                    Piece::new(White, Bishop, 0, 6),
+                    Piece::new(White, Knight, 0, 7),
+                    Piece::new(White, Rook, 0, 8),
                 ],
                 [
-                    Some(Piece::new(White, Pawn, 3, 0)),
-                    None,
-                    Some(Piece::new(White, Pawn, 3, 2)),
-                    None,
-                    Some(Piece::new(White, Pawn, 3, 4)),
-                    None,
-                    Some(Piece::new(White, Pawn, 3, 6)),
-                    None,
-                    Some(Piece::new(White, Pawn, 3, 8)),
-                ],
-                [None, None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None, None],
-                [
-                    Some(Piece::new(Black, Pawn, 6, 0)),
-                    None,
-                    Some(Piece::new(Black, Pawn, 6, 2)),
-                    None,
-                    Some(Piece::new(Black, Pawn, 6, 4)),
-                    None,
-                    Some(Piece::new(Black, Pawn, 6, 6)),
-                    None,
-                    Some(Piece::new(Black, Pawn, 6, 6)),
+                    Piece::none(1, 0),
+                    Piece::none(1, 1),
+                    Piece::none(1, 2),
+                    Piece::none(1, 3),
+                    Piece::none(1, 4),
+                    Piece::none(1, 5),
+                    Piece::none(1, 6),
+                    Piece::none(1, 7),
+                    Piece::none(1, 8),
                 ],
                 [
-                    None,
-                    Some(Piece::new(Black, Cannon, 7, 1)),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    Some(Piece::new(Black, Cannon, 7, 7)),
-                    None,
+                    Piece::none(2, 0),
+                    Piece::new(White, Cannon, 2, 1),
+                    Piece::none(2, 2),
+                    Piece::none(2, 3),
+                    Piece::none(2, 4),
+                    Piece::none(2, 5),
+                    Piece::none(2, 6),
+                    Piece::new(White, Cannon, 2, 7),
+                    Piece::none(2, 8),
                 ],
-                [None, None, None, None, None, None, None, None, None],
                 [
-                    Some(Piece::new(Black, Rook, 9, 0)),
-                    Some(Piece::new(Black, Knight, 9, 1)),
-                    Some(Piece::new(Black, Bishop, 9, 2)),
-                    Some(Piece::new(Black, Advisor, 9, 3)),
-                    Some(Piece::new(Black, King, 9, 4)),
-                    Some(Piece::new(Black, Advisor, 9, 5)),
-                    Some(Piece::new(Black, Bishop, 9, 6)),
-                    Some(Piece::new(Black, Knight, 9, 7)),
-                    Some(Piece::new(Black, Rook, 9, 8)),
+                    Piece::new(White, Pawn, 3, 0),
+                    Piece::none(3, 1),
+                    Piece::new(White, Pawn, 3, 2),
+                    Piece::none(3, 3),
+                    Piece::new(White, Pawn, 3, 4),
+                    Piece::none(3, 5),
+                    Piece::new(White, Pawn, 3, 6),
+                    Piece::none(3, 7),
+                    Piece::new(White, Pawn, 3, 8),
+                ],
+                [
+                    Piece::none(4, 0),
+                    Piece::none(4, 1),
+                    Piece::none(4, 2),
+                    Piece::none(4, 3),
+                    Piece::none(4, 4),
+                    Piece::none(4, 5),
+                    Piece::none(4, 6),
+                    Piece::none(4, 7),
+                    Piece::none(4, 8),
+                ],
+                [
+                    Piece::none(5, 0),
+                    Piece::none(5, 1),
+                    Piece::none(5, 2),
+                    Piece::none(5, 3),
+                    Piece::none(5, 4),
+                    Piece::none(5, 5),
+                    Piece::none(5, 6),
+                    Piece::none(5, 7),
+                    Piece::none(5, 8),
+                ],
+                [
+                    Piece::new(Black, Pawn, 6, 0),
+                    Piece::none(6, 1),
+                    Piece::new(Black, Pawn, 6, 2),
+                    Piece::none(6, 3),
+                    Piece::new(Black, Pawn, 6, 4),
+                    Piece::none(6, 5),
+                    Piece::new(Black, Pawn, 6, 6),
+                    Piece::none(6, 7),
+                    Piece::new(Black, Pawn, 6, 8),
+                ],
+                [
+                    Piece::none(7, 0),
+                    Piece::new(Black, Cannon, 7, 1),
+                    Piece::none(7, 2),
+                    Piece::none(7, 3),
+                    Piece::none(7, 4),
+                    Piece::none(7, 5),
+                    Piece::none(7, 6),
+                    Piece::new(Black, Cannon, 7, 7),
+                    Piece::none(7, 8),
+                ],
+                [
+                    Piece::none(8, 0),
+                    Piece::none(8, 1),
+                    Piece::none(8, 2),
+                    Piece::none(8, 3),
+                    Piece::none(8, 4),
+                    Piece::none(8, 5),
+                    Piece::none(8, 6),
+                    Piece::none(8, 7),
+                    Piece::none(8, 8),
+                ],
+                [
+                    Piece::new(Black, Rook, 9, 0),
+                    Piece::new(Black, Knight, 9, 1),
+                    Piece::new(Black, Bishop, 9, 2),
+                    Piece::new(Black, Advisor, 9, 3),
+                    Piece::new(Black, King, 9, 4),
+                    Piece::new(Black, Advisor, 9, 5),
+                    Piece::new(Black, Bishop, 9, 6),
+                    Piece::new(Black, Knight, 9, 7),
+                    Piece::new(Black, Rook, 9, 8),
                 ],
             ],
             round: 0,
-            current_color: None,
+            current_color: PieceColor::White,
             current_select: None,
         }
     }
 
+    // pub fn from_fen(&mut self, fen: &str) {}
+    // pub fn to_fen(&self) -> String {}
+
     pub fn set_ai_game(&mut self, player_color: PieceColor) {
-        // self.white_player.next_state();
-        self.current_color = Some(PieceColor::White);
+        self.engine.from_fen(START_POS);
         match player_color {
             PieceColor::White => {
                 self.white_player.set_id("0");
@@ -175,7 +216,7 @@ impl Data {
         // todo 规则判断
 
         // 移动
-        self.broad_map[row][col] = None;
+        // self.broad_map[row][col] = None;
         self.broad_map[dst_row][dst_col] = piece;
 
         return true;

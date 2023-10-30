@@ -28,8 +28,8 @@ pub enum PieceColor {
 
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Piece {
-    pub cate: PieceCate,
-    pub color: PieceColor,
+    pub cate: Option<PieceCate>,
+    pub color: Option<PieceColor>,
     pub row: usize,
     pub col: usize,
 }
@@ -37,8 +37,17 @@ pub struct Piece {
 impl Piece {
     pub fn new(color: PieceColor, cate: PieceCate, row: usize, col: usize) -> Self {
         Self {
-            cate,
-            color,
+            cate: Some(cate),
+            color: Some(color),
+            row,
+            col,
+        }
+    }
+
+    pub fn none(row: usize, col: usize) -> Self {
+        Self {
+            cate: None,
+            color: None,
             row,
             col,
         }

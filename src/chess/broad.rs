@@ -1,13 +1,30 @@
 use crate::component::PieceColor;
 use crate::player::PlayerFocus;
 use crate::{component, player};
-use crate::{
-    game::Data,
-    public::{self, BROAD_SIZE, WIN_SIZE},
-};
+use crate::{game::Data, public};
 use bevy::prelude::*;
 
-fn make_piece_bundle(
+fn make_none(parent: &mut ChildBuilder, piece: component::Piece, left: f32, bottom: f32) -> Entity {
+    parent
+        .spawn((
+            ButtonBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    left: Val::Percent(left),
+                    bottom: Val::Percent(bottom),
+                    height: Val::Percent(9_f32),
+                    width: Val::Percent(9_f32),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor::from(Color::NONE),
+                ..default()
+            },
+            piece,
+        ))
+        .id()
+}
+
+pub fn make_piece_bundle(
     parent: &mut ChildBuilder,
     player: player::Player,
     piece: component::Piece,
@@ -92,29 +109,31 @@ pub fn setup_running(
 
                     // 渲染棋子
                     for (row, rows_data) in data.broad_map.iter_mut().enumerate() {
-                        for (col, piece_some) in rows_data.iter_mut().enumerate() {
-                            if let Some(piece) = piece_some {
-                                if let Some(image) = pieces.get_handle(piece, false) {
-                                    let (left, bottom) = public::get_piece_render_percent(row, col);
-                                    if piece.color == PieceColor::White {
-                                        make_piece_bundle(
-                                            parent,
-                                            data.white_player.clone(),
-                                            *piece,
-                                            image,
-                                            left,
-                                            bottom,
-                                        );
-                                    } else {
-                                        make_piece_bundle(
-                                            parent,
-                                            data.black_player.clone(),
-                                            *piece,
-                                            image,
-                                            left,
-                                            bottom,
-                                        );
-                                    }
+                        for (col, piece) in rows_data.iter_mut().enumerate() {
+                            let (left, bottom) = public::get_piece_render_percent(row, col);
+                            match piece.color {
+                                Some(PieceColor::White) => {
+                                    make_piece_bundle(
+                                        parent,
+                                        data.white_player.clone(),
+                                        *piece,
+                                        pieces.get_handle(piece, false).unwrap(),
+                                        left,
+                                        bottom,
+                                    );
+                                }
+                                Some(PieceColor::Black) => {
+                                    make_piece_bundle(
+                                        parent,
+                                        data.black_player.clone(),
+                                        *piece,
+                                        pieces.get_handle(piece, false).unwrap(),
+                                        left,
+                                        bottom,
+                                    );
+                                }
+                                None => {
+                                    make_none(parent, *piece, left, bottom);
                                 }
                             }
                         }

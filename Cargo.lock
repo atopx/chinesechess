@@ -1174,9 +1174,9 @@ checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
 name = "chessai"
-version = "0.1.1"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81e0a012620521d0d7adb5a1c4b984413cdedfbf2ce7d31953b33e314878279c"
+checksum = "971d4d08030ad191e2cc082cd47f3cd4145913243a956b21a9afd0742e9b7e03"
 dependencies = [
  "bincode",
  "rand",

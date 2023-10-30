@@ -78,109 +78,113 @@ pub struct Pieces {
 
 impl Pieces {
     pub fn get_handle(&self, piece: &Piece, selected: bool) -> Option<Handle<Image>> {
-        match piece.color {
-            PieceColor::White => match piece.cate {
-                PieceCate::Rook => {
-                    if selected {
-                        Some(self.white_rook_select.clone())
-                    } else {
-                        Some(self.white_rook.clone())
+        if let Some(color) = piece.color {
+            match color {
+                PieceColor::White => match piece.cate.unwrap() {
+                    PieceCate::Rook => {
+                        if selected {
+                            Some(self.white_rook_select.clone())
+                        } else {
+                            Some(self.white_rook.clone())
+                        }
                     }
-                }
-                PieceCate::Knight => {
-                    if selected {
-                        Some(self.white_knight_select.clone())
-                    } else {
-                        Some(self.white_knight.clone())
+                    PieceCate::Knight => {
+                        if selected {
+                            Some(self.white_knight_select.clone())
+                        } else {
+                            Some(self.white_knight.clone())
+                        }
                     }
-                }
-                PieceCate::Bishop => {
-                    if selected {
-                        Some(self.white_bishop_select.clone())
-                    } else {
-                        Some(self.white_bishop.clone())
+                    PieceCate::Bishop => {
+                        if selected {
+                            Some(self.white_bishop_select.clone())
+                        } else {
+                            Some(self.white_bishop.clone())
+                        }
                     }
-                }
-                PieceCate::Advisor => {
-                    if selected {
-                        Some(self.white_advisor_select.clone())
-                    } else {
-                        Some(self.white_advisor.clone())
+                    PieceCate::Advisor => {
+                        if selected {
+                            Some(self.white_advisor_select.clone())
+                        } else {
+                            Some(self.white_advisor.clone())
+                        }
                     }
-                }
-                PieceCate::Cannon => {
-                    if selected {
-                        Some(self.white_cannon_select.clone())
-                    } else {
-                        Some(self.white_cannon.clone())
+                    PieceCate::Cannon => {
+                        if selected {
+                            Some(self.white_cannon_select.clone())
+                        } else {
+                            Some(self.white_cannon.clone())
+                        }
                     }
-                }
-                PieceCate::Pawn => {
-                    if selected {
-                        Some(self.white_pawn_select.clone())
-                    } else {
-                        Some(self.white_pawn.clone())
+                    PieceCate::Pawn => {
+                        if selected {
+                            Some(self.white_pawn_select.clone())
+                        } else {
+                            Some(self.white_pawn.clone())
+                        }
                     }
-                }
-                PieceCate::King => {
-                    if selected {
-                        Some(self.white_king_select.clone())
-                    } else {
-                        Some(self.white_king.clone())
+                    PieceCate::King => {
+                        if selected {
+                            Some(self.white_king_select.clone())
+                        } else {
+                            Some(self.white_king.clone())
+                        }
                     }
-                }
-            },
-            PieceColor::Black => match piece.cate {
-                PieceCate::Rook => {
-                    if selected {
-                        Some(self.black_rook_select.clone())
-                    } else {
-                        Some(self.black_rook.clone())
+                },
+                PieceColor::Black => match piece.cate.unwrap() {
+                    PieceCate::Rook => {
+                        if selected {
+                            Some(self.black_rook_select.clone())
+                        } else {
+                            Some(self.black_rook.clone())
+                        }
                     }
-                }
-                PieceCate::Knight => {
-                    if selected {
-                        Some(self.black_knight_select.clone())
-                    } else {
-                        Some(self.black_knight.clone())
+                    PieceCate::Knight => {
+                        if selected {
+                            Some(self.black_knight_select.clone())
+                        } else {
+                            Some(self.black_knight.clone())
+                        }
                     }
-                }
-                PieceCate::Bishop => {
-                    if selected {
-                        Some(self.black_bishop_select.clone())
-                    } else {
-                        Some(self.black_bishop.clone())
+                    PieceCate::Bishop => {
+                        if selected {
+                            Some(self.black_bishop_select.clone())
+                        } else {
+                            Some(self.black_bishop.clone())
+                        }
                     }
-                }
-                PieceCate::Advisor => {
-                    if selected {
-                        Some(self.black_advisor_select.clone())
-                    } else {
-                        Some(self.black_advisor.clone())
+                    PieceCate::Advisor => {
+                        if selected {
+                            Some(self.black_advisor_select.clone())
+                        } else {
+                            Some(self.black_advisor.clone())
+                        }
                     }
-                }
-                PieceCate::Cannon => {
-                    if selected {
-                        Some(self.black_cannon_select.clone())
-                    } else {
-                        Some(self.black_cannon.clone())
+                    PieceCate::Cannon => {
+                        if selected {
+                            Some(self.black_cannon_select.clone())
+                        } else {
+                            Some(self.black_cannon.clone())
+                        }
                     }
-                }
-                PieceCate::Pawn => {
-                    if selected {
-                        Some(self.black_pawn_select.clone())
-                    } else {
-                        Some(self.black_pawn.clone())
+                    PieceCate::Pawn => {
+                        if selected {
+                            Some(self.black_pawn_select.clone())
+                        } else {
+                            Some(self.black_pawn.clone())
+                        }
                     }
-                }
-                PieceCate::King => {
-                    if selected {
-                        Some(self.black_king_select.clone())
-                    } else {
-                        Some(self.black_king.clone())
+                    PieceCate::King => {
+                        if selected {
+                            Some(self.black_king_select.clone())
+                        } else {
+                            Some(self.black_king.clone())
+                        }
                     }
-                }
-            },
+                },
+            }
+        } else {
+            None
         }
     }
 }

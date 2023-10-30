@@ -7,7 +7,7 @@ authors = ["atopx <3940422@qq.com>"]
 [dependencies]
 bincode = "1.3"
 rand = "0.8"
-chessai = "0.1.1"
+chessai = "0.1.5"
 winit = { version = "0.28", default-features = false }
 image = { version = "0.24", default-features = false }
 
