@@ -24,7 +24,7 @@ impl Plugin for AssetLoading {
     }
 }
 
-pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn loading(mut commands: Commands) {
     trace!("loading...");
     // 创建默认镜头
     commands.spawn(Camera2dBundle::default());

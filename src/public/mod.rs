@@ -20,8 +20,8 @@ pub const ROUTE_OFFSET: (u8, u8) = (97, 48);
 
 pub fn get_piece_render_percent(row: usize, col: usize) -> (f32, f32) {
     (
-        9.9_f32 + (col as f32 * 8.8),
-        12_f32 + (row as f32 * 8.0)
+        -274_f32 + (col as f32 * 68_f32),
+        -285_f32 + (row as f32 * 68_f32)
     )
 }
  

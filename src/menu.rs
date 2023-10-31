@@ -8,12 +8,12 @@ pub const MAIN_MANU_NORMAL_BUTTON_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 pub const MAIN_MANU_HOVERED_BUTTON_COLOR: Color = Color::rgb(0.30, 0.30, 0.30);
 pub const MAIN_MANU_PRESSED_BUTTON_COLOR: Color = Color::rgb(0.45, 0.45, 0.45);
 
-pub const MAIN_MENU_CONTINUE_GAME_TEXT: &str = " 继续游戏";
-pub const MAIN_MENU_AI_GAME_TEXT: &str = " 人机对弈";
-pub const MAIN_MENU_INTER_GAME_TEXT: &str = " 联机对弈";
-pub const MAIN_MENU_DEDUCE_GAME_TEXT: &str = " 打谱推演";
-pub const MAIN_MENU_SETTING_GAME_TEXT: &str = " 系统设置";
-pub const MAIN_MENU_EXIT_GAME_TEXT: &str = " 退出游戏";
+pub const MAIN_MENU_CONTINUE_GAME_TEXT: &str = "继续游戏";
+pub const MAIN_MENU_AI_GAME_TEXT: &str = "人机对弈";
+pub const MAIN_MENU_INTER_GAME_TEXT: &str = "联机对弈";
+pub const MAIN_MENU_DEDUCE_GAME_TEXT: &str = "打谱推演";
+pub const MAIN_MENU_SETTING_GAME_TEXT: &str = "系统设置";
+pub const MAIN_MENU_EXIT_GAME_TEXT: &str = "退出游戏";
 
 /// MainMenu 游戏全局菜单, ESC呼出, 位于界面中央
 #[derive(Component)]
@@ -47,6 +47,8 @@ fn make_main_menu_text_bundle(
                     height: Val::Px(65_f32),
                     top: Val::Percent(top_px),
                     align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    align_content: AlignContent::Center,
                     position_type: PositionType::Absolute,
                     ..default()
                 },
@@ -72,8 +74,9 @@ pub fn setup_pending(mut commands: Commands, fonts: Res<public::asset::Fonts>) {
     let menus = commands
         .spawn(NodeBundle {
             style: Style {
-                // center button
-                width: Val::Percent(100.),
+                position_type: PositionType::Absolute,
+                width: Val::Percent(100_f32),
+                height: Val::Percent(100_f32),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 ..default()
