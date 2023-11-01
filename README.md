@@ -17,6 +17,14 @@
 ![系统设置](./docs/doc_setting.png)
 
 
+# 计算鼠标选择的点是否在棋子范围内
+- a: 鼠标选择点
+- b: 棋子圆心
+- r: 棋子半径
+
+$$ \sqrt {\left | {ax-bx} \right |^{2}+\left | {xy-by} \right |^{2}}\, >\, r $$
+
+
 # 参考
 
 象棋规范协议: https://www.xqbase.com/protocol.htm
