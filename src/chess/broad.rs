@@ -16,7 +16,6 @@ pub fn setup_broad(
         *broad_visible = Visibility::Visible;
         return;
     }
-    data.gameing = true;
     // 渲染棋盘
     trace!("渲染棋盘");
     commands
@@ -24,7 +23,7 @@ pub fn setup_broad(
             SpriteBundle {
                 texture: image_handles.broad.clone(),
                 transform: Transform::IDENTITY,
-                ..Default::default()
+                ..default()
             },
             component::Broad,
         ))
@@ -40,7 +39,7 @@ pub fn setup_broad(
                                 texture: piece_handles.get_handle(piece, false),
                                 transform: Transform::from_xyz(x, y, 1_f32),
                                 sprite: Sprite {
-                                    custom_size: Some(Vec2::new(76_f32, 76_f32)),
+                                    custom_size: Some(Vec2::new(75_f32, 75_f32)),
                                     ..default()
                                 },
                                 ..default()

@@ -10,7 +10,6 @@ pub struct Broad;
 #[derive(Component, Debug, Clone)]
 pub struct Background(Entity);
 
-
 #[derive(Component, Debug, Default)]
 pub struct ActivePiece;
 
@@ -21,3 +20,6 @@ pub struct SourcePiece;
 pub struct SelectedPiece;
 
 type WithPiece = (With<ActivePiece>, With<SourcePiece>, With<SelectedPiece>);
+
+#[derive(Component)]
+pub struct ChineseBroadCamera;

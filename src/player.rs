@@ -1,5 +1,7 @@
-// use crate::component::PieceColor;
-use bevy::{prelude::*, time::Stopwatch};
+use bevy::prelude::*;
+use bevy::time::Stopwatch;
+
+use crate::component::piece::Side;
 
 #[derive(Component, Clone, Debug)]
 pub struct Record {
@@ -24,6 +26,7 @@ pub struct Player {
     pub id: String,
     pub name: String,
     pub state: PlayerState,
+    pub side: Side,
     pub records: Vec<Record>,
     pub total_timer: Stopwatch,
     pub current_timer: Stopwatch,
@@ -42,6 +45,7 @@ impl Player {
             name: String::new(),
             state: PlayerState::default(),
             records: Vec::new(),
+            side: Side::White,
             total_timer,
             current_timer,
         }
@@ -51,7 +55,7 @@ impl Player {
         let mut total_timer = Stopwatch::new();
         total_timer.pause();
         total_timer.reset();
-        let mut current_timer = Stopwatch::new();
+        let mut current_timer: Stopwatch = Stopwatch::new();
         current_timer.pause();
         current_timer.reset();
         Self {
@@ -59,6 +63,7 @@ impl Player {
             name: String::new(),
             state: PlayerState::default(),
             records: Vec::new(),
+            side: Side::Black,
             total_timer,
             current_timer,
         }
@@ -79,14 +84,14 @@ impl Player {
         let secs = self.total_timer.elapsed_secs();
         let minutes = (secs / 60.0).floor() as u32;
         let seconds = (secs % 60.0).round() as u32;
-        format!("{:02}:{:02}", minutes, seconds)
+        format!("局时 {:02}:{:02}", minutes, seconds)
     }
 
     pub fn get_current_timer(&self) -> String {
         let secs = self.current_timer.elapsed_secs();
         let minutes = (secs / 60.0).floor() as u32;
         let seconds = (secs % 60.0).round() as u32;
-        format!("{:02}:{:02}", minutes, seconds)
+        format!("步时 {:02}:{:02}", minutes, seconds)
     }
 
     pub fn get_action(&self) -> &str {

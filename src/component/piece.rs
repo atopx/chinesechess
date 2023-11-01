@@ -6,19 +6,25 @@ use crate::public;
 pub struct Piece {
     pub side: Side,
     pub kind: Kind,
+    pub row: usize,
+    pub col: usize,
 }
 
 impl Piece {
-    pub fn white(kind: Kind) -> Self {
+    pub fn white(kind: Kind, row: usize, col: usize) -> Self {
         Self {
             side: Side::White,
             kind,
+            row,
+            col,
         }
     }
-    pub fn black(kind: Kind) -> Self {
+    pub fn black(kind: Kind, row: usize, col: usize) -> Self {
         Self {
             side: Side::Black,
             kind,
+            row,
+            col,
         }
     }
     pub fn code(&self) -> String {
@@ -79,7 +85,7 @@ impl Piece {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Side {
     // 白色方(红色)
     White,

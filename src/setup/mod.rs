@@ -6,6 +6,8 @@ pub mod sound;
 
 use bevy::prelude::*;
 
+use crate::component::ChineseBroadCamera;
+
 #[derive(Resource)]
 pub struct AssetLoading;
 
@@ -20,12 +22,13 @@ impl Plugin for AssetLoading {
                 image::loading,
                 animate::loading,
             ),
-        ).add_systems(Update, image::on_window_resize);
+        )
+        .add_systems(Update, image::on_window_resize);
     }
 }
 
 pub fn loading(mut commands: Commands) {
     trace!("loading...");
     // 创建默认镜头
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((Camera2dBundle::default(), ChineseBroadCamera));
 }

@@ -1,5 +1,5 @@
 use crate::game::Data;
-use crate::public;
+use crate::{player, public};
 use bevy::prelude::*;
 
 // 玩家信息框
@@ -21,6 +21,37 @@ pub struct PlayerInfoGlobalTimer;
 // 步计时器
 #[derive(Component, Debug, Default, Clone)]
 pub struct PlayerInfoCurrentTimer;
+
+pub fn refresh_player_timer(
+    data: Res<Data>,
+    mut query: Query<(&player::Player, &mut Text), With<PlayerInfoGlobalTimer>>,
+) {
+    for (player, mut text) in query.iter_mut() {
+        if data.current_side == player.side {
+            if player.side == data.white_player.side {
+                let value = data.white_player.get_global_timer();
+                trace!("{} {}", value, data.white_player.total_timer.paused());
+                text.sections[0].value = value;
+            } else {
+                text.sections[0].value = data.black_player.get_global_timer();
+            }
+        }
+    }
+}
+
+pub fn refresh_player_action(
+    data: Res<Data>,
+    mut query: Query<(&player::Player, &mut Text), With<PlayerInfoAction>>,
+) {
+    for (player, mut text) in query.iter_mut() {
+        text.sections[0].value = player.get_action().to_string();
+        if data.current_side == player.side {
+            text.sections[0].style.color = Color::ORANGE_RED;
+        } else {
+            text.sections[0].style.color = Color::DARK_GREEN;
+        }
+    }
+}
 
 pub fn cleanup_info(mut query: Query<&mut Visibility, With<PlayerInfo>>) {
     trace!("隐藏游戏玩家信息");
@@ -119,7 +150,7 @@ pub fn setup_black_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                format!("局时 {}", data.black_player.get_global_timer()),
+                                data.black_player.get_global_timer(),
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -143,7 +174,7 @@ pub fn setup_black_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                format!(r"步时 {}", data.black_player.get_current_timer()),
+                                data.black_player.get_current_timer(),
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -189,7 +220,6 @@ pub fn setup_black_info(
                             ..default()
                         }),
                         PlayerInfoAction,
-                        data.black_player.clone(),
                     ));
                 });
         });
@@ -285,7 +315,7 @@ pub fn setup_white_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                format!("局时 {}", data.white_player.get_global_timer()),
+                                data.white_player.get_global_timer(),
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -309,7 +339,7 @@ pub fn setup_white_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                format!(r"步时 {}", data.white_player.get_current_timer()),
+                                data.white_player.get_current_timer(),
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
