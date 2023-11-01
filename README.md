@@ -22,7 +22,7 @@
 - b: 棋子圆心
 - r: 棋子半径
 
-$$ \sqrt {\left | {ax-bx} \right |^{2}+\left | {xy-by} \right |^{2}}\, >\, r $$
+$$ \sqrt {\left | {ax-bx} \right |^{2}+\left | {xy-by} \right |^{2}} \ > \ r $$
 
 
 # 参考
