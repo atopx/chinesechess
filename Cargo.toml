@@ -3,6 +3,8 @@ name = "chinesebroad"
 version = "0.1.0"
 edition = "2021"
 authors = ["atopx <3940422@qq.com>"]
+license = "MIT"
+description = "a elegant chess game"
 
 [dependencies]
 bincode = "1.3"
