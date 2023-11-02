@@ -1,12 +1,17 @@
 
-![LOGO](./assets/image/cover.png#pic_center)
+<div align=center>
 
-# 特性
-- 优雅的背景和棋盘，简约而不简单的交互
-- 跨平台，理论上支持web/darwin/linux/windows/android/ios(移动端未测试)
-- 快速的AI引擎, 棋力等同于天天象棋人机, 但更快
-- 高性能, 得益于rust优秀的特性，以最低的资源占用实现强大的渲染和引擎计算
+![LOGO](./assets/image/cover.png)
 
+**优雅的背景和棋盘，简约而不简单的交互**
+
+**快速的AI引擎, 棋力等同于天天象棋人机, 但更快**
+
+**跨平台，理论上支持web/darwin/linux/windows/android/ios(移动端未测试)**
+
+**高性能, 得益于rust优秀的特性，以最低的资源占用实现强大的渲染和引擎计算**
+
+</div>
 # 游戏截图
 
 ### game main menu
