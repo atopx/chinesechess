@@ -1,5 +1,7 @@
-use crate::component::PieceColor;
-use bevy::{prelude::*, time::Stopwatch};
+use bevy::prelude::*;
+use bevy::time::Stopwatch;
+
+use crate::component::piece::Side;
 
 #[derive(Component, Clone, Debug)]
 pub struct Record {
@@ -8,11 +10,23 @@ pub struct Record {
     pub value: String,
 }
 
+#[derive(Debug, Clone, Default)]
+pub enum PlayerState {
+    // 空闲
+    #[default]
+    Free,
+    // 思考中
+    Thinking,
+    // 已选子
+    Seleted,
+}
+
 #[derive(Component, Clone, Debug)]
 pub struct Player {
     pub id: String,
     pub name: String,
-    pub color: PieceColor,
+    pub state: PlayerState,
+    pub side: Side,
     pub records: Vec<Record>,
     pub total_timer: Stopwatch,
     pub current_timer: Stopwatch,
@@ -29,8 +43,9 @@ impl Player {
         Self {
             id: String::new(),
             name: String::new(),
+            state: PlayerState::default(),
             records: Vec::new(),
-            color: PieceColor::White,
+            side: Side::White,
             total_timer,
             current_timer,
         }
@@ -40,26 +55,17 @@ impl Player {
         let mut total_timer = Stopwatch::new();
         total_timer.pause();
         total_timer.reset();
-        let mut current_timer = Stopwatch::new();
+        let mut current_timer: Stopwatch = Stopwatch::new();
         current_timer.pause();
         current_timer.reset();
         Self {
             id: String::new(),
             name: String::new(),
-            color: PieceColor::Black,
+            state: PlayerState::default(),
             records: Vec::new(),
+            side: Side::Black,
             total_timer,
             current_timer,
-        }
-    }
-
-    pub fn get_action(&self) -> String {
-        if self.records.len() > 0 {
-            self.records.last().unwrap().value.clone()
-        } else if self.color == PieceColor::White {
-            "思考中".to_string()
-        } else {
-            "空闲中".to_string()
         }
     }
 
@@ -74,18 +80,26 @@ impl Player {
         self.current_timer.pause();
     }
 
-    pub fn get_total_timer(&self) -> String {
+    pub fn get_global_timer(&self) -> String {
         let secs = self.total_timer.elapsed_secs();
         let minutes = (secs / 60.0).floor() as u32;
         let seconds = (secs % 60.0).round() as u32;
-        format!("{:02}:{:02}", minutes, seconds)
+        format!("局时 {:02}:{:02}", minutes, seconds)
     }
 
     pub fn get_current_timer(&self) -> String {
         let secs = self.current_timer.elapsed_secs();
         let minutes = (secs / 60.0).floor() as u32;
         let seconds = (secs % 60.0).round() as u32;
-        format!("{:02}:{:02}", minutes, seconds)
+        format!("步时 {:02}:{:02}", minutes, seconds)
+    }
+
+    pub fn get_action(&self) -> &str {
+        match self.state {
+            PlayerState::Free => "空闲中",
+            PlayerState::Thinking => "思考中",
+            PlayerState::Seleted => "落子中",
+        }
     }
 
     pub fn set_id(&mut self, id: &str) {

@@ -1,58 +1,25 @@
-use bevy::prelude::Component;
+use bevy::{
+    prelude::{Component, Entity, Vec2, With},
+    text::TextSection,
+};
+pub mod piece;
 
-#[derive(Debug, PartialEq, Clone, Eq, Copy)]
-pub enum PieceCate {
-    // 車
-    Rook,
-    // 马
-    Knight,
-    // 象
-    Bishop,
-    // 士
-    Advisor,
-    // 炮
-    Cannon,
-    // 兵
-    Pawn,
-    // 帅
-    King,
-}
+#[derive(Component, Debug, Clone)]
+pub struct Broad;
 
-#[derive(Debug, PartialEq, Clone, Eq, Copy)]
-pub enum PieceColor {
-    // 白色方(红色)
-    White,
-    // 黑色方
-    Black,
-}
+#[derive(Component, Debug, Clone)]
+pub struct Background(Entity);
 
-#[derive(Component, Debug, Clone, Copy)]
-pub struct Piece {
-    pub cate: Option<PieceCate>,
-    pub color: Option<PieceColor>,
-    pub row: usize,
-    pub col: usize,
-}
+#[derive(Component, Debug, Default)]
+pub struct ActivePiece;
 
-impl Piece {
-    pub fn new(color: PieceColor, cate: PieceCate, row: usize, col: usize) -> Self {
-        Self {
-            cate: Some(cate),
-            color: Some(color),
-            row,
-            col,
-        }
-    }
+#[derive(Component, Debug, Default)]
+pub struct SourcePiece;
 
-    pub fn none(row: usize, col: usize) -> Self {
-        Self {
-            cate: None,
-            color: None,
-            row,
-            col,
-        }
-    }
-}
+#[derive(Component, Debug, Default)]
+pub struct SelectedPiece;
+
+type WithPiece = (With<ActivePiece>, With<SourcePiece>, With<SelectedPiece>);
 
 #[derive(Component)]
-pub struct PieceSelect;
+pub struct ChineseBroadCamera;

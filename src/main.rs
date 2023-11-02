@@ -3,19 +3,19 @@ use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, Window, WindowMode};
 use bevy::winit::WinitWindows;
+use game::Status;
 use std::io::Cursor;
 use winit::window::Icon;
-use game::Status;
 
 // use crate::chessbroad::Status;
 use public::WIN_SIZE;
-mod game;
+mod chess;
 mod component;
+mod game;
 mod menu;
+mod player;
 mod public;
 mod setup;
-mod chess;
-mod player;
 
 fn main() {
     App::new()

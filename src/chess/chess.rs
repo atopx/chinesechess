@@ -1,175 +1,101 @@
-use bevy::prelude::*;
-use chessai::position;
-
-use crate::{
-    component::{self, PieceSelect},
-    game::Data,
-    player::Player,
-    public,
+use bevy::{prelude::*, window::PrimaryWindow};
+use chessai::{
+    position::{self, iccs2move, pos2iccs},
+    util,
 };
 
-use super::event;
+use crate::{
+    component::{piece::Piece, ChineseBroadCamera},
+    game::Data,
+    public::{self, get_piece_render_percent},
+};
 
-// 棋子系统
-pub fn game_chess_system(
-    mut commands: Commands,
+pub fn selection(
     mut data: ResMut<Data>,
-    mut swith_player_event: EventWriter<event::SwithPlayerEvent>,
-    mut entitys: ResMut<public::EntityResources>,
-    pieces: Res<public::asset::Pieces>,
-    images: Res<public::asset::Images>,
+    mut commands: Commands,
+    buttons: Res<Input<MouseButton>>,
     sounds: Res<public::asset::Sounds>,
-    mut query: Query<
-        (
-            Entity,
-            &Interaction,
-            &component::Piece,
-            Option<&Player>,
-            &Style,
-        ),
-        (Changed<Interaction>, With<Button>),
-    >,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    q_camera: Query<(&Camera, &GlobalTransform), With<ChineseBroadCamera>>,
 ) {
-    for (entity, interaction, piece, player, style) in &mut query {
-        match *interaction {
-            Interaction::Pressed => {
-                trace!("{:?} {:?}", piece, player);
+    let (camera, camera_transform) = q_camera.single();
+    let window = q_window.single();
 
-                // 选择的非空棋子
-                if let Some(player) = player {
-                    if let Some(current_select_piece) = data.current_select {
-                        // 取消选子
-                        data.current_select = None;
+    if let Some(pos) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        if buttons.just_pressed(MouseButton::Left) {
+            let (min_x, min_y) = get_piece_render_percent(0, 0);
+            let (max_x, max_y) = get_piece_render_percent(10, 9);
 
-                        // 不能吃自己的棋子
-                        if piece.color.unwrap() == current_select_piece.color.unwrap() {
-                            // invalid音效
-                            commands.spawn(super::audio::play_once(sounds.invalid.clone()));
-                        } else {
-                            // todo 判断是否是合法的吃子
-                            // 判断行棋是否合法
-                            let iccs = position::pos2iccs(
-                                current_select_piece.row,
-                                current_select_piece.col,
-                                piece.row,
-                                piece.col,
-                            );
-                            trace!("move to eat: iccs: {}", iccs);
-                            if data.engine.legal_move(position::iccs2move(&iccs)) {
-                                // 合法吃子
+            // 判断是否在棋盘内
+            if pos.x >= min_x - 27_f32
+                && pos.y >= min_y - 27_f32
+                && pos.x <= max_x + 27_f32
+                && pos.y <= max_y + 27_f32
+            {
+                // 计算棋盘坐标
+                let col = ((pos.x + 274_f32) / 68_f32).round() as usize;
+                let row = ((pos.y + 285_f32) / 68_f32).round() as usize;
+                let (x, y) = get_piece_render_percent(row, col);
 
-                                // 吃子音效
-                                commands.spawn(super::audio::play_once(sounds.eat.clone()));
-                            } else {
-                                // 非法吃子, 取消selected
-                                commands
-                                    .entity(entitys.selected.unwrap())
-                                    .despawn_descendants();
-                                // 在原位置渲染原本棋子
-
-                                // invalid音效
-                                commands.spawn(super::audio::play_once(sounds.invalid.clone()));
-                            }
-                        }
-
-                        // 取消选子动画
-                        commands.entity(entity).despawn_descendants();
-                        // 在此位置插入选择棋子的动画
-                        commands
-                            .entity(entity)
-                            .insert((
-                                ButtonBundle {
-                                    style: style.clone(),
-                                    background_color: BackgroundColor::from(Color::NONE),
-                                    ..default()
-                                },
-                                *piece,
-                                player.clone(),
-                            ))
-                            .with_children(|parent| {
-                                parent.spawn(ImageBundle {
-                                    image: UiImage::new(pieces.get_handle(&piece, false).unwrap()),
-                                    ..default()
-                                });
-                            });
-                    } else {
-                        // 选棋：只有当前行棋方才能操作自己的棋子
-                        if data.current_color == player.color
-                            && data.current_color == piece.color.unwrap()
-                        {
-                            // 设置当前选择棋子
-                            data.current_select = Some(*piece);
-                            // 播放音效
-                            commands.spawn(super::audio::play_once(sounds.select.clone()));
-                            // 删除原有棋子渲染
-                            commands.entity(entity).despawn_descendants();
-                            // 渲染抬棋(加阴影)
-                            let selected_entity = commands
-                                .entity(entity)
-                                .insert((
-                                    ButtonBundle {
-                                        style: style.clone(),
-                                        background_color: BackgroundColor::from(Color::NONE),
-                                        ..default()
-                                    },
-                                    *piece,
-                                    player.clone(),
-                                    PieceSelect,
-                                ))
-                                .with_children(|parent| {
-                                    parent.spawn(ImageBundle {
-                                        image: UiImage::new(images.select_shadow.clone()),
-                                        style: Style {
-                                            position_type: PositionType::Absolute,
-                                            left: Val::Percent(10_f32),
-                                            top: Val::Percent(40_f32),
-                                            ..default()
-                                        },
-                                        ..default()
-                                    });
-                                    parent.spawn(ImageBundle {
-                                        image: UiImage::new(
-                                            pieces.get_handle(&piece, true).unwrap(),
-                                        ),
-                                        ..default()
-                                    });
-                                })
-                                .id();
-                            entitys.selected = Some(selected_entity);
-                        }
-                    }
-                } else {
-                    // 移动点是空位置
-                    if let Some(current_select_piece) = data.current_select {
-                        // 不论怎样, 取消选子
-                        data.current_select = None;
-                        // 判断行棋是否合法
-                        let iccs = position::pos2iccs(
-                            current_select_piece.row,
-                            current_select_piece.col,
-                            piece.row,
-                            piece.col,
-                        );
-                        trace!("move to none: iccs: {}", iccs);
-                        if data.engine.legal_move(position::iccs2move(&iccs)) {
-                            // 合法行棋：移动selected到目标位置, 取消selected，在该位置渲染原本棋子，go音效
-                            commands.spawn(super::audio::play_once(sounds.go.clone()));
-                            swith_player_event.send(event::SwithPlayerEvent);
-                        } else {
-                            // 非法行棋, 取消selected
-                            commands
-                                .entity(entitys.selected.unwrap())
-                                .despawn_descendants();
-                            // 在原位置渲染原本棋子
-
-                            // invalid音效
-                            commands.spawn(super::audio::play_once(sounds.invalid.clone()));
-                        }
-                    }
+                // 计算选择点是否超出棋子边缘: 选择点到棋心的直线距离是否大于30
+                if ((x - pos.x).abs().powi(2) + (y - pos.y).abs().powi(2)).sqrt() > 30_f32 {
+                    return;
                 }
+
+                let piece_opt = data.broad_map[row][col];
+
+                // 如果当前没有选子并且选择的棋子为空, 跳出
+                if data.selected.is_none() && piece_opt.is_none() {
+                    return;
+                }
+
+                // 选择棋子
+                if data.selected.is_none() && piece_opt.is_some() {
+                    // todo
+                    data.selected = piece_opt;
+                    trace!("选择棋子: {}", piece_opt.unwrap().name());
+                    commands.spawn(super::audio::play_once(sounds.select.clone()));
+                    return;
+                }
+
+                // 判断行子或吃子是否合法
+                let select_piece = data.selected.unwrap();
+
+                let iccs = pos2iccs(select_piece.row, select_piece.col, row, col);
+
+                // 非法行棋
+                if !data.engine.legal_move(iccs2move(&iccs)) {
+                    // todo 取消选择并警告
+                    data.selected = None;
+                    commands.spawn(super::audio::play_once(sounds.invalid.clone()));
+                    return;
+                }
+
+                if piece_opt.is_none() {
+                    // todo 移动棋子到空位
+                    trace!(
+                        "棋子{}移动到 row:{} col:{}",
+                        data.selected.unwrap().name(),
+                        row,
+                        col
+                    );
+                    commands.spawn(super::audio::play_once(sounds.go.clone()));
+                } else {
+                    // todo 吃子
+                    trace!(
+                        "棋子{}吃{}",
+                        data.selected.unwrap().name(),
+                        piece_opt.unwrap().name()
+                    );
+                    commands.spawn(super::audio::play_once(sounds.eat.clone()));
+                }
+                // 取消选择
+                data.selected = None;
             }
-            Interaction::Hovered => {}
-            Interaction::None => {}
         }
     }
 }

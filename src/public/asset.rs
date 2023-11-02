@@ -1,6 +1,7 @@
-use crate::component::{Piece, PieceCate, PieceColor};
 use bevy::asset::Handle;
 use bevy::prelude::{AudioSource, Font, Image, Resource};
+
+use crate::component::piece::{Kind, Piece, Side};
 
 #[derive(Resource)]
 pub struct Fonts {
@@ -77,114 +78,110 @@ pub struct Pieces {
 }
 
 impl Pieces {
-    pub fn get_handle(&self, piece: &Piece, selected: bool) -> Option<Handle<Image>> {
-        if let Some(color) = piece.color {
-            match color {
-                PieceColor::White => match piece.cate.unwrap() {
-                    PieceCate::Rook => {
-                        if selected {
-                            Some(self.white_rook_select.clone())
-                        } else {
-                            Some(self.white_rook.clone())
-                        }
+    pub fn get_handle(&self, piece: &Piece, selected: bool) -> Handle<Image> {
+        match piece.side {
+            Side::White => match piece.kind {
+                Kind::Rook => {
+                    if selected {
+                        self.white_rook_select.clone()
+                    } else {
+                        self.white_rook.clone()
                     }
-                    PieceCate::Knight => {
-                        if selected {
-                            Some(self.white_knight_select.clone())
-                        } else {
-                            Some(self.white_knight.clone())
-                        }
+                }
+                Kind::Knight => {
+                    if selected {
+                        self.white_knight_select.clone()
+                    } else {
+                        self.white_knight.clone()
                     }
-                    PieceCate::Bishop => {
-                        if selected {
-                            Some(self.white_bishop_select.clone())
-                        } else {
-                            Some(self.white_bishop.clone())
-                        }
+                }
+                Kind::Bishop => {
+                    if selected {
+                        self.white_bishop_select.clone()
+                    } else {
+                        self.white_bishop.clone()
                     }
-                    PieceCate::Advisor => {
-                        if selected {
-                            Some(self.white_advisor_select.clone())
-                        } else {
-                            Some(self.white_advisor.clone())
-                        }
+                }
+                Kind::Advisor => {
+                    if selected {
+                        self.white_advisor_select.clone()
+                    } else {
+                        self.white_advisor.clone()
                     }
-                    PieceCate::Cannon => {
-                        if selected {
-                            Some(self.white_cannon_select.clone())
-                        } else {
-                            Some(self.white_cannon.clone())
-                        }
+                }
+                Kind::Cannon => {
+                    if selected {
+                        self.white_cannon_select.clone()
+                    } else {
+                        self.white_cannon.clone()
                     }
-                    PieceCate::Pawn => {
-                        if selected {
-                            Some(self.white_pawn_select.clone())
-                        } else {
-                            Some(self.white_pawn.clone())
-                        }
+                }
+                Kind::Pawn => {
+                    if selected {
+                        self.white_pawn_select.clone()
+                    } else {
+                        self.white_pawn.clone()
                     }
-                    PieceCate::King => {
-                        if selected {
-                            Some(self.white_king_select.clone())
-                        } else {
-                            Some(self.white_king.clone())
-                        }
+                }
+                Kind::King => {
+                    if selected {
+                        self.white_king_select.clone()
+                    } else {
+                        self.white_king.clone()
                     }
-                },
-                PieceColor::Black => match piece.cate.unwrap() {
-                    PieceCate::Rook => {
-                        if selected {
-                            Some(self.black_rook_select.clone())
-                        } else {
-                            Some(self.black_rook.clone())
-                        }
+                }
+            },
+            Side::Black => match piece.kind {
+                Kind::Rook => {
+                    if selected {
+                        self.black_rook_select.clone()
+                    } else {
+                        self.black_rook.clone()
                     }
-                    PieceCate::Knight => {
-                        if selected {
-                            Some(self.black_knight_select.clone())
-                        } else {
-                            Some(self.black_knight.clone())
-                        }
+                }
+                Kind::Knight => {
+                    if selected {
+                        self.black_knight_select.clone()
+                    } else {
+                        self.black_knight.clone()
                     }
-                    PieceCate::Bishop => {
-                        if selected {
-                            Some(self.black_bishop_select.clone())
-                        } else {
-                            Some(self.black_bishop.clone())
-                        }
+                }
+                Kind::Bishop => {
+                    if selected {
+                        self.black_bishop_select.clone()
+                    } else {
+                        self.black_bishop.clone()
                     }
-                    PieceCate::Advisor => {
-                        if selected {
-                            Some(self.black_advisor_select.clone())
-                        } else {
-                            Some(self.black_advisor.clone())
-                        }
+                }
+                Kind::Advisor => {
+                    if selected {
+                        self.black_advisor_select.clone()
+                    } else {
+                        self.black_advisor.clone()
                     }
-                    PieceCate::Cannon => {
-                        if selected {
-                            Some(self.black_cannon_select.clone())
-                        } else {
-                            Some(self.black_cannon.clone())
-                        }
+                }
+                Kind::Cannon => {
+                    if selected {
+                        self.black_cannon_select.clone()
+                    } else {
+                        self.black_cannon.clone()
                     }
-                    PieceCate::Pawn => {
-                        if selected {
-                            Some(self.black_pawn_select.clone())
-                        } else {
-                            Some(self.black_pawn.clone())
-                        }
+                }
+                Kind::Pawn => {
+                    if selected {
+                        self.black_pawn_select.clone()
+                    } else {
+                        self.black_pawn.clone()
                     }
-                    PieceCate::King => {
-                        if selected {
-                            Some(self.black_king_select.clone())
-                        } else {
-                            Some(self.black_king.clone())
-                        }
+                }
+                Kind::King => {
+                    if selected {
+                        self.black_king_select.clone()
+                    } else {
+                        self.black_king.clone()
                     }
-                },
-            }
-        } else {
-            None
+                }
+            },
         }
     }
 }
