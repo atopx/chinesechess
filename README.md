@@ -13,14 +13,14 @@
 
 </div>
 
-### game main menu
+#### game main menu
 ![游戏菜单](./docs/doc_menu.png)
 
-### windows game
+#### windows game
 ![Windows](./docs/doc_ai_game.png)
 
 
-##### macos game
+#### macos game
 ![Mac OS](./docs/mac_game.jpeg)
 <!-- ![推演打谱](./docs/doc_deduce_game.png) -->
 <!-- ![系统设置](./docs/doc_setting.png) -->
