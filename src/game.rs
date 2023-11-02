@@ -65,6 +65,15 @@ pub struct Data {
     pub selected: Option<Piece>,
 }
 
+#[derive(Resource, Default)]
+pub struct BroadEntitys {
+    pub broad: Option<Entity>,
+    pub white_info: Option<Entity>,
+    pub black_info: Option<Entity>,
+    pub selected: Option<Entity>,
+    pub pieces: [[Option<Entity>; 9]; 10],
+}
+
 impl Data {
     pub fn new() -> Self {
         trace!("init system data");
@@ -216,14 +225,14 @@ impl Data {
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn test_parse_route() {
-    //     // [97, 48, 105, 57]
-    //     let test_str = String::from("a0i9");
-    //     let ((row, col), (dst_row, dst_col)) = Data::new().parse_route(test_str);
-    //     assert_eq!((row, col), (0, 0));
-    //     assert_eq!((dst_row, dst_col), (9, 8));
-    // }
+    #[test]
+    fn test_parse_route() {
+        // [97, 48, 105, 57]
+        let test_str = String::from("a0i9");
+        let ((row, col), (dst_row, dst_col)) = Data::new().parse_route(test_str);
+        assert_eq!((row, col), (0, 0));
+        assert_eq!((dst_row, dst_col), (9, 8));
+    }
 
     #[test]
     fn test_match() {

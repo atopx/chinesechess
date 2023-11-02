@@ -31,6 +31,7 @@ fn main() {
         ))
         // 初始化数据
         .insert_resource(game::Data::new())
+        .insert_resource(game::BroadEntitys::default())
         // 窗口图标
         .add_systems(Startup, set_window_icon)
         // 加载退出游戏系统
