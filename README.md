@@ -13,8 +13,6 @@
 
 </div>
 
-# 游戏截图
-
 ### game main menu
 ![游戏菜单](./docs/doc_menu.png)
 
@@ -32,10 +30,12 @@
 
 ### todo list
 
-1. 由于刚学习使用bevy框架，代码结构比较乱，先探索功能，后期整理代码
-2. 系统设置菜单，分辨率、刷新率、声音、音效等
-3. ~~目前资源位置是绝对定位，无法适配各种系统，优化屏幕缩放~~
-4. 联机对弈待实现，计划使用`Peer to Peer`建立连接，无中心服务器
+- [ ] 由于刚学习使用bevy框架，代码结构比较乱，先探索功能，后期整理代码
+- [ ] 系统设置菜单，分辨率、刷新率、声音、音效等
+- [x] 目前资源位置是绝对定位，无法适配各种系统，优化屏幕缩放
+- [ ] 联机对弈，使用`Peer to Peer`建立连接，无中心服务器
+- [x] 游戏AI引擎实现
+- [x] 代理Pikafish引擎
 
 
 ### 计算鼠标选择的点是否在棋子范围内
@@ -48,5 +48,5 @@ $$ \sqrt {\left | {ax-bx} \right |^{2}+\left | {xy-by} \right |^{2}} \ > \ r $$
 
 # 参考资料
 
-象棋规范协议: https://www.xqbase.com/protocol.htm
-象棋AI算法：https://www.xqbase.com/computer/outline.htm
+- 象棋规范协议: https://www.xqbase.com/protocol.htm
+- 象棋AI算法：https://www.xqbase.com/computer/outline.htm
