@@ -2,14 +2,11 @@ mod audio;
 mod button;
 
 use crate::{
-    component::piece::Side,
     game::{Data, Status},
-    player,
     public::START_POS,
 };
 use bevy::prelude::*;
 
-use self::info::{PlayerInfoAction, PlayerInfoCurrentTimer, PlayerInfoGlobalTimer};
 mod broad;
 mod chess;
 mod event;
@@ -59,15 +56,6 @@ fn new_game(mut commands: Commands, mut data: ResMut<Data>, time: Res<Time>) {
     if !data.gameing {
         data.gameing = true;
         data.engine.from_fen(START_POS);
-        // let delta = time.delta();
-        if data.current_side == Side::White {
-            data.white_player.start_timer();
-            // data.white_player.total_timer.tick(Duration::from_secs(1));
-            // data.white_player.current_timer.tick(delta);
-        } else {
-            data.black_player.start_timer();
-            // data.black_player.total_timer.tick(delta);
-            // data.black_player.current_timer.tick(delta);
-        }
+        // data.white_player.state = PlayerState::Thinking;
     }
 }

@@ -22,32 +22,16 @@ pub struct PlayerInfoGlobalTimer;
 #[derive(Component, Debug, Default, Clone)]
 pub struct PlayerInfoCurrentTimer;
 
-pub fn refresh_player_timer(
-    data: Res<Data>,
-    mut query: Query<(&player::Player, &mut Text), With<PlayerInfoGlobalTimer>>,
-) {
-    for (player, mut text) in query.iter_mut() {
-        if data.current_side == player.side {
-            if player.side == data.white_player.side {
-                let value = data.white_player.get_global_timer();
-                trace!("{} {}", value, data.white_player.total_timer.paused());
-                text.sections[0].value = value;
-            } else {
-                text.sections[0].value = data.black_player.get_global_timer();
-            }
-        }
-    }
-}
-
 pub fn refresh_player_action(
     data: Res<Data>,
     mut query: Query<(&player::Player, &mut Text), With<PlayerInfoAction>>,
 ) {
     for (player, mut text) in query.iter_mut() {
-        text.sections[0].value = player.get_action().to_string();
         if data.current_side == player.side {
+            text.sections[0].value = String::from("思考中");
             text.sections[0].style.color = Color::ORANGE_RED;
         } else {
+            text.sections[0].value = String::from("空闲中");
             text.sections[0].style.color = Color::DARK_GREEN;
         }
     }
@@ -88,7 +72,7 @@ pub fn setup_black_info(
                 ..default()
             },
             PlayerInfo,
-            data.black_player.clone(),
+            data.black_player,
         ))
         .with_children(|parent| {
             parent
@@ -137,7 +121,7 @@ pub fn setup_black_info(
                             ..default()
                         },
                         PlayerInfoTitle,
-                        data.black_player.clone(),
+                        data.black_player,
                     ));
 
                     // 局计时器
@@ -150,7 +134,8 @@ pub fn setup_black_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                data.black_player.get_global_timer(),
+                                // data.black_player.get_global_timer(),
+                                "局时: 00:00",
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -161,7 +146,7 @@ pub fn setup_black_info(
                         }
                         .with_no_wrap(),
                         PlayerInfoGlobalTimer,
-                        data.black_player.clone(),
+                        data.black_player,
                     ));
 
                     // 步计时器
@@ -174,7 +159,8 @@ pub fn setup_black_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                data.black_player.get_current_timer(),
+                                // data.black_player.get_current_timer(),
+                                "步时: 00:00",
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -185,7 +171,7 @@ pub fn setup_black_info(
                         }
                         .with_no_wrap(),
                         PlayerInfoCurrentTimer,
-                        data.black_player.clone(),
+                        data.black_player,
                     ));
                 });
 
@@ -206,7 +192,7 @@ pub fn setup_black_info(
                 .with_children(|parent| {
                     parent.spawn((
                         TextBundle::from_section(
-                            data.black_player.get_action(),
+                            "空闲中",
                             TextStyle {
                                 font: fonts.xiaoli.clone(),
                                 font_size: 24_f32,
@@ -220,6 +206,7 @@ pub fn setup_black_info(
                             ..default()
                         }),
                         PlayerInfoAction,
+                        data.black_player,
                     ));
                 });
         });
@@ -253,7 +240,7 @@ pub fn setup_white_info(
                 ..default()
             },
             PlayerInfo,
-            data.white_player.clone(),
+            data.white_player,
         ))
         .with_children(|parent| {
             parent
@@ -302,7 +289,7 @@ pub fn setup_white_info(
                             ..default()
                         },
                         PlayerInfoTitle,
-                        data.white_player.clone(),
+                        data.white_player,
                     ));
 
                     // 局计时器
@@ -315,7 +302,8 @@ pub fn setup_white_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                data.white_player.get_global_timer(),
+                                // data.white_player.get_global_timer(),
+                                "局时: 00:00",
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -326,7 +314,7 @@ pub fn setup_white_info(
                         }
                         .with_no_wrap(),
                         PlayerInfoGlobalTimer,
-                        data.white_player.clone(),
+                        data.white_player,
                     ));
 
                     // 步计时器
@@ -339,7 +327,8 @@ pub fn setup_white_info(
                                 ..default()
                             },
                             text: Text::from_section(
-                                data.white_player.get_current_timer(),
+                                // data.white_player.get_current_timer(),
+                                "步时: 00:00",
                                 TextStyle {
                                     font: fonts.wenkai.clone(),
                                     font_size: 24_f32,
@@ -350,7 +339,7 @@ pub fn setup_white_info(
                         }
                         .with_no_wrap(),
                         PlayerInfoCurrentTimer,
-                        data.white_player.clone(),
+                        data.white_player,
                     ));
                 });
 
@@ -371,7 +360,7 @@ pub fn setup_white_info(
                 .with_children(|parent| {
                     parent.spawn((
                         TextBundle::from_section(
-                            data.white_player.get_action(),
+                            "空闲中",
                             TextStyle {
                                 font: fonts.xiaoli.clone(),
                                 font_size: 24_f32,
@@ -385,7 +374,7 @@ pub fn setup_white_info(
                             ..default()
                         }),
                         PlayerInfoAction,
-                        data.white_player.clone(),
+                        data.white_player,
                     ));
                 });
         });

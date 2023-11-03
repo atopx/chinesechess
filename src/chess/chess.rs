@@ -109,8 +109,9 @@ pub fn selection(
                 let user_mv = iccs2move(&iccs);
                 // 非法行棋
                 if !data.engine.legal_move(user_mv) {
-                    let (_, _, _, mut visibile) =
-                        q_piece.get_mut(entitys.pieces[row][col].unwrap()).unwrap();
+                    let (_, _, _, mut visibile) = q_piece
+                        .get_mut(entitys.pieces[select_piece.row][select_piece.col].unwrap())
+                        .unwrap();
                     // 取消选择
                     data.selected = None;
                     // 取消选棋子动画
@@ -177,18 +178,22 @@ pub fn selection(
                     match winner {
                         chessai::pregen::Winner::White => {
                             // todo 红方胜利
+                            trace!("红方胜利");
                         }
                         chessai::pregen::Winner::Black => {
                             // 黑方胜利
+                            trace!("黑方胜利");
                         }
                         chessai::pregen::Winner::Tie => {
                             // 和棋
+                            trace!("和棋");
                         }
                     }
                 } else {
                     // 检测是否将军
                     if data.engine.in_check() {
                         // 将军
+                        trace!("将军");
                         commands.spawn(super::audio::play_once(sound_handles.check.clone()));
                     } else {
                         // 是否吃子

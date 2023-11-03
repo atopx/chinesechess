@@ -1,7 +1,6 @@
-// use crate::component::PieceCate::{Advisor, Bishop, Cannon, King, Knight, Pawn, Rook};
 use crate::component::piece::{Kind, Piece, Side};
-// use crate::component::{Piece, PieceColor};
-use crate::public::{ROUTE_OFFSET, START_POS};
+use crate::player;
+use crate::public::ROUTE_OFFSET;
 use bevy::input::keyboard::KeyboardInput;
 use bevy::prelude::*;
 
@@ -40,8 +39,6 @@ pub fn esc_event_system(
         }
     }
 }
-
-use crate::player::{self, PlayerState};
 
 #[derive(Resource)]
 pub struct Data {
@@ -193,39 +190,28 @@ impl Data {
         fen
     }
 
+    pub fn get_current_player(&mut self) -> &mut player::Player {
+        match self.current_side {
+            Side::Black => &mut self.black_player,
+            Side::White => &mut self.white_player,
+        }
+    }
+
     /// 换边
     pub fn change_side(&mut self) {
         match self.current_side {
             Side::White => {
                 self.current_side = Side::Black;
-                self.white_player.state = PlayerState::Free;
-                self.black_player.state = PlayerState::Thinking;
+                // self.white_player.state = PlayerState::Free;
+                // self.black_player.state = PlayerState::Thinking;
             }
             Side::Black => {
                 self.current_side = Side::White;
-                self.black_player.state = PlayerState::Free;
-                self.white_player.state = PlayerState::Thinking;
+                // self.black_player.state = PlayerState::Free;
+                // self.white_player.state = PlayerState::Thinking;
             }
         }
     }
-
-    // pub fn set_ai_game(&mut self, player_color: PieceColor) {
-    //     self.engine.from_fen(START_POS);
-    //     match player_color {
-    //         PieceColor::White => {
-    //             self.white_player.set_id("0");
-    //             self.white_player.set_name("玩家");
-    //             self.black_player.set_id("1");
-    //             self.black_player.set_name("AI");
-    //         }
-    //         _ => {
-    //             self.white_player.set_id("0");
-    //             self.white_player.set_name("AI");
-    //             self.black_player.set_id("1");
-    //             self.black_player.set_name("玩家");
-    //         }
-    //     }
-    // }
 
     pub fn parse_route(&self, route: String) -> ((usize, usize), (usize, usize)) {
         let bytes = route.as_bytes();
