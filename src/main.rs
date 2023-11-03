@@ -39,10 +39,7 @@ fn main() {
         // 进入PENDING状态
         .add_systems(OnEnter(Status::PENDING), menu::setup_pending)
         // 全局菜单系统
-        .add_systems(
-            Update,
-            menu::pending_state_system.run_if(in_state(Status::PENDING)),
-        )
+        .add_systems(Update, menu::pending_state_system.run_if(in_state(Status::PENDING)))
         // 退出PENDING状态
         .add_systems(OnExit(Status::PENDING), menu::cleanup_menu)
         // ESC事件
@@ -101,7 +98,7 @@ mod tests {
     #[test]
     fn test_engine() {
         let mut engine = Engine::new();
-        engine.from_fen("9/2Cca4/3k1C3/4P1p2/4N1b2/4R1r2/4c1n2/3p1n3/2rNK4/9 w");
+        engine.from_fen("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C2C4/9/RNBAKABNR b");
         let mv = engine.search_main(64, 1000);
         assert_eq!(mv, 26215);
     }

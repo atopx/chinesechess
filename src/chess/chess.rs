@@ -7,6 +7,8 @@ use crate::{
     public::{self, get_piece_render_percent},
 };
 
+use super::event;
+
 pub fn selection(
     mut data: ResMut<Data>,
     mut entitys: ResMut<BroadEntitys>,
@@ -16,6 +18,7 @@ pub fn selection(
     image_handles: Res<public::asset::Images>,
     piece_handles: Res<public::asset::Pieces>,
     q_window: Query<&Window, With<PrimaryWindow>>,
+    mut ai_move_event: EventWriter<event::AIMoveEvent>,
     q_camera: Query<(&Camera, &GlobalTransform), With<ChineseBroadCamera>>,
     mut q_select: Query<&mut Transform, (With<SelectedPiece>, Without<Piece>)>,
     mut q_piece: Query<(&mut Parent, &mut Piece, &mut Transform, &mut Visibility), With<Piece>>,
@@ -247,6 +250,8 @@ pub fn selection(
                     }
                 }
                 // todo AI行棋?
+                trace!("发送AI行棋event");
+                ai_move_event.send(event::AIMoveEvent);
             }
         }
     }

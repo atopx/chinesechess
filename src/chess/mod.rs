@@ -19,8 +19,8 @@ impl Plugin for ChessPlugin {
     fn build(&self, app: &mut App) {
         app
             // 测试事件
-            // .add_event::<event::SwithPlayerEvent>()
-            // .add_systems(Update, event::swith_player_event)
+            .add_event::<event::AIMoveEvent>()
+            .add_systems(Update, event::ai_move_event)
             // 进入RUNNING状态
             .add_systems(
                 OnEnter(Status::RUNNING),
