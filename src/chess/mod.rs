@@ -2,7 +2,7 @@ mod audio;
 mod button;
 
 use crate::{
-    game::{Data, Status},
+    game::{ChessState, Data, Status},
     public::START_POS,
 };
 use bevy::prelude::*;
@@ -53,9 +53,8 @@ impl Plugin for ChessPlugin {
 }
 
 fn new_game(mut commands: Commands, mut data: ResMut<Data>, time: Res<Time>) {
-    if !data.gameing {
-        data.gameing = true;
+    if data.state.is_none() {
+        data.state = Some(ChessState::Game);
         data.engine.from_fen(START_POS);
-        // data.white_player.state = PlayerState::Thinking;
     }
 }

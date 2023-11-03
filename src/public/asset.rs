@@ -17,8 +17,9 @@ pub struct Sounds {
     pub invalid: Handle<AudioSource>,
     pub select: Handle<AudioSource>,
     pub check: Handle<AudioSource>,
-    pub lose: Handle<AudioSource>,
+    pub loss: Handle<AudioSource>,
     pub win: Handle<AudioSource>,
+    pub draw: Handle<AudioSource>,
     pub alarm: Handle<AudioSource>,
 }
 
@@ -32,10 +33,12 @@ pub struct Images {
     pub player_focus: Handle<Image>,
     pub select_shadow: Handle<Image>,
     pub start_pos: Handle<Image>,
-    pub start_posflag: Handle<Image>,
     pub play_vs: Handle<Image>,
     pub black_avatar: Handle<Image>,
     pub white_avatar: Handle<Image>,
+    pub flag_draw: Handle<Image>,
+    pub flag_loss: Handle<Image>,
+    pub flag_win: Handle<Image>,
 }
 
 #[derive(Resource)]

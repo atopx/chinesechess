@@ -13,7 +13,7 @@ pub fn setup_broad(
     mut broad_query: Query<&mut Visibility, With<component::Broad>>,
 ) {
     trace!("进入RUNNING");
-    if data.gameing {
+    if data.state.is_some() {
         let mut broad_visible = broad_query.single_mut();
         *broad_visible = Visibility::Visible;
         return;

@@ -49,7 +49,7 @@ pub fn setup_bottons(
     fonts: Res<public::asset::Fonts>,
     mut query: Query<&mut Visibility, With<ChessButtonGroup>>,
 ) {
-    if data.gameing {
+    if data.state.is_some() {
         let mut visibie = query.single_mut();
         *visibie = Visibility::Visible;
         return;
@@ -81,37 +81,12 @@ pub fn setup_bottons(
 }
 
 pub fn make_chess_buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
-    make_text_bundle(
-        parent,
-        font.clone(),
-        GAME_MENU_NEW_GAME_TEXT,
-        ChessButton::NewGame,
-    );
+    make_text_bundle(parent, font.clone(), GAME_MENU_NEW_GAME_TEXT, ChessButton::NewGame);
 
-    make_text_bundle(
-        parent,
-        font.clone(),
-        GAME_MENU_RETRACT_TEXT,
-        ChessButton::Retract,
-    );
-    make_text_bundle(
-        parent,
-        font.clone(),
-        GAME_MENU_PEACE_TEXT,
-        ChessButton::Peact,
-    );
-    make_text_bundle(
-        parent,
-        font.clone(),
-        GAME_MENU_PROMPT_TEXT,
-        ChessButton::Prompt,
-    );
-    make_text_bundle(
-        parent,
-        font.clone(),
-        GAME_MENU_ADMIT_DEFEAT_TEXT,
-        ChessButton::AdmitDefeat,
-    );
+    make_text_bundle(parent, font.clone(), GAME_MENU_RETRACT_TEXT, ChessButton::Retract);
+    make_text_bundle(parent, font.clone(), GAME_MENU_PEACE_TEXT, ChessButton::Peact);
+    make_text_bundle(parent, font.clone(), GAME_MENU_PROMPT_TEXT, ChessButton::Prompt);
+    make_text_bundle(parent, font.clone(), GAME_MENU_ADMIT_DEFEAT_TEXT, ChessButton::AdmitDefeat);
     make_text_bundle(parent, font.clone(), GAME_MENU_SWAP_TEXT, ChessButton::Swap);
     make_text_bundle(parent, font.clone(), GAME_MENU_ROLL_TEXT, ChessButton::Roll);
 }

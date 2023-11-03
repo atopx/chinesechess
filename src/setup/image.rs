@@ -18,24 +18,29 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
         popup: asset_server.load(public::path::IMAGE_POPUP),
         select_shadow: asset_server.load(public::path::IMAGE_SELECT_SHADOW),
         start_pos: asset_server.load(public::path::IMAGE_START_POS),
-        start_posflag: asset_server.load(public::path::IMAGE_START_POSFLAG),
         play_vs: asset_server.load(public::path::IMAGE_PLAY_VS),
         black_avatar: asset_server.load(public::path::IMAGE_BLACK_AVATAR),
         white_avatar: asset_server.load(public::path::IMAGE_WHITE_AVATAR),
+        flag_draw: asset_server.load(public::path::IMAGE_FLAG_DRAW),
+        flag_loss: asset_server.load(public::path::IMAGE_FLAG_LOSS),
+        flag_win: asset_server.load(public::path::IMAGE_FLAG_WIN),
     };
 
     // 背景
-    commands.spawn((SpriteBundle {
-        texture: images.background.clone(),
-        sprite: Sprite {
-            custom_size: Some(Vec2 {
-                x: public::WIN_SIZE.w,
-                y: public::WIN_SIZE.h,
-            }),
+    commands.spawn((
+        SpriteBundle {
+            texture: images.background.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2 {
+                    x: public::WIN_SIZE.w,
+                    y: public::WIN_SIZE.h,
+                }),
+                ..Default::default()
+            },
             ..Default::default()
         },
-        ..Default::default()
-    }, Background));
+        Background,
+    ));
 
     commands.insert_resource(images);
 

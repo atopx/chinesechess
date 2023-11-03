@@ -19,6 +19,8 @@ pub const SOUND_CHECK: &str = "sound/check.mp3";
 pub const SOUND_LOSE: &str = "sound/lose.mp3";
 // 胜
 pub const SOUND_WIN: &str = "sound/win.mp3";
+// 和
+pub const SOUND_DRAW: &str = "sound/draw.mp3";
 // 警告
 pub const SOUND_ALARM: &str = "sound/alarm.mp3";
 
@@ -38,14 +40,18 @@ pub const IMAGE_POPUP: &str = "image/popup.png";
 pub const IMAGE_SELECT_SHADOW: &str = "image/select_shadow.png";
 // 当前棋子起点
 pub const IMAGE_START_POS: &str = "image/start_pos.png";
-// 上一次棋子起点
-pub const IMAGE_START_POSFLAG: &str = "image/start_pos_flag.png";
 // 对阵vs
 pub const IMAGE_PLAY_VS: &str = "image/black_avatar.png";
 // 黑色方头像
 pub const IMAGE_BLACK_AVATAR: &str = "image/black_avatar.png";
 // 红色方头像
 pub const IMAGE_WHITE_AVATAR: &str = "image/white_avatar.png";
+// 和棋
+pub const IMAGE_FLAG_DRAW: &str = "image/flag_draw.png";
+// 失败
+pub const IMAGE_FLAG_LOSS: &str = "image/flag_loss.png";
+// 胜利
+pub const IMAGE_FLAG_WIN: &str = "image/flag_win.png";
 
 // 将军动画
 pub const ANIMATE_CHECK_0: &str = "animate/check_0.png";

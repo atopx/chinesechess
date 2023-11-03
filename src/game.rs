@@ -25,7 +25,7 @@ pub fn esc_event_system(
         if Some(KeyCode::Escape) == key.key_code && key.state.is_pressed() {
             match app_state.get() {
                 Status::PENDING => {
-                    if data.gameing {
+                    if data.state.is_some() {
                         trace!("pending to running");
                         state.set(Status::RUNNING);
                     }
@@ -38,6 +38,11 @@ pub fn esc_event_system(
             }
         }
     }
+}
+
+pub enum ChessState {
+    Game,
+    Over,
 }
 
 #[derive(Resource)]
@@ -57,7 +62,7 @@ pub struct Data {
     // 游戏引擎
     pub engine: chessai::Engine,
     // 是否已经开始过游戏
-    pub gameing: bool,
+    pub state: Option<ChessState>,
     // 选择的棋子
     pub selected: Option<Piece>,
 }
@@ -68,6 +73,7 @@ pub struct BroadEntitys {
     pub white_info: Option<Entity>,
     pub black_info: Option<Entity>,
     pub selected: Option<Entity>,
+    pub gameover: Option<Entity>,
     pub pieces: [[Option<Entity>; 9]; 10],
 }
 
@@ -154,7 +160,7 @@ impl Data {
             round: 0,
             noeat_move_num: 0,
             current_side: Side::White,
-            gameing: false,
+            state: None,
         }
     }
 

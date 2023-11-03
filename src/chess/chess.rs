@@ -3,7 +3,7 @@ use chessai::position::{iccs2move, pos2iccs};
 
 use crate::{
     component::{piece::Piece, ChineseBroadCamera, SelectedPiece},
-    game::{BroadEntitys, Data},
+    game::{BroadEntitys, ChessState, Data},
     public::{self, get_piece_render_percent},
 };
 
@@ -179,31 +179,71 @@ pub fn selection(
                         chessai::pregen::Winner::White => {
                             // todo 红方胜利
                             trace!("红方胜利");
+                            commands.spawn(super::audio::play_once(sound_handles.win.clone()));
+                            let gameover = commands
+                                .spawn(SpriteBundle {
+                                    texture: image_handles.flag_win.clone(),
+                                    transform: Transform::from_xyz(0., 0., 1_f32),
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(320_f32, 80_f32)),
+                                        ..default()
+                                    },
+                                    ..default()
+                                })
+                                .id();
+                            entitys.gameover = Some(gameover);
                         }
                         chessai::pregen::Winner::Black => {
                             // 黑方胜利
                             trace!("黑方胜利");
+                            commands.spawn(super::audio::play_once(sound_handles.loss.clone()));
+                            let gameover = commands
+                                .spawn(SpriteBundle {
+                                    texture: image_handles.flag_loss.clone(),
+                                    transform: Transform::from_xyz(0., 0., 1_f32),
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(320_f32, 80_f32)),
+                                        ..default()
+                                    },
+                                    ..default()
+                                })
+                                .id();
+                            entitys.gameover = Some(gameover);
                         }
                         chessai::pregen::Winner::Tie => {
                             // 和棋
                             trace!("和棋");
+                            commands.spawn(super::audio::play_once(sound_handles.draw.clone()));
+                            let gameover = commands
+                                .spawn(SpriteBundle {
+                                    texture: image_handles.flag_draw.clone(),
+                                    transform: Transform::from_xyz(0., 0., 1_f32),
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(320_f32, 80_f32)),
+                                        ..default()
+                                    },
+                                    ..default()
+                                })
+                                .id();
+                            entitys.gameover = Some(gameover);
                         }
                     }
+                    data.state = Some(ChessState::Over);
+                    return;
+                }
+                // 检测是否将军
+                if data.engine.in_check() {
+                    // 将军
+                    trace!("将军");
+                    commands.spawn(super::audio::play_once(sound_handles.check.clone()));
                 } else {
-                    // 检测是否将军
-                    if data.engine.in_check() {
-                        // 将军
-                        trace!("将军");
-                        commands.spawn(super::audio::play_once(sound_handles.check.clone()));
+                    // 是否吃子
+                    if data.engine.captured() {
+                        // 吃子
+                        commands.spawn(super::audio::play_once(sound_handles.eat.clone()));
                     } else {
-                        // 是否吃子
-                        if data.engine.captured() {
-                            // 吃子
-                            commands.spawn(super::audio::play_once(sound_handles.eat.clone()));
-                        } else {
-                            // 移动
-                            commands.spawn(super::audio::play_once(sound_handles.go.clone()));
-                        }
+                        // 移动
+                        commands.spawn(super::audio::play_once(sound_handles.go.clone()));
                     }
                 }
                 // todo AI行棋?

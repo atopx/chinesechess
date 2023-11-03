@@ -51,7 +51,7 @@ pub fn setup_black_info(
     fonts: Res<public::asset::Fonts>,
     mut query: Query<&mut Visibility, With<PlayerInfo>>,
 ) {
-    if data.gameing {
+    if data.state.is_some() {
         for mut visibie in query.iter_mut() {
             *visibie = Visibility::Visible;
         }
@@ -219,7 +219,7 @@ pub fn setup_white_info(
     fonts: Res<public::asset::Fonts>,
     mut query: Query<&mut Visibility, With<PlayerInfo>>,
 ) {
-    if data.gameing {
+    if data.state.is_some() {
         for mut visibie in query.iter_mut() {
             *visibie = Visibility::Visible;
         }
