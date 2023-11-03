@@ -41,7 +41,7 @@ pub fn esc_event_system(
     }
 }
 
-use crate::player;
+use crate::player::{self, PlayerState};
 
 #[derive(Resource)]
 pub struct Data {
@@ -191,6 +191,22 @@ impl Data {
             self.round
         ));
         fen
+    }
+
+    /// 换边
+    pub fn change_side(&mut self) {
+        match self.current_side {
+            Side::White => {
+                self.current_side = Side::Black;
+                self.white_player.state = PlayerState::Free;
+                self.black_player.state = PlayerState::Thinking;
+            }
+            Side::Black => {
+                self.current_side = Side::White;
+                self.black_player.state = PlayerState::Free;
+                self.white_player.state = PlayerState::Thinking;
+            }
+        }
     }
 
     // pub fn set_ai_game(&mut self, player_color: PieceColor) {

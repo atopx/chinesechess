@@ -12,6 +12,7 @@ use bevy::prelude::*;
 use self::info::{PlayerInfoAction, PlayerInfoCurrentTimer, PlayerInfoGlobalTimer};
 mod broad;
 mod chess;
+mod event;
 mod info;
 
 #[derive(Resource)]
@@ -37,11 +38,7 @@ impl Plugin for ChessPlugin {
             // 退出RUNNING状态
             .add_systems(
                 OnExit(Status::RUNNING),
-                (
-                    broad::cleanup_chessbroad,
-                    button::cleanup_button,
-                    info::cleanup_info,
-                ),
+                (broad::cleanup_chessbroad, button::cleanup_button, info::cleanup_info),
             )
             // 对局中系统
             .add_systems(

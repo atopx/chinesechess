@@ -60,7 +60,7 @@ pub fn selection(
                     data.selected = piece_opt;
                     trace!("选择棋子: {}", piece_opt.unwrap().name(),);
 
-                    let (mut parent, piece, mut transform, mut visibile) =
+                    let (parent, piece, _, mut visibile) =
                         q_piece.get_mut(entitys.pieces[row][col].unwrap()).unwrap();
 
                     // 隐藏棋子
@@ -125,59 +125,59 @@ pub fn selection(
                 if piece_opt.is_none() {
                     // todo 移动棋子到空位
                     trace!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), row, col);
-                    let mut transform = q_select.single_mut();
-                    // 移动次数
-                    let (src_x, src_y) =
-                        get_piece_render_percent(select_piece.row, select_piece.col);
-                    let x_offset = x - src_x;
-                    let y_offset = y - src_y;
-                    let move_num = x_offset.powi(2) + y_offset.powi(2); // 移动次数
-                    let x_single_move = move_num / x_offset;
-                    let y_single_move = move_num / y_offset;
-                    trace!(
-                        "move {} => {}:{} {} {}",
-                        move_num,
-                        x_single_move,
-                        y_single_move,
-                        x_offset,
-                        y_offset
-                    );
-                    let trs = &mut transform.translation;
-                    while (x - trs.x).max(y - trs.y) > 1. {
-                        trs.x += 1.;
-                        trs.y += 1.;
-                    }
-                    trs.x = x;
-                    trs.y = y;
+                    let mut select_tf = q_select.single_mut();
+                    // 移动(直接瞬移)
+                    select_tf.translation.x = x;
+                    select_tf.translation.y = y;
 
-                    // 放下棋子
-                    let piece_entity = entitys.pieces[select_piece.row][select_piece.col].unwrap();
-                    let (mut parent, mut piece, mut transform, mut visibile) =
-                        q_piece.get_mut(piece_entity).unwrap();
-                    // 取消选棋子动画
-                    commands.entity(entitys.selected.unwrap()).despawn_recursive();
-                    // 改变棋子位置
-                    transform.translation.x = x;
-                    transform.translation.y = y;
-                    // 改变游戏数据
-                    piece.col = col;
-                    piece.row = row;
-                    data.broad_map[select_piece.row][select_piece.col] = None;
-                    data.broad_map[row][col] = Some(*piece);
-                    entitys.pieces[select_piece.row][select_piece.col] = None;
-                    entitys.pieces[row][col] = Some(piece_entity);
-                    // 显示棋子
-                    *visibile = Visibility::Inherited;
                     // 播放移动棋子音效
                     commands.spawn(super::audio::play_once(sound_handles.go.clone()));
-                    // todo 切换棋手
                 } else {
                     // todo 吃子
                     trace!("棋子{}吃{}", data.selected.unwrap().name(), piece_opt.unwrap().name());
+
+                    let mut select_tf = q_select.single_mut();
+                    // 移动(直接瞬移)
+                    select_tf.translation.x = x;
+                    select_tf.translation.y = y;
+
+                    // 删除新位置的棋子
+                    commands.entity(entitys.pieces[row][col].unwrap()).despawn_recursive();
+
+                    // 播放吃子音效
                     commands.spawn(super::audio::play_once(sound_handles.eat.clone()));
                 }
+
                 // 取消选择
                 data.selected = None;
+
+                // 放下棋子
+                let piece_entity = entitys.pieces[select_piece.row][select_piece.col].unwrap();
+                let (_, mut piece, mut transform, mut visibile) =
+                    q_piece.get_mut(piece_entity).unwrap();
+
+                // 改变棋子位置
+                transform.translation.x = x;
+                transform.translation.y = y;
+
+                // 改变游戏数据
+                piece.col = col;
+                piece.row = row;
+                data.broad_map[select_piece.row][select_piece.col] = None;
+                data.broad_map[row][col] = Some(*piece);
+                entitys.pieces[select_piece.row][select_piece.col] = None;
+                entitys.pieces[row][col] = Some(piece_entity);
+
+                // 取消选棋子动画
+                commands.entity(entitys.selected.unwrap()).despawn_recursive();
+
+                // 显示棋子
+                *visibile = Visibility::Inherited;
+
+                // 切换棋手
+                data.change_side();
+
+                // todo AI行棋
             }
         }
     }
