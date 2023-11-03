@@ -103,12 +103,12 @@ pub fn selection(
                 }
 
                 // 判断行子或吃子是否合法
-                let select_piece = data.selected.unwrap();
+                let select_piece: Piece = data.selected.unwrap();
 
                 let iccs = pos2iccs(select_piece.row, select_piece.col, row, col);
-
+                let user_mv = iccs2move(&iccs);
                 // 非法行棋
-                if !data.engine.legal_move(iccs2move(&iccs)) {
+                if !data.engine.legal_move(user_mv) {
                     let (_, _, _, mut visibile) =
                         q_piece.get_mut(entitys.pieces[row][col].unwrap()).unwrap();
                     // 取消选择
@@ -129,9 +129,6 @@ pub fn selection(
                     // 移动(直接瞬移)
                     select_tf.translation.x = x;
                     select_tf.translation.y = y;
-
-                    // 播放移动棋子音效
-                    commands.spawn(super::audio::play_once(sound_handles.go.clone()));
                 } else {
                     // todo 吃子
                     trace!("棋子{}吃{}", data.selected.unwrap().name(), piece_opt.unwrap().name());
@@ -143,9 +140,6 @@ pub fn selection(
 
                     // 删除新位置的棋子
                     commands.entity(entitys.pieces[row][col].unwrap()).despawn_recursive();
-
-                    // 播放吃子音效
-                    commands.spawn(super::audio::play_once(sound_handles.eat.clone()));
                 }
 
                 // 取消选择
@@ -176,8 +170,38 @@ pub fn selection(
 
                 // 切换棋手
                 data.change_side();
+                data.engine.make_move(user_mv);
 
-                // todo AI行棋
+                // 检测是否胜利
+                if let Some(winner) = data.engine.winner() {
+                    match winner {
+                        chessai::pregen::Winner::White => {
+                            // todo 红方胜利
+                        }
+                        chessai::pregen::Winner::Black => {
+                            // 黑方胜利
+                        }
+                        chessai::pregen::Winner::Tie => {
+                            // 和棋
+                        }
+                    }
+                } else {
+                    // 检测是否将军
+                    if data.engine.in_check() {
+                        // 将军
+                        commands.spawn(super::audio::play_once(sound_handles.check.clone()));
+                    } else {
+                        // 是否吃子
+                        if data.engine.captured() {
+                            // 吃子
+                            commands.spawn(super::audio::play_once(sound_handles.eat.clone()));
+                        } else {
+                            // 移动
+                            commands.spawn(super::audio::play_once(sound_handles.go.clone()));
+                        }
+                    }
+                }
+                // todo AI行棋?
             }
         }
     }
