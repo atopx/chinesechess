@@ -1,9 +1,8 @@
-use bevy::app::AppExit;
 use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, Window, WindowMode};
 use bevy::winit::WinitWindows;
-use game::Status;
+use status::GameState;
 use std::io::Cursor;
 use winit::window::Icon;
 
@@ -11,17 +10,18 @@ use winit::window::Icon;
 use public::WIN_SIZE;
 mod chess;
 mod component;
+mod event;
 mod game;
-mod menu;
 mod player;
 mod public;
 mod setup;
+mod status;
 
 fn main() {
     App::new()
         .insert_resource(Msaa::Off)
         // 初始状态
-        .add_state::<Status>()
+        .add_state::<status::GameState>()
         // 插件系统
         .add_plugins((
             // 初始化系统资源
@@ -31,19 +31,43 @@ fn main() {
         ))
         // 初始化数据
         .insert_resource(game::Data::new())
-        .insert_resource(game::BroadEntitys::default())
+        .insert_resource(public::BroadEntitys::default())
         // 窗口图标
         .add_systems(Startup, set_window_icon)
         // 加载退出游戏系统
-        .add_systems(OnEnter(Status::EXIT), exit_system)
+        .add_systems(OnEnter(GameState::EXITED), status::exited::enter_exit)
         // 进入PENDING状态
-        .add_systems(OnEnter(Status::PENDING), menu::setup_pending)
-        // 全局菜单系统
-        .add_systems(Update, menu::pending_state_system.run_if(in_state(Status::PENDING)))
+        .add_systems(OnEnter(GameState::PENDING), status::pending::enter_state)
         // 退出PENDING状态
-        .add_systems(OnExit(Status::PENDING), menu::cleanup_menu)
+        .add_systems(OnExit(GameState::PENDING), status::pending::exit_state)
+        // IN PENDING
+        .add_systems(Update, status::pending::in_state.run_if(in_state(GameState::PENDING)))
+        // 进入PAUSED状态
+        .add_systems(OnEnter(GameState::PAUSED), status::paused::enter_state)
+        // 退出PAUSED状态
+        .add_systems(OnExit(GameState::PAUSED), status::paused::exit_state)
+        // IN PAUSED
+        .add_systems(Update, status::paused::in_state.run_if(in_state(GameState::PAUSED)))
+        // pending to running
+        .add_systems(
+            OnTransition {
+                from: GameState::PENDING,
+                to: GameState::RUNNING,
+            },
+            status::running::from_pending_enter,
+        )
+        // paused to running
+        .add_systems(
+            OnTransition {
+                from: GameState::PAUSED,
+                to: GameState::RUNNING,
+            },
+            status::running::from_paused_enter,
+        )
+        // exit running
+        .add_systems(OnExit(GameState::RUNNING), status::running::exit_state)
         // ESC事件
-        .add_systems(Update, game::esc_event_system)
+        .add_systems(Update, status::esc_event_system)
         // 初始化窗口
         .add_plugins(
             DefaultPlugins
@@ -68,10 +92,6 @@ fn main() {
                 ),
         )
         .run()
-}
-
-fn exit_system(mut exit: EventWriter<AppExit>) {
-    exit.send(AppExit);
 }
 
 // Sets the icon on windows and X11

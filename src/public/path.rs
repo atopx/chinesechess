@@ -16,7 +16,7 @@ pub const SOUND_SELECT: &str = "sound/select.mp3";
 // 将军
 pub const SOUND_CHECK: &str = "sound/check.mp3";
 // 负
-pub const SOUND_LOSE: &str = "sound/lose.mp3";
+pub const SOUND_LOSS: &str = "sound/loss.mp3";
 // 胜
 pub const SOUND_WIN: &str = "sound/win.mp3";
 // 和

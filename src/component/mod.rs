@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::{Component, Entity, Vec2, With},
-    text::TextSection,
-};
+use bevy::prelude::{Component, Entity};
 pub mod piece;
 
 #[derive(Component, Debug, Clone)]
@@ -19,7 +16,13 @@ pub struct SourcePiece;
 #[derive(Component, Debug, Default)]
 pub struct SelectedPiece;
 
-type WithPiece = (With<ActivePiece>, With<SourcePiece>, With<SelectedPiece>);
-
 #[derive(Component)]
 pub struct ChineseBroadCamera;
+
+// 玩家信息框
+#[derive(Component, Debug, Default, Clone)]
+pub struct PlayerInfo;
+
+// 游戏对局按钮组件
+#[derive(Component)]
+pub struct ChessButtonGroup;

@@ -30,7 +30,18 @@ pub fn get_piece_render_percent(row: usize, col: usize) -> (f32, f32) {
 
 #[derive(Resource)]
 pub struct EntityResources {
-    pub main_menus: Option<Entity>,
+    pub pending_menus: Option<Entity>,
+    pub paused_menus: Option<Entity>,
     pub chessbroad: Option<Entity>,
     pub selected: Option<Entity>,
+}
+
+#[derive(Resource, Default)]
+pub struct BroadEntitys {
+    pub broad: Option<Entity>,
+    pub white_info: Option<Entity>,
+    pub black_info: Option<Entity>,
+    pub selected: Option<Entity>,
+    pub gameover: Option<Entity>,
+    pub pieces: [[Option<Entity>; 9]; 10],
 }

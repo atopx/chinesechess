@@ -1,48 +1,13 @@
 use crate::component::piece::{Kind, Piece, Side};
 use crate::player;
 use crate::public::ROUTE_OFFSET;
-use bevy::input::keyboard::KeyboardInput;
 use bevy::prelude::*;
 
-#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
-pub enum Status {
-    /// 就绪
-    #[default]
-    PENDING,
-    /// 对局中
-    RUNNING,
-    /// 结束游戏
-    EXIT,
-}
-
-pub fn esc_event_system(
-    app_state: Res<State<Status>>,
-    mut state: ResMut<NextState<Status>>,
-    mut key_events: EventReader<KeyboardInput>,
-    data: Res<Data>,
-) {
-    for key in key_events.iter() {
-        if Some(KeyCode::Escape) == key.key_code && key.state.is_pressed() {
-            match app_state.get() {
-                Status::PENDING => {
-                    if data.state.is_some() {
-                        trace!("pending to running");
-                        state.set(Status::RUNNING);
-                    }
-                }
-                Status::RUNNING => {
-                    trace!("running to pending");
-                    state.set(Status::PENDING);
-                }
-                Status::EXIT => {}
-            }
-        }
-    }
-}
-
-pub enum ChessState {
-    Game,
-    Over,
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum GameMode {
+    AiGame,
+    DeduceGame,
+    InterGame,
 }
 
 #[derive(Resource)]
@@ -58,23 +23,15 @@ pub struct Data {
     // 没有吃子的步数
     pub noeat_move_num: usize,
     // 当前行棋方
-    pub current_side: Side,
+    pub current_side: Option<Side>,
     // 游戏引擎
     pub engine: chessai::Engine,
-    // 是否已经开始过游戏
-    pub state: Option<ChessState>,
+    // 状态变化记录
+    pub mode: Option<GameMode>,
     // 选择的棋子
     pub selected: Option<Piece>,
-}
-
-#[derive(Resource, Default)]
-pub struct BroadEntitys {
-    pub broad: Option<Entity>,
-    pub white_info: Option<Entity>,
-    pub black_info: Option<Entity>,
-    pub selected: Option<Entity>,
-    pub gameover: Option<Entity>,
-    pub pieces: [[Option<Entity>; 9]; 10],
+    // 游戏模式
+    pub ai_side: Option<Side>,
 }
 
 impl Data {
@@ -159,8 +116,9 @@ impl Data {
             ],
             round: 0,
             noeat_move_num: 0,
-            current_side: Side::White,
-            state: None,
+            current_side: None,
+            mode: None,
+            ai_side: None,
         }
     }
 
@@ -189,7 +147,7 @@ impl Data {
         }
         fen.push_str(&format!(
             " {} -- {} {}",
-            self.current_side.code(),
+            self.current_side.unwrap().code(),
             self.noeat_move_num,
             self.round
         ));
@@ -197,7 +155,7 @@ impl Data {
     }
 
     pub fn get_current_player(&mut self) -> &mut player::Player {
-        match self.current_side {
+        match self.current_side.unwrap() {
             Side::Black => &mut self.black_player,
             Side::White => &mut self.white_player,
         }
@@ -205,16 +163,12 @@ impl Data {
 
     /// 换边
     pub fn change_side(&mut self) {
-        match self.current_side {
+        match self.current_side.unwrap() {
             Side::White => {
-                self.current_side = Side::Black;
-                // self.white_player.state = PlayerState::Free;
-                // self.black_player.state = PlayerState::Thinking;
+                self.current_side = Some(Side::Black);
             }
             Side::Black => {
-                self.current_side = Side::White;
-                // self.black_player.state = PlayerState::Free;
-                // self.white_player.state = PlayerState::Thinking;
+                self.current_side = Some(Side::White);
             }
         }
     }

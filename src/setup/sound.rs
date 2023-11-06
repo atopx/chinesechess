@@ -12,7 +12,7 @@ pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
         invalid: asset_server.load(public::path::SOUND_INVALID),
         select: asset_server.load(public::path::SOUND_SELECT),
         check: asset_server.load(public::path::SOUND_CHECK),
-        loss: asset_server.load(public::path::SOUND_LOSE),
+        loss: asset_server.load(public::path::SOUND_LOSS),
         win: asset_server.load(public::path::SOUND_WIN),
         draw: asset_server.load(public::path::SOUND_DRAW),
         alarm: asset_server.load(public::path::SOUND_ALARM),

@@ -3,22 +3,22 @@ use chessai::position::{iccs2move, pos2iccs};
 
 use crate::{
     component::{piece::Piece, ChineseBroadCamera, SelectedPiece},
-    game::{BroadEntitys, ChessState, Data},
-    public::{self, get_piece_render_percent},
+    event::{GameoverEvent, SwithPlayerEvent},
+    game::Data,
+    public::{self, get_piece_render_percent, BroadEntitys},
 };
-
-use super::event;
 
 pub fn selection(
     mut data: ResMut<Data>,
     mut entitys: ResMut<BroadEntitys>,
     mut commands: Commands,
+    mut gameover: EventWriter<GameoverEvent>,
+    mut swith_player: EventWriter<SwithPlayerEvent>,
     buttons: Res<Input<MouseButton>>,
     sound_handles: Res<public::asset::Sounds>,
     image_handles: Res<public::asset::Images>,
     piece_handles: Res<public::asset::Pieces>,
     q_window: Query<&Window, With<PrimaryWindow>>,
-    mut ai_move_event: EventWriter<event::AIMoveEvent>,
     q_camera: Query<(&Camera, &GlobalTransform), With<ChineseBroadCamera>>,
     mut q_select: Query<&mut Transform, (With<SelectedPiece>, Without<Piece>)>,
     mut q_piece: Query<(&mut Parent, &mut Piece, &mut Transform, &mut Visibility), With<Piece>>,
@@ -126,23 +126,13 @@ pub fn selection(
                     return;
                 }
 
-                if piece_opt.is_none() {
-                    // todo 移动棋子到空位
-                    trace!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), row, col);
-                    let mut select_tf = q_select.single_mut();
-                    // 移动(直接瞬移)
-                    select_tf.translation.x = x;
-                    select_tf.translation.y = y;
-                } else {
-                    // todo 吃子
-                    trace!("棋子{}吃{}", data.selected.unwrap().name(), piece_opt.unwrap().name());
-
-                    let mut select_tf = q_select.single_mut();
-                    // 移动(直接瞬移)
-                    select_tf.translation.x = x;
-                    select_tf.translation.y = y;
-
-                    // 删除新位置的棋子
+                let mut select_tf = q_select.get_mut(entitys.selected.unwrap()).unwrap();
+                // 移动(直接瞬移)
+                select_tf.translation.x = x;
+                select_tf.translation.y = y;
+                trace!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), row, col);
+                if piece_opt.is_some() {
+                    // 吃子: 删除新位置的棋子
                     commands.entity(entitys.pieces[row][col].unwrap()).despawn_recursive();
                 }
 
@@ -172,66 +162,11 @@ pub fn selection(
                 // 显示棋子
                 *visibile = Visibility::Inherited;
 
-                // 切换棋手
-                data.change_side();
                 data.engine.make_move(user_mv);
 
                 // 检测是否胜利
                 if let Some(winner) = data.engine.winner() {
-                    match winner {
-                        chessai::pregen::Winner::White => {
-                            // todo 红方胜利
-                            trace!("红方胜利");
-                            commands.spawn(super::audio::play_once(sound_handles.win.clone()));
-                            let gameover = commands
-                                .spawn(SpriteBundle {
-                                    texture: image_handles.flag_win.clone(),
-                                    transform: Transform::from_xyz(0., 0., 1_f32),
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(320_f32, 80_f32)),
-                                        ..default()
-                                    },
-                                    ..default()
-                                })
-                                .id();
-                            entitys.gameover = Some(gameover);
-                        }
-                        chessai::pregen::Winner::Black => {
-                            // 黑方胜利
-                            trace!("黑方胜利");
-                            commands.spawn(super::audio::play_once(sound_handles.loss.clone()));
-                            let gameover = commands
-                                .spawn(SpriteBundle {
-                                    texture: image_handles.flag_loss.clone(),
-                                    transform: Transform::from_xyz(0., 0., 1_f32),
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(320_f32, 80_f32)),
-                                        ..default()
-                                    },
-                                    ..default()
-                                })
-                                .id();
-                            entitys.gameover = Some(gameover);
-                        }
-                        chessai::pregen::Winner::Tie => {
-                            // 和棋
-                            trace!("和棋");
-                            commands.spawn(super::audio::play_once(sound_handles.draw.clone()));
-                            let gameover = commands
-                                .spawn(SpriteBundle {
-                                    texture: image_handles.flag_draw.clone(),
-                                    transform: Transform::from_xyz(0., 0., 1_f32),
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(320_f32, 80_f32)),
-                                        ..default()
-                                    },
-                                    ..default()
-                                })
-                                .id();
-                            entitys.gameover = Some(gameover);
-                        }
-                    }
-                    data.state = Some(ChessState::Over);
+                    gameover.send(GameoverEvent(winner));
                     return;
                 }
                 // 检测是否将军
@@ -249,9 +184,9 @@ pub fn selection(
                         commands.spawn(super::audio::play_once(sound_handles.go.clone()));
                     }
                 }
-                // todo AI行棋?
-                trace!("发送AI行棋event");
-                ai_move_event.send(event::AIMoveEvent);
+
+                // 切换棋手
+                swith_player.send(SwithPlayerEvent);
             }
         }
     }

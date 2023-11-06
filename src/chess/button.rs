@@ -1,9 +1,8 @@
+use crate::component::ChessButtonGroup;
+use crate::event::{EventAction, GameChangeEvent};
 use crate::game::Data;
 use crate::public;
 use bevy::prelude::*;
-
-#[derive(Component)]
-pub struct ChessButtonGroup;
 
 /// GameButton 对局按钮, 位于棋盘正下方
 #[derive(Component)]
@@ -37,52 +36,64 @@ pub const GAME_MENU_NORMAL_BUTTON_COLOR: Color = Color::NONE;
 pub const GAME_MENU_HOVERED_BUTTON_COLOR: Color = Color::rgb(0.30, 0.30, 0.30);
 pub const GAME_MENU_PRESSED_BUTTON_COLOR: Color = Color::rgb(0.45, 0.45, 0.45);
 
-pub fn cleanup_button(mut query: Query<&mut Visibility, With<ChessButtonGroup>>) {
-    trace!("隐藏游戏按钮");
-    let mut visibie = query.single_mut();
-    *visibie = Visibility::Hidden;
-}
-
-pub fn setup_bottons(
+pub fn event_listen(
+    mut events: EventReader<GameChangeEvent>,
     mut commands: Commands,
-    data: Res<Data>,
     fonts: Res<public::asset::Fonts>,
-    mut query: Query<&mut Visibility, With<ChessButtonGroup>>,
+    mut botton_q: Query<(Entity, &mut Visibility), With<ChessButtonGroup>>,
 ) {
-    if data.state.is_some() {
-        let mut visibie = query.single_mut();
-        *visibie = Visibility::Visible;
-        return;
+    for event in events.iter() {
+        match event.0 {
+            EventAction::Spawn => {
+                // 创建组件
+                commands
+                    .spawn((
+                        NodeBundle {
+                            style: Style {
+                                position_type: PositionType::Absolute,
+                                left: Val::Percent(20_f32),
+                                bottom: Val::Percent(3_f32),
+                                width: Val::Percent(60_f32),
+                                height: Val::Px(50_f32),
+                                justify_content: JustifyContent::Center,
+                                justify_items: JustifyItems::Center,
+                                justify_self: JustifySelf::Center,
+                                align_content: AlignContent::Center,
+                                align_items: AlignItems::Center,
+                                align_self: AlignSelf::Center,
+                                ..default()
+                            },
+                            ..default()
+                        },
+                        ChessButtonGroup,
+                    ))
+                    .with_children(|parent| {
+                        make_chess_buttons(parent, fonts.xiaoli.clone());
+                    });
+            }
+            EventAction::Hidden => {
+                // 隐藏组件
+                trace!("隐藏游戏按钮");
+                let (_, mut visibie) = botton_q.single_mut();
+                *visibie = Visibility::Hidden;
+            }
+            EventAction::Despawn => {
+                // 销毁组件
+                let (entity, _) = botton_q.single_mut();
+                commands.entity(entity).despawn_recursive();
+            }
+            EventAction::Visibie => {
+                // 显示组件
+                trace!("显示游戏按钮");
+                let (_, mut visibie) = botton_q.single_mut();
+                *visibie = Visibility::Inherited;
+            }
+        }
     }
-    commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    left: Val::Percent(20_f32),
-                    bottom: Val::Percent(3_f32),
-                    width: Val::Percent(60_f32),
-                    height: Val::Px(50_f32),
-                    justify_content: JustifyContent::Center,
-                    justify_items: JustifyItems::Center,
-                    justify_self: JustifySelf::Center,
-                    align_content: AlignContent::Center,
-                    align_items: AlignItems::Center,
-                    align_self: AlignSelf::Center,
-                    ..default()
-                },
-                ..default()
-            },
-            ChessButtonGroup,
-        ))
-        .with_children(|parent| {
-            make_chess_buttons(parent, fonts.xiaoli.clone());
-        });
 }
 
 pub fn make_chess_buttons(parent: &mut ChildBuilder, font: Handle<Font>) {
     make_text_bundle(parent, font.clone(), GAME_MENU_NEW_GAME_TEXT, ChessButton::NewGame);
-
     make_text_bundle(parent, font.clone(), GAME_MENU_RETRACT_TEXT, ChessButton::Retract);
     make_text_bundle(parent, font.clone(), GAME_MENU_PEACE_TEXT, ChessButton::Peact);
     make_text_bundle(parent, font.clone(), GAME_MENU_PROMPT_TEXT, ChessButton::Prompt);
