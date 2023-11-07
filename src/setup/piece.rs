@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::public;
 
 pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
-    trace!("loading asset pieces");
+    info!("loading asset pieces");
     // 棋子
     let pieces = public::asset::Pieces {
         black_advisor: asset_server.load(public::path::PIECE_BLACK_ADVISOR),

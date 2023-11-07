@@ -38,7 +38,7 @@ pub fn enter_state(
     fonts: Res<public::asset::Fonts>,
     // mut entitys: ResMut<public::EntityResources>,
 ) {
-    trace!("进入PENDING");
+    info!("进入PENDING");
     let menus = commands
         .spawn(NodeBundle {
             style: Style {
@@ -112,7 +112,7 @@ pub fn in_state(
                 *color = PENDING_MANU_PRESSED_BUTTON_COLOR.into();
                 match menu {
                     PendingMenu::NewAiGame => {
-                        trace!("todo NewAiGame");
+                        info!("todo NewAiGame");
                         data.mode = Some(GameMode::AiGame);
                         data.ai_side = Some(Side::Black);
                         data.black_player.id = Id::Ai;
@@ -124,22 +124,22 @@ pub fn in_state(
                     }
 
                     PendingMenu::NewDeduceGame => {
-                        trace!("todo NewDeduceGame");
+                        info!("todo NewDeduceGame");
                         game_state.set(GameState::RUNNING);
                     }
 
                     PendingMenu::NewInterGame => {
-                        trace!("todo NewDeduceGame");
+                        info!("todo NewDeduceGame");
                         game_state.set(GameState::RUNNING);
                     }
 
                     PendingMenu::SettingGame => {
-                        trace!("todo SettingGame");
+                        info!("todo SettingGame");
                         game_state.set(GameState::RUNNING);
                     }
 
                     PendingMenu::ExitGame => {
-                        trace!("ExitGame");
+                        info!("ExitGame");
                         game_state.set(GameState::EXITED);
                     }
                 }
@@ -155,7 +155,7 @@ pub fn in_state(
 }
 
 pub fn exit_state(mut commands: Commands, entitys: Res<public::EntityResources>) {
-    trace!("退出PENDING");
+    info!("退出PENDING");
     commands.entity(entitys.pending_menus.unwrap()).despawn_recursive();
 }
 

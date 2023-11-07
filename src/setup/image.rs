@@ -6,7 +6,7 @@ use crate::public;
 pub struct Background;
 
 pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
-    trace!("loading asset images");
+    info!("loading asset images");
 
     // 图片
     let images = public::asset::Images {

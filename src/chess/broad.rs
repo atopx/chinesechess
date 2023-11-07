@@ -17,7 +17,7 @@ pub fn event_listen(
         match event.0 {
             EventAction::Spawn => {
                 // 渲染棋盘
-                trace!("渲染棋盘");
+                info!("渲染棋盘");
                 let broad_entity = commands
                     .spawn((
                         SpriteBundle {
@@ -33,7 +33,7 @@ pub fn event_listen(
                             for (col, piece) in pieces.iter_mut().enumerate() {
                                 if let Some(mut piece) = piece {
                                     let (x, y) = public::get_piece_render_percent(row, col);
-                                    trace!("渲染棋子: {} x:{}, y:{}", piece.name(), x, y);
+                                    info!("渲染棋子: {} x:{}, y:{}", piece.name(), x, y);
                                     let entity = parent
                                         .spawn((
                                             SpriteBundle {

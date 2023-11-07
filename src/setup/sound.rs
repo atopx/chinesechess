@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::public;
 
 pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
-    trace!("loading sounds");
+    info!("loading sounds");
     // 声音
     let sounds = public::asset::Sounds {
         bgm: asset_server.load(public::path::SOUND_BGM),

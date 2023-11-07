@@ -73,7 +73,7 @@ pub fn event_listen(
             }
             EventAction::Hidden => {
                 // 隐藏组件
-                trace!("隐藏游戏按钮");
+                info!("隐藏游戏按钮");
                 let (_, mut visibie) = botton_q.single_mut();
                 *visibie = Visibility::Hidden;
             }
@@ -84,7 +84,7 @@ pub fn event_listen(
             }
             EventAction::Visibie => {
                 // 显示组件
-                trace!("显示游戏按钮");
+                info!("显示游戏按钮");
                 let (_, mut visibie) = botton_q.single_mut();
                 *visibie = Visibility::Inherited;
             }
@@ -163,25 +163,25 @@ pub fn chess_button_system(
                 *color = GAME_MENU_PRESSED_BUTTON_COLOR.into();
                 match menu {
                     ChessButton::NewGame => {
-                        trace!("todo GameMenu NewGame");
+                        info!("todo GameMenu NewGame");
                     }
                     ChessButton::Retract => {
-                        trace!("todo GameMenu Retract");
+                        info!("todo GameMenu Retract");
                     }
                     ChessButton::Peact => {
-                        trace!("todo GameMenu Peact");
+                        info!("todo GameMenu Peact");
                     }
                     ChessButton::Prompt => {
-                        trace!("todo GameMenu Prompt");
+                        info!("todo GameMenu Prompt");
                     }
                     ChessButton::AdmitDefeat => {
-                        trace!("todo GameMenu AdmitDefeat");
+                        info!("todo GameMenu AdmitDefeat");
                     }
                     ChessButton::Swap => {
-                        trace!("todo GameMenu Swap");
+                        info!("todo GameMenu Swap");
                     }
                     ChessButton::Roll => {
-                        trace!("todo GameMenu Roll");
+                        info!("todo GameMenu Roll");
                     }
                 }
             }

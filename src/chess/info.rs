@@ -31,7 +31,7 @@ pub fn event_listen(
     for event in events.iter() {
         match event.0 {
             EventAction::Spawn => {
-                trace!("加载游戏玩家信息");
+                info!("加载游戏玩家信息");
                 // 黑色玩家信息框
                 commands
                     .spawn((
@@ -341,19 +341,19 @@ pub fn event_listen(
                     });
             }
             EventAction::Hidden => {
-                trace!("隐藏游戏玩家信息");
+                info!("隐藏游戏玩家信息");
                 for (_, mut visibie) in query.iter_mut() {
                     *visibie = Visibility::Hidden;
                 }
             }
             EventAction::Despawn => {
-                trace!("删除游戏玩家信息");
+                info!("删除游戏玩家信息");
                 for (entity, _) in query.iter_mut() {
                     commands.entity(entity).despawn_recursive();
                 }
             }
             EventAction::Visibie => {
-                trace!("显示游戏玩家信息");
+                info!("显示游戏玩家信息");
                 for (_, mut visibie) in query.iter_mut() {
                     *visibie = Visibility::Inherited;
                 }

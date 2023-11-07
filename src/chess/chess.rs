@@ -3,7 +3,7 @@ use chessai::position::{iccs2move, pos2iccs};
 
 use crate::{
     component::{piece::Piece, ChineseBroadCamera, SelectedPiece},
-    event::{GameoverEvent, SwithPlayerEvent},
+    event::{CancelSelected, GameoverEvent, SwithPlayerEvent},
     game::Data,
     public::{self, get_piece_render_percent, BroadEntitys},
 };
@@ -61,7 +61,7 @@ pub fn selection(
                 // 选择棋子
                 if data.selected.is_none() && piece_opt.is_some() {
                     data.selected = piece_opt;
-                    trace!("选择棋子: {}", piece_opt.unwrap().name(),);
+                    info!("选择棋子: {}", piece_opt.unwrap().name(),);
 
                     let (parent, piece, _, mut visibile) =
                         q_piece.get_mut(entitys.pieces[row][col].unwrap()).unwrap();
@@ -115,10 +115,11 @@ pub fn selection(
                     let (_, _, _, mut visibile) = q_piece
                         .get_mut(entitys.pieces[select_piece.row][select_piece.col].unwrap())
                         .unwrap();
-                    // 取消选择
-                    data.selected = None;
                     // 取消选棋子动画
-                    commands.entity(entitys.selected.unwrap()).despawn_recursive();
+                    if let Some(entity) = entitys.selected {
+                        commands.entity(entity).despawn_recursive();
+                    }
+                    data.selected = None;
                     // 恢复棋子
                     *visibile = Visibility::Inherited;
                     // 播放无效音效
@@ -130,7 +131,7 @@ pub fn selection(
                 // 移动(直接瞬移)
                 select_tf.translation.x = x;
                 select_tf.translation.y = y;
-                trace!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), row, col);
+                info!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), row, col);
                 if piece_opt.is_some() {
                     // 吃子: 删除新位置的棋子
                     commands.entity(entitys.pieces[row][col].unwrap()).despawn_recursive();
@@ -172,7 +173,7 @@ pub fn selection(
                 // 检测是否将军
                 if data.engine.in_check() {
                     // 将军
-                    trace!("将军");
+                    info!("将军");
                     commands.spawn(super::audio::play_once(sound_handles.check.clone()));
                 } else {
                     // 是否吃子
@@ -186,6 +187,7 @@ pub fn selection(
                 }
 
                 // 切换棋手
+                info!("send swith event");
                 swith_player.send(SwithPlayerEvent);
             }
         }

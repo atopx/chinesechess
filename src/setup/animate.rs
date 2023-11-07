@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::public;
 
 pub fn loading(mut commands: Commands, asset_server: Res<AssetServer>) {
-    trace!("loading asset animates");
+    info!("loading asset animates");
     // 动画
     let animates = public::asset::Animates {
         check: vec![

@@ -44,11 +44,11 @@ pub fn esc_event_system(
         if Some(KeyCode::Escape) == key.key_code && key.state.is_pressed() {
             match app_state.get() {
                 GameState::PAUSED => {
-                    trace!("paused to running");
+                    info!("paused to running");
                     state.set(GameState::RUNNING);
                 }
                 GameState::RUNNING => {
-                    trace!("running to paused");
+                    info!("running to paused");
                     state.set(GameState::PAUSED);
                 }
                 _ => { /* nothing */ }

@@ -1,4 +1,10 @@
-use crate::{event::GameoverEvent, game::Data, public, status::ChessState};
+use crate::{
+    component::piece::Side,
+    event::GameoverEvent,
+    game::{Data, GameMode},
+    public,
+    status::ChessState,
+};
 use bevy::prelude::*;
 
 pub fn event_listen(
@@ -11,58 +17,64 @@ pub fn event_listen(
     mut chess_state: ResMut<NextState<ChessState>>,
 ) {
     for event in events.iter() {
-        match event.0 {
+        let (sound, image) = match event.0 {
             chessai::pregen::Winner::White => {
-                trace!("红方胜利");
-                commands.spawn(super::audio::play_once(sound_handles.loss.clone()));
-                let gameover = commands
-                    .spawn(SpriteBundle {
-                        texture: image_handles.flag_loss.clone(),
-                        transform: Transform::from_xyz(0., 0., 1_f32),
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(320_f32, 80_f32)),
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .id();
-                entitys.gameover = Some(gameover);
+                info!("红方胜利");
+                match data.mode.unwrap() {
+                    GameMode::AiGame => match data.ai_side.unwrap() {
+                        Side::White => {
+                            (sound_handles.loss.clone(), image_handles.flag_loss.clone())
+                        }
+                        Side::Black => (sound_handles.win.clone(), image_handles.flag_win.clone()),
+                    },
+                    GameMode::DeduceGame => {
+                        (sound_handles.win.clone(), image_handles.flag_win.clone())
+                    }
+                    GameMode::InterGame => {
+                        // todo
+                        (sound_handles.win.clone(), image_handles.flag_win.clone())
+                    }
+                }
             }
             chessai::pregen::Winner::Black => {
-                // 黑方胜利
-                trace!("黑方胜利");
-                commands.spawn(super::audio::play_once(sound_handles.win.clone()));
-                let gameover = commands
-                    .spawn(SpriteBundle {
-                        texture: image_handles.flag_win.clone(),
-                        transform: Transform::from_xyz(0., 0., 1_f32),
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(320_f32, 80_f32)),
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .id();
-                entitys.gameover = Some(gameover);
+                info!("黑方胜利");
+                match data.mode.unwrap() {
+                    GameMode::AiGame => match data.ai_side.unwrap() {
+                        Side::White => (sound_handles.win.clone(), image_handles.flag_win.clone()),
+                        Side::Black => {
+                            (sound_handles.loss.clone(), image_handles.flag_loss.clone())
+                        }
+                    },
+                    GameMode::DeduceGame => {
+                        (sound_handles.win.clone(), image_handles.flag_win.clone())
+                    }
+                    GameMode::InterGame => {
+                        // todo
+                        (sound_handles.win.clone(), image_handles.flag_win.clone())
+                    }
+                }
             }
             chessai::pregen::Winner::Tie => {
-                // 和棋
-                trace!("和棋");
-                commands.spawn(super::audio::play_once(sound_handles.draw.clone()));
-                let gameover = commands
-                    .spawn(SpriteBundle {
-                        texture: image_handles.flag_draw.clone(),
-                        transform: Transform::from_xyz(0., 0., 1_f32),
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(320_f32, 80_f32)),
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .id();
-                entitys.gameover = Some(gameover);
+                info!("和棋");
+                (sound_handles.draw.clone(), image_handles.flag_draw.clone())
             }
-        }
+        };
+
+        commands.spawn(super::audio::play_once(sound));
+        let gameover = commands
+            .spawn(SpriteBundle {
+                texture: image,
+                transform: Transform::from_xyz(0., 0., 1_f32),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(320_f32, 80_f32)),
+                    ..default()
+                },
+                ..default()
+            })
+            .id();
+        entitys.gameover = Some(gameover);
+
         chess_state.set(ChessState::Gameover);
+        return;
     }
 }

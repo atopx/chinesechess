@@ -28,7 +28,7 @@ pub fn enter_state(
     fonts: Res<public::asset::Fonts>,
     mut entitys: ResMut<public::EntityResources>,
 ) {
-    trace!("进入PAUSED");
+    info!("进入PAUSED");
     let menus = commands
         .spawn(NodeBundle {
             style: Style {
@@ -81,17 +81,17 @@ pub fn in_state(
                 *color = PAUSED_MANU_PRESSED_BUTTON_COLOR.into();
                 match menu {
                     PausedMenu::ContinueGame => {
-                        trace!("todo ContinueGame");
+                        info!("todo ContinueGame");
                         state.set(GameState::RUNNING);
                     }
 
                     PausedMenu::SettingGame => {
-                        trace!("todo SettingGame");
+                        info!("todo SettingGame");
                         state.set(GameState::RUNNING);
                     }
 
                     PausedMenu::PendingMenu => {
-                        trace!("todo PendingMenu");
+                        info!("todo PendingMenu");
                         state.set(GameState::PENDING);
                     }
                 }
@@ -107,7 +107,7 @@ pub fn in_state(
 }
 
 pub fn exit_state(mut commands: Commands, entitys: Res<public::EntityResources>) {
-    trace!("退出PAUSED");
+    info!("退出PAUSED");
     commands.entity(entitys.paused_menus.unwrap()).despawn_recursive();
 }
 

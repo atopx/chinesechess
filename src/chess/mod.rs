@@ -35,24 +35,17 @@ impl Plugin for ChessPlugin {
                     gameover::event_listen,
                 ),
             )
-            // 对局中系统
             .add_systems(
-                Update,
-                (
-                    // 对局功能按钮
-                    button::chess_button_system
-                        .run_if(in_state(GameState::RUNNING))
-                        .run_if(in_state(ChessState::HomePlay)),
-                    // 玩家棋子系统
-                    chess::selection
-                        .run_if(in_state(GameState::RUNNING))
-                        .run_if(in_state(ChessState::HomePlay)),
-                    ai_chess::ai_move
-                        .run_if(in_state(GameState::RUNNING))
-                        .run_if(in_state(ChessState::AiPlay)),
-                    // info::refresh_player_action,
-                    // info::refresh_player_timer,
-                ),
+                Update, // 对局功能按钮
+                button::chess_button_system.run_if(in_state(ChessState::HomePlay)),
+            )
+            .add_systems(
+                Update, // 玩家棋子系统
+                chess::selection.run_if(in_state(ChessState::HomePlay)),
+            )
+            .add_systems(
+                Update, // AI棋子系统
+                ai_chess::ai_move.run_if(in_state(ChessState::AiPlay)),
             );
     }
 }

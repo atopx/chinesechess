@@ -86,7 +86,7 @@ fn main() {
                 .set(
                     // debug
                     LogPlugin {
-                        level: bevy::log::Level::TRACE,
+                        level: bevy::log::Level::INFO,
                         ..LogPlugin::default()
                     },
                 ),

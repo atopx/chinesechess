@@ -15,3 +15,6 @@ pub struct SwithPlayerEvent;
 
 #[derive(Event)]
 pub struct GameoverEvent(pub chessai::pregen::Winner);
+
+#[derive(Event)]
+pub struct CancelSelected;

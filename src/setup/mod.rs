@@ -15,20 +15,14 @@ impl Plugin for AssetLoading {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Startup,
-            (
-                loading,
-                font::loading,
-                sound::loading,
-                image::loading,
-                animate::loading,
-            ),
+            (loading, font::loading, sound::loading, image::loading, animate::loading),
         )
         .add_systems(Update, image::on_window_resize);
     }
 }
 
 pub fn loading(mut commands: Commands) {
-    trace!("loading...");
+    info!("loading...");
     // 创建默认镜头
     commands.spawn((Camera2dBundle::default(), ChineseBroadCamera));
 }

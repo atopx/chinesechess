@@ -1,6 +1,6 @@
 use crate::component::piece::{Kind, Piece, Side};
-use crate::player;
 use crate::public::ROUTE_OFFSET;
+use crate::{chess, player};
 use bevy::prelude::*;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -36,7 +36,7 @@ pub struct Data {
 
 impl Data {
     pub fn new() -> Self {
-        trace!("init system data");
+        info!("init system data");
         Self {
             engine: chessai::Engine::new(),
             selected: None,
@@ -122,8 +122,6 @@ impl Data {
         }
     }
 
-    // pub fn from_fen(&mut self, fen: &str) {}
-
     pub fn to_fen(&self) -> String {
         let mut fen = String::new();
         for pieces in self.broad_map.iter() {
@@ -144,7 +142,9 @@ impl Data {
                 line.push_str(&num.to_string());
             }
             fen.push_str(&line);
+            fen.push_str("/")
         }
+        fen.pop().unwrap();
         fen.push_str(&format!(
             " {} -- {} {}",
             self.current_side.unwrap().code(),

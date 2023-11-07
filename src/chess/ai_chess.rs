@@ -1,5 +1,3 @@
-use std::{thread::sleep, time::Duration};
-
 use crate::{
     component::{piece::Piece, SelectedPiece},
     event::{GameoverEvent, SwithPlayerEvent},
@@ -18,13 +16,15 @@ pub fn ai_move(
     sound_handles: Res<public::asset::Sounds>,
     image_handles: Res<public::asset::Images>,
     piece_handles: Res<public::asset::Pieces>,
-    mut q_select: Query<&mut Transform, (With<SelectedPiece>, Without<Piece>)>,
     mut q_piece: Query<(&mut Parent, &mut Piece, &mut Transform, &mut Visibility), With<Piece>>,
 ) {
-    trace!("start ai move");
+    if data.current_side.unwrap() != data.ai_side.unwrap() {
+        return;
+    }
+    info!("start ai move {}", data.engine.to_fen());
     let mv = data.engine.search_main(64, 1000);
     let ((src_row, src_col), (dst_row, dst_col)) = position::move2pos(mv);
-    trace!("move {mv} {}", position::move2iccs(mv));
+    info!("move {mv} {}", position::move2iccs(mv));
     let (parent, mut select_piece, mut select_transform, mut select_visiable) =
         q_piece.get_mut(entitys.pieces[src_row][src_col].unwrap()).unwrap();
     let (src_x, src_y) = get_piece_render_percent(src_row, src_col);
@@ -34,13 +34,16 @@ pub fn ai_move(
     // 选棋音效
     commands.spawn(super::audio::play_once(sound_handles.select.clone()));
 
+    let mut select_tf = Transform::from_xyz(src_x, src_y, 1_f32);
+
     // 抬起棋子
     commands.entity(parent.get()).with_children(|parent| {
         let selected_entity = parent
             .spawn((
                 SpriteBundle {
                     texture: piece_handles.get_handle(&select_piece, true),
-                    transform: Transform::from_xyz(src_x, src_y, 1_f32),
+                    // transform: Transform::from_xyz(src_x, src_y, 1_f32),
+                    transform: select_tf,
                     sprite: Sprite {
                         custom_size: Some(Vec2::new(75_f32, 75_f32)),
                         ..default()
@@ -67,7 +70,7 @@ pub fn ai_move(
     });
     let piece_opt = data.broad_map[dst_row][dst_col];
     let (dst_x, dst_y) = get_piece_render_percent(dst_row, dst_col);
-    trace!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), dst_row, dst_col);
+    info!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), dst_row, dst_col);
 
     if piece_opt.is_some() {
         // 吃子: 删除新位置的棋子
@@ -75,7 +78,7 @@ pub fn ai_move(
     }
 
     // 移动(直接瞬移) fixme: 这里是个bug, 在这一帧内获取不到这个实体
-    let mut select_tf = q_select.get_mut(entitys.selected.unwrap()).unwrap();
+    // let mut select_tf = q_select.get_mut(entitys.selected.unwrap()).unwrap();
     select_tf.translation.x = dst_x;
     select_tf.translation.y = dst_y;
 
@@ -107,7 +110,7 @@ pub fn ai_move(
     // 检测是否将军
     if data.engine.in_check() {
         // 将军
-        trace!("将军");
+        info!("将军");
         commands.spawn(super::audio::play_once(sound_handles.check.clone()));
     } else {
         // 是否吃子
@@ -119,7 +122,7 @@ pub fn ai_move(
             commands.spawn(super::audio::play_once(sound_handles.go.clone()));
         }
     }
-
     // 切换棋手
+    info!("send swith event");
     swith_player.send(SwithPlayerEvent);
 }

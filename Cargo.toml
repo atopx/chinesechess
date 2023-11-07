@@ -9,7 +9,7 @@ description = "a elegant chess game"
 [dependencies]
 bincode = "1.3"
 rand = "0.8"
-chessai = "0.1.7"
+chessai = "0.1.8"
 winit = { version = "0.28", default-features = false }
 image = { version = "0.24", default-features = false }
 
