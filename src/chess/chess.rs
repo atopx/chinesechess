@@ -70,7 +70,7 @@ pub fn selection(
                     *visibile = Visibility::Hidden;
 
                     // 抬起棋子
-                    commands.entity(**parent).with_children(|parent| {
+                    commands.entity(parent.get()).with_children(|parent| {
                         let selected_entity = parent
                             .spawn((
                                 SpriteBundle {

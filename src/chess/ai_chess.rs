@@ -35,7 +35,7 @@ pub fn ai_move(
     commands.spawn(super::audio::play_once(sound_handles.select.clone()));
 
     // 抬起棋子
-    commands.entity(**parent).with_children(|parent| {
+    commands.entity(parent.get()).with_children(|parent| {
         let selected_entity = parent
             .spawn((
                 SpriteBundle {
@@ -65,25 +65,20 @@ pub fn ai_move(
             .id();
         entitys.selected = Some(selected_entity);
     });
-    sleep(Duration::from_millis(500));
     let piece_opt = data.broad_map[dst_row][dst_col];
     let (dst_x, dst_y) = get_piece_render_percent(dst_row, dst_col);
-
     trace!("棋子{}移动到 row:{} col:{}", data.selected.unwrap().name(), dst_row, dst_col);
-    let mut select_tf = q_select.get_mut(entitys.selected.unwrap()).unwrap();
 
     if piece_opt.is_some() {
         // 吃子: 删除新位置的棋子
         commands.entity(entitys.pieces[dst_row][dst_col].unwrap()).despawn_recursive();
     }
 
-    // 移动(直接瞬移)
+    // 移动(直接瞬移) fixme: 这里是个bug, 在这一帧内获取不到这个实体
+    let mut select_tf = q_select.get_mut(entitys.selected.unwrap()).unwrap();
     select_tf.translation.x = dst_x;
     select_tf.translation.y = dst_y;
 
-    // 放下棋子
-    // let piece_entity = entitys.pieces[src_row][src_col].unwrap();
-    // let (entity, _, mut piece, mut transform) = q_piece.get_mut(piece_entity).unwrap();
     // 改变棋子位置
     select_transform.translation.x = dst_x;
     select_transform.translation.y = dst_y;
