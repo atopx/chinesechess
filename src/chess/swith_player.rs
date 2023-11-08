@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    chess::previou::PiecePreviouMove,
     event::SwithPlayerEvent,
     game::{Data, GameMode},
     player,
@@ -11,6 +12,7 @@ use crate::{
 use super::info::PlayerInfoAction;
 
 pub fn event_listen(
+    mut commands: Commands,
     mut events: EventReader<SwithPlayerEvent>,
     mut data: ResMut<Data>,
     mut chess_state: ResMut<NextState<ChessState>>,
@@ -33,7 +35,9 @@ pub fn event_listen(
         // 换边
         data.change_side();
         // 切换对局状态
-        info!("next state: {:?}", next);
+        info!("next state: {:?} {}", next, data.engine.mv_list.last().unwrap());
+        let (src, dst) = data.get_last_move().unwrap();
+        commands.spawn(PiecePreviouMove(src, dst));
         chess_state.set(next);
 
         // 刷新双方行动信息

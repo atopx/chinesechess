@@ -12,6 +12,7 @@ mod broad;
 mod chess;
 mod gameover;
 mod info;
+mod previou;
 mod swith_player;
 
 #[derive(Resource)]
@@ -33,6 +34,8 @@ impl Plugin for ChessPlugin {
                     broad::event_listen,
                     swith_player::event_listen,
                     gameover::event_listen,
+                    previou::piece_previou_animate,
+                    previou::piece_previou_move,
                 ),
             )
             .add_systems(
@@ -41,11 +44,15 @@ impl Plugin for ChessPlugin {
             )
             .add_systems(
                 Update, // 玩家棋子系统
-                chess::selection.run_if(in_state(ChessState::HomePlay)),
+                chess::selection
+                    .run_if(in_state(ChessState::HomePlay))
+                    .after(swith_player::event_listen),
             )
             .add_systems(
                 Update, // AI棋子系统
-                ai_chess::ai_move.run_if(in_state(ChessState::AiPlay)),
+                ai_chess::ai_move
+                    .run_if(in_state(ChessState::AiPlay))
+                    .after(swith_player::event_listen),
             );
     }
 }

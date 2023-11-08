@@ -1,5 +1,5 @@
 use bevy::asset::Handle;
-use bevy::prelude::{AudioSource, Font, Image, Resource};
+use bevy::prelude::{AudioSource, Font, Image, Resource, TextureAtlas};
 
 use crate::component::piece::{Kind, Piece, Side};
 
@@ -43,9 +43,9 @@ pub struct Images {
 
 #[derive(Resource)]
 pub struct Animates {
+    pub endposflag: Handle<TextureAtlas>,
     pub check: Vec<Handle<Image>>,
     pub checkmate: Vec<Handle<Image>>,
-    pub endposflag: Vec<Handle<Image>>,
 }
 
 #[derive(Resource)]

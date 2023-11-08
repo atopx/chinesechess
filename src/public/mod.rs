@@ -45,3 +45,15 @@ pub struct BroadEntitys {
     pub gameover: Option<Entity>,
     pub pieces: [[Option<Entity>; 9]; 10],
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct Pos {
+    pub row: usize,
+    pub col: usize,
+}
+
+impl Pos {
+    pub fn new(row: usize, col: usize) -> Self {
+        Self { row, col }
+    }
+}

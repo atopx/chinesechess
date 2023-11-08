@@ -68,14 +68,7 @@ pub const ANIMATE_CHECKMATE_3: &str = "animate/checkmate_3.png";
 pub const ANIMATE_CHECKMATE_4: &str = "animate/checkmate_4.png";
 
 // 棋子移动后的动画
-pub const ANIMATE_ENDPOSFLAG_0: &str = "animate/endposflag_0.png";
-pub const ANIMATE_ENDPOSFLAG_1: &str = "animate/endposflag_1.png";
-pub const ANIMATE_ENDPOSFLAG_2: &str = "animate/endposflag_2.png";
-pub const ANIMATE_ENDPOSFLAG_3: &str = "animate/endposflag_3.png";
-pub const ANIMATE_ENDPOSFLAG_4: &str = "animate/endposflag_4.png";
-pub const ANIMATE_ENDPOSFLAG_5: &str = "animate/endposflag_5.png";
-pub const ANIMATE_ENDPOSFLAG_6: &str = "animate/endposflag_6.png";
-pub const ANIMATE_ENDPOSFLAG_7: &str = "animate/endposflag_7.png";
+pub const ANIMATE_ENDPOSFLAG: &str = "animate/endposflag.png";
 
 // 棋子图片
 pub const PIECE_BLACK_ADVISOR: &str = "chess/black_advisor.png";

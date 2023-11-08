@@ -3,7 +3,7 @@ use chessai::position::{iccs2move, pos2iccs};
 
 use crate::{
     component::{piece::Piece, ChineseBroadCamera, SelectedPiece},
-    event::{CancelSelected, GameoverEvent, SwithPlayerEvent},
+    event::{GameoverEvent, SwithPlayerEvent},
     game::Data,
     public::{self, get_piece_render_percent, BroadEntitys},
 };

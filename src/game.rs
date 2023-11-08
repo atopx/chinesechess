@@ -1,7 +1,8 @@
 use crate::component::piece::{Kind, Piece, Side};
-use crate::public::ROUTE_OFFSET;
+use crate::public::{Pos, ROUTE_OFFSET};
 use crate::{chess, player};
 use bevy::prelude::*;
+use chessai::position;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum GameMode {
@@ -119,6 +120,17 @@ impl Data {
             current_side: None,
             mode: None,
             ai_side: None,
+        }
+    }
+
+    pub fn get_last_move(&self) -> Option<(Pos, Pos)> {
+        match self.engine.mv_list.last() {
+            Some(mv) => {
+                let ((src_row, src_col), (dst_row, dst_col)) = position::move2pos(*mv);
+                println!("{src_row}-{src_col} {dst_row}-{dst_col}");
+                Some((Pos::new(src_row, src_col), Pos::new(dst_row, dst_col)))
+            }
+            None => None,
         }
     }
 

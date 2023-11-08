@@ -1,4 +1,6 @@
 use bevy::prelude::{Component, Entity};
+
+use crate::public::Pos;
 pub mod piece;
 
 #[derive(Component, Debug, Clone)]
@@ -26,3 +28,13 @@ pub struct PlayerInfo;
 // 游戏对局按钮组件
 #[derive(Component)]
 pub struct ChessButtonGroup;
+
+// 选择棋子动画
+#[derive(Component)]
+pub struct PieceSelected(Pos);
+
+#[derive(Component)]
+pub struct PieceCanceled(Pos);
+
+#[derive(Component)]
+pub struct PieceMoved(Pos, Pos);
