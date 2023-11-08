@@ -110,6 +110,17 @@ fn set_window_icon(
         primary.set_window_icon(Some(icon));
     };
 }
+/**
+todo 
+拆分系统
+1. 选择棋子(动画渲染)
+2. 移动棋子(是否将军，是否死亡，是否吃子，动画)
+3. 最近一次移动的动画渲染
+4. 切换玩家
+5. QueryState(QuerySet<>)
+6. 标签，label, before, after
+
+*/
 
 #[cfg(test)]
 mod tests {
