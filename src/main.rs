@@ -6,7 +6,6 @@ use status::GameState;
 use std::io::Cursor;
 use winit::window::Icon;
 
-// use crate::chessbroad::Status;
 use public::WIN_SIZE;
 mod chess;
 mod component;
@@ -19,7 +18,7 @@ mod status;
 
 fn main() {
     App::new()
-        .insert_resource(Msaa::Off)
+        .insert_resource(Msaa::Sample4)
         // 初始状态
         .add_state::<status::GameState>()
         // 插件系统

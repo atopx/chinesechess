@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{component::piece::Side, public::Pos};
+use crate::component::piece::Side;
 
 #[derive(Component, Clone, Debug)]
 pub struct Record {

@@ -177,6 +177,7 @@ impl Data {
     pub fn change_side(&mut self) {
         match self.current_side.unwrap() {
             Side::White => {
+                self.round+=1;
                 self.current_side = Some(Side::Black);
             }
             Side::Black => {
